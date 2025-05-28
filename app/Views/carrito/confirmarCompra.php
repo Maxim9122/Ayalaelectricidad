@@ -215,16 +215,16 @@ endif;
 
                  <?php if ($perfil == 3 && $estado == 'Cobrando'): ?>
                           
-                <tr>
+                <tr style="display: none;">
                     <td style="color: rgb(192, 250, 214);"><strong>Monto en Tarjeta de Crédito</strong></td>
                     <td>
                         <input class="selector" type="text" id="pagoTarjetaCredito" name="pagoTarjetaCredito" placeholder="Monto en $" maxlength="15" oninput="this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'); formatearMiles(); calcularMontoEfectivo();">
                     </td>
                 </tr>
-                <tr>
+                <tr style="display: none;">
                     <td style="color: rgb(192, 250, 214);"><strong>Monto a Cobrar con Tarjeta de Crédito (+10%)</strong></td>
                     <td>
-                    <span id="montoTarjetaCreditoAdvertencia" style="color: yellow; font-weight: bold;">$0.00</span>
+                        <span id="montoTarjetaCreditoAdvertencia" style="color: yellow; font-weight: bold;">$0.00</span>
                     </td>
                 </tr>
 
@@ -236,7 +236,7 @@ endif;
                 </tr>
                 
                 <tr>
-                    <td style="color: rgb(192, 250, 214);"><strong>Monto en Efectivo (-5%):</strong></td>
+                    <td style="color: rgb(192, 250, 214);"><strong>Monto en Efectivo:</strong></td>
                     <td>
                         <input class="selector" type="text" id="pagoEfectivo" name="pagoEfectivo" placeholder="Monto en $" maxlength="15" readonly>
                     </td>
@@ -587,7 +587,7 @@ $totalVenta = ($gran_total > 0) ? $gran_total : $total_venta;
         const faltaPagar = totalVenta - pagoTransferencia - pagoTarjetaCredito;
 
         // Aplicar el descuento del 10% al monto en efectivo
-        const montoEfectivoConDescuento = faltaPagar / cd_efectivo; // Aplica el descuento
+        const montoEfectivoConDescuento = faltaPagar; // Aplica el descuento (/ cd_efectivo)
 
         // Mostrar el monto en efectivo con descuento
         document.getElementById('pagoEfectivo').value = montoEfectivoConDescuento.toLocaleString('de-DE', { 
@@ -597,7 +597,7 @@ $totalVenta = ($gran_total > 0) ? $gran_total : $total_venta;
 
         // Si no se ingresan montos en transferencia o tarjeta de crédito, el monto en efectivo es el total con descuento
         if (pagoTransferencia === 0 && pagoTarjetaCredito === 0) {
-            const totalConDescuento = totalVenta / cd_efectivo;
+            const totalConDescuento = totalVenta; // (/ cd_efectivo)
             document.getElementById('pagoEfectivo').value = totalConDescuento.toLocaleString('de-DE', { 
                 minimumFractionDigits: 2, 
                 maximumFractionDigits: 2 
