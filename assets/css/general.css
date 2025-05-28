@@ -1,0 +1,390 @@
+/*Estilos de Fuentes (Letras)*/
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('../fonts/pxiAyp8kv8JHgFVrJJLmE0tCMPI.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, 
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+ 
+/* Cambiar el color de texto a blanco para todas las etiquetas de DataTables */
+#users-list_filter label,         /* Texto del filtro */
+#users-list_paginate,             /* Texto de la paginación */
+#users-list_length label,         /* Texto del selector de longitud */
+#users-list_info,                 /* Información de la página actual */
+#users-list_paginate a,           /* Enlaces de paginación */
+.dataTables_wrapper .dataTables_paginate .paginate_button, /* Botones de paginación */
+.dataTables_wrapper .dataTables_info { /* Información total de registros */
+    color: #ffffff;
+    font-size: 1.2rem; /* Tamaño de texto */
+    font-weight: bold; /* Grosor del texto */
+}
+
+/* Agrega un borde entre las celdas */
+#users-list td, /* Aplica a las celdas del cuerpo */
+#users-list th { /* Aplica a los encabezados */
+   border-bottom: 1px solid #ccc;
+   font-size: 1.1rem; /* Tamaño de texto más grande */
+    font-weight: bold; /* Texto más grueso */ /* Cambia #ccc por el color que desees */
+}
+
+#users-list td, #users-list th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Separador entre productos seleccionados */
+.separador{
+    border-bottom: 1px solid #ccc;
+}
+
+h2 {
+    text-align: center;
+    color: #ffffff;
+}
+
+label {
+    text-align: center;
+    color: #000000;
+}
+/* Estilos de los campos de entrada */
+.inputBox {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.inputBox input[type="text"],
+.inputBox input[type="file"],
+.inputBox select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f9f9f9;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.inputBox input[type="text"]:focus,
+.inputBox input[type="file"]:focus,
+.inputBox select:focus {
+    border-color: #34BB94;
+}
+
+.alert {
+    color: #721c24;
+    background-color: #f8d7da;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.nuevoProd{
+    display: grid 1fr;
+    margin: auto;
+    width: 100%;
+    max-width: 450px;
+    background: rgb(255, 255, 255, 0.2);
+    padding: 20px 20px 20px;
+    text-align: center;
+    border-radius:25px ;
+}
+
+.colorTexto2{
+    color: #ffff;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 7pX;
+    border-radius: 30px;
+}
+
+.imagenForm{
+    width: 120px;
+    height: 120px;
+}
+
+.imagenCarrito{
+    width: 10px;
+    height: 10px;
+}
+
+.success {
+    background-image: linear-gradient(to right, #489c64, #adb5bd);
+    padding: 12px;
+    border-radius: 20px;
+    border: 0;
+    cursor: pointer;
+    font-size: 15px;
+    box-shadow: 2px 2px 4px #000000;
+    
+} 
+.success:hover {
+    background-image: linear-gradient(to right, #4b8a5e, #adb5bd);
+}
+
+/*Mensaje Temporal Rojo de los errores*/
+.danger {
+    background-image: linear-gradient(to right, #a31557, #adb5bd);
+    padding: 12px;
+    border-radius: 20px;
+    border: 0;
+    cursor: pointer;
+    font-size: 15px;
+    box-shadow: 2px 2px 4px #000000;
+    color: #faf5f5;
+    
+} 
+.danger:hover {
+    background-image: linear-gradient(to right, #921d2d, #adb5bd);
+}
+.danger2 {
+    background-image: linear-gradient(to right, #d33363, #adb5bd);
+    padding: 12px;
+    border-radius: 20px;
+    border: 0;
+    cursor: pointer;
+    font-size: 12px;
+    box-shadow: 2px 2px 4px #000000;
+    
+} 
+.danger2:hover {
+    background-image: linear-gradient(to right, #d4495c, #adb5bd);
+}
+
+.secondary {
+    background-image: linear-gradient(to right, #6c757d, #adb5bd);
+    padding: 12px;
+    border-radius: 20px;
+    border: 0;
+    cursor: pointer;
+    font-size: 15px;
+    box-shadow: 2px 2px 4px #000000;
+    
+} 
+.secondary:hover {
+    background-image: linear-gradient(to right, #848b92, #adb5bd);
+}
+
+.textoColor{
+    color: white;
+  text-shadow: 2px 2px 4px #000000;
+}
+
+.textoColor2{
+    color: #000000;
+  text-shadow: 2px 2px 4px #000000;
+  font-weight: 500px;
+}
+
+.texto-negrita{
+    font-weight: 700; /* Más grueso */
+    display: grid 1fr;
+    margin: auto;
+}
+.comprados{
+    
+    display: grid 1fr;
+    margin: auto;
+    /* height: 100%; */
+    /* max-height: 600px */
+    width: 100%;
+    max-width: 600px;
+    background: rgb(255, 255, 255, 0.2);
+    padding: 30px 30px 30px;
+    text-align: center;
+    border-radius:25px ;
+    backdrop-filter: blur(5px);
+}
+
+.success {
+    background-color: white;
+    border: 2px solid #04AA6D;
+    color: black;
+    border-radius: 70px;
+    padding: 5px;
+} 
+
+.success:hover {
+    background-color: #46a049;
+    color: white;
+}
+
+.recaudado {
+    width: 300px;
+    background-color: rgb(72, 129, 75);
+    border: 2px solid #a4afab;
+    color: bold;
+    border-radius: 70px;
+    padding: 3px;
+    text-align: center;
+} 
+
+.recaudado:hover {
+    background-color:rgb(72, 129, 75);
+    color: white;
+}
+
+body {
+    background: linear-gradient(rgba(33,33,33,0.722), rgba(33,33,33,0.722)),url(../img/MRB2.png);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    margin-right: 0.2%;
+    margin-left: 0.2%;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    transition: .3s ease;
+}
+
+a {
+    text-decoration: none;
+}
+
+li{
+    list-style: none;
+}
+
+.section{
+    padding: 4rem 0 2rem;
+}
+
+.container{
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.icon{
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.flex{
+    display: flex;
+    align-items: center;
+}
+
+:root {
+    --primary-white: #ffffff;
+    --primary-black: #000000;
+}
+
+.btn {
+    padding: .4rem 1rem;
+    background-color: var(--primary-black); /* Fondo negro */
+    border: 2px solid var(--primary-white); /* Borde blanco */
+    outline: none;
+    border-radius: 2rem; /* Bordes redondeados */
+    cursor: pointer;
+    color: var(--primary-white); /* Texto blanco */
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.3); /* Sombra blanca suave */
+    transition: all 0.7s ease; /* Transición suave para los efectos */
+}
+
+.btn:hover {
+    background-color: var(--primary-white); /* Fondo blanco en hover */
+    color: var(--primary-black); /* Texto negro en hover */
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.6); /* Aumento de la sombra blanca */
+    transform: scale(1.05); /* Efecto de aumento en hover */
+}
+
+.btn:focus {
+    outline: 2px solid var(--primary-white); /* Borde blanco cuando tiene foco */
+}
+
+.btn:active {
+    transform: scale(0.98); /* Efecto de presionado */
+}
+
+
+.btn  a {
+    color: rgb(0, 0, 0);
+    font-weight: 300;
+}
+
+.btn:hover a {
+    color: var(--LogoText);
+}
+
+.btn2 {
+    padding: 1.1rem 1rem;
+    background-color: var(--primary-black); /* Fondo negro */
+    border: 2px solid var(--primary-white); /* Borde blanco */
+    outline: none;
+    border-radius: 2rem; /* Bordes redondeados */
+    cursor: pointer;
+    color: var(--primary-white); /* Texto blanco */
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.3); /* Sombra blanca suave */
+    transition: all 0.7s ease; /* Transición suave para los efectos */
+}
+
+.btn2:hover {
+    background-color: var(--primary-white); /* Fondo blanco en hover */
+    color: var(--primary-black); /* Texto negro en hover */
+    box-shadow: 0 4px 15px rgba(53, 52, 52, 0.6); /* Aumento de la sombra blanca */
+    transform: scale(1.05); /* Efecto de aumento en hover */
+    font-size: 0.8rem;
+}
+
+.secIntro{
+    max-width: 70%;
+    text-align: center;
+    margin: 0 auto 2rem;
+
+}
+.secIntro .secTitle{
+    color: black;
+    line-height: 1.5rem;
+    padding-bottom: .5rem;
+}
+
+.secIntro p{
+    font-size: 13px;
+    color: var(--TextColor);
+    font-weight: 500;
+}
+
+img, video{
+    width: 100%;
+    height: auto;
+}
+
+input{
+    font-size: 100%;
+}
+
+:root {
+    --PrimaryColor: #a8a3a5; /* Borgoña oscuro */
+    --HoverColor: hsl(330, 28%, 17%); /* Un tono más oscuro para el hover */
+    --WhiteColor: #ffffff; /* Blanco */
+    --BlackColor: #000000; /* Negro */
+    --TextColor: hsl(0, 0%, 45%); /* Un tono más oscuro para el texto */
+    --WhiteColorDim: hsl(0, 0%, 93%); /* Blanco ligeramente atenuado */
+    --GreyBg: hsl(0, 0%, 94%); /* Un gris claro para el fondo */
+    --GreyText: hsl(0, 0%, 75%); /* Un gris más oscuro para el texto secundario */
+    --InputColor: hsl(0, 0%, 97%); /* Un blanco ligeramente azulado para campos de entrada */
+}
+
+/* media queries */
+@media screen and (min-width: 556px) {
+    .mainContent {
+        grid-template-columns: repeat(2,1fr);
+        display: grid;
+        margin: .5rem;
+    }
+}

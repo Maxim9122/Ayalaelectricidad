@@ -1,0 +1,71 @@
+  
+  .contenedor-titulo {
+    display: flex;
+    flex-direction: column; /* Alinea el contenido verticalmente */
+    align-items: center;    /* Centra horizontalmente el contenido */
+    margin-top: 20px;
+  }
+  
+  .estiloTurno {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 5px;
+    flex-wrap: wrap; /* Permite que los campos se ajusten en pantallas más pequeñas */
+    margin-top: 10px;
+    background: rgba(20, 20, 20, 0.5);
+    backdrop-filter: blur(7px);
+    border-radius: 12px;
+    border: 2px solid #fcfffc;
+    box-shadow: 0 3px 5px rgb(209, 205, 205);
+  }
+  
+  .estiloTurno select,
+  .estiloTurno input {
+    padding: 3px;
+    border: 1px solid #0c0c0c;
+    border-radius: 5px;
+    background-color: #3f3f3f;
+    font-size: 1rem;
+    color: #ffff;
+  }
+  
+  .label-inline {
+    font-size: 0.9rem;
+    margin-right: 5px;
+    color: #ffff;
+  }
+  
+  .btn-submit {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .btn-submit:hover {
+    background-color: #0056b3;
+  }
+
+  .textColor{
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    gap: 15px;
+    padding: 5px;
+    flex-wrap: wrap; /* Permite que los campos se ajusten en pantallas más pequeñas */
+    margin-top: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(7px);
+    border-radius: 12px;
+    border: 2px solid #fcfffc;
+    box-shadow: 0 3px 5px rgb(201, 201, 201);
+    color: #ffff;
+    
+  }
+  

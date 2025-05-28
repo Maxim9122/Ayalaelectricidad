@@ -1,0 +1,61 @@
+:root {
+    --PrimaryColor: #560319; /* Borgoña oscuro */
+    --HoverColor: hsl(330, 28%, 17%); /* Un tono más oscuro para el hover */
+    --WhiteColor: #ffffff; /* Blanco */
+    --BlackColor: #000000; /* Negro */
+    --TextColor: hsl(0, 0%, 45%); /* Un tono más oscuro para el texto */
+    --WhiteColorDim: hsl(0, 0%, 93%); /* Blanco ligeramente atenuado */
+    --GreyBg: hsl(0, 0%, 94%); /* Un gris claro para el fondo */
+    --GreyText: hsl(0, 0%, 75%); /* Un gris más oscuro para el texto secundario */
+    --InputColor: hsl(0, 0%, 97%); /* Un blanco ligeramente azulado para campos de entrada */
+}
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(100deg,#00000000, #00000020 );
+    /* background-color: var(--GreyBg); */
+    color: #333; /* Ajusta el color del texto */
+}
+
+.containertyc h1 {
+    background-color: #560319; /* Ajusta el color de fondo del encabezado */
+    color: #ffffff; /* Ajusta el color del texto del encabezado */
+    text-align: center;
+    padding: 20px 0;
+    margin-bottom: 20px; /* Añade margen inferior para separar el encabezado */
+}
+.containertyc{
+    background: var(--GreyBg);
+}
+
+.container {
+    
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--GreyBg); /* Ajusta el color de fondo del contenedor */
+    border-radius: 6px; /* Añade bordes redondeados */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Añade sombra */
+}
+
+h1, h2, h3 {
+    color: #560319; /* Ajusta el color de los títulos */
+}
+
+h2 {
+    margin-top: 20px; /* Añade espacio superior al título */
+}
+
+p {
+    margin-bottom: 15px; /* Añade espacio inferior a los párrafos */
+}
+
+.footer-tyc {
+    text-align: center;
+    margin-top: 20px; /* Añade margen superior al pie de página */
+    padding: 10px 0; /* Añade espacio interno al pie de página */
+    background-color: #560319; /* Ajusta el color de fondo del pie de página */
+    color: #ffffff; /* Ajusta el color del texto del pie de página */
+    border-radius: 6px; /* Añade bordes redondeados */
+}

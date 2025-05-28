@@ -1,0 +1,203 @@
+:root {
+  --PrimaryColor: #560319; /* Borgoña oscuro */
+  --HoverColor: hsl(330, 28%, 17%); /* Un tono más oscuro para el hover */
+  --WhiteColor: #ffffff; /* Blanco */
+  --BlackColor: #000000; /* Negro */
+  --TextColor: hsl(0, 0%, 45%); /* Un tono más oscuro para el texto */
+  --WhiteColorDim: hsl(0, 0%, 93%); /* Blanco ligeramente atenuado */
+  --GreyBg: hsl(0, 0%, 94%); /* Un gris claro para el fondo */
+  --GreyText: hsl(0, 0%, 75%); /* Un gris más oscuro para el texto secundario */
+  --InputColor: hsl(0, 0%, 97%); /* Un blanco ligeramente azulado para campos de entrada */
+}
+
+.contact-bg{
+  /* position:relative; */
+  background: linear-gradient(100deg,#00000000, #00000020 );
+  height: 120vh;
+  background-size:auto;
+  background-position: center;
+}
+
+.container-form{
+  z-index: 1;
+  top: 10px;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 85%;
+  background: #fff;
+  border-radius: 6px;
+  padding: 30px 60px 30px 40px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.container-form .content{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.container-form .content .left-side{
+  width: 25%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 15px;
+  position: relative;
+}
+
+.content .left-side::before{
+  content: '';
+  position: absolute;
+  height: 70%;
+  width: 2px;
+  right: -15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--BlackColor);
+}
+
+.content .left-side .details{
+  margin: 14px;
+  text-align: center;
+}
+
+.content .left-side .details i{
+  font-size: 30px;
+  color: var(--PrimaryColor);
+  margin-bottom: 10px;
+}
+
+.content .left-side .details .topic{
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.content .left-side .details .text-one,
+.content .left-side .details .text-two{
+  font-size: 14px;
+  color: var(--BlackColor);
+}
+
+.container-form .content .right-side{
+  width: 75%;
+  margin-left: 75px;
+}
+
+.content .right-side .topic-text{
+  font-size: 23px;
+  font-weight: 600;
+  color: var(--PrimaryColor);
+}
+
+.right-side .input-box{
+  height: 50px;
+  width: 100%;
+  margin: 12px 0;
+}
+
+.right-side .input-box input,
+.right-side .input-box textarea{
+  height: 100%;
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  background: var(--HoverColor);
+  border-radius: 6px;
+  padding: 0 15px;
+  resize: none;
+  color: #fff;
+}
+
+.right-side .message-box{
+  min-height: 110px;
+}
+
+.right-side .input-box textarea{
+  padding-top: 6px;
+}
+
+.right-side .button{
+  display: inline-block;
+  margin-top: 12px;
+}
+
+.right-side .button input[type="button"]{
+  color: #fff;
+  font-size: 18px;
+  outline: none;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: var(--PrimaryColor);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.button input[type="button"]:hover{
+  background: var(--HoverColor);
+}
+
+/* MediaQuerys */
+@media (max-width: 950px) {
+  .contact-bg{
+    height: 275vh;
+  }
+  .container{
+    width: 90%;
+    padding: 30px 40px 40px 35px ;
+  }
+  .container .content .right-side{
+   width: 75%;
+   margin-left: 55px;
+}
+}
+
+@media (max-width: 820px) {
+  .contact-bg{
+    height: 275vh;
+  }
+  .container{
+    margin: 40px 0;
+    height: 100%;
+  }
+
+  .container .content{
+    flex-direction: column-reverse;
+  }
+
+ .container .content .left-side{
+   width: 100%;
+   flex-direction: row;
+   margin-top: 60px;
+   justify-content: center;
+   flex-wrap: wrap;
+ }
+
+ .container .content .left-side::before{
+   display: none;
+ }
+
+ .container .content .right-side{
+   width: 100%;
+   margin-left: 0;
+ }
+}
+@media (max-width: 420px) {
+  .container .content {
+    display: block; /* Cambiado a bloque para forzar una sola columna */
+  }
+
+  .container .content .left-side,
+  .container .content .right-side {
+    width: 100%; /* Ajustar el ancho de ambos lados para ocupar todo el espacio */
+    margin: 0; /* Eliminar cualquier margen */
+  }
+}
+
+
+

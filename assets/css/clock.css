@@ -1,0 +1,112 @@
+/* Aplicar la fuente de Google Fonts */
+@font-face {
+    font-family: 'Bangers';
+    src: url('../fonts/FeVQS0BTqb0h60ACH55Q2A.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.clock {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    font-size: 3.7rem;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 10px;
+    border: 2px solid #fcfffc;
+    color: #eef3ef;
+    background-color: #000;
+    position: relative;
+    animation: glow 1.5s ease-in-out infinite alternate;
+    font-family: 'Bangers', sans-serif;
+}
+
+.clock::before {
+    content: "";
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    z-index: -1;
+    /*background: linear-gradient(45deg, 
+    white 0%, white 12.5%, 
+    red 12.5%, red 25%, 
+    white 25%, white 37.5%, 
+    blue 37.5%, blue 50%, 
+    white 50%, white 62.5%, 
+    red 62.5%, red 75%, 
+    white 75%, white 87.5%, 
+    blue 87.5%, blue 100%);
+    background-size: 400%;
+    border-radius: 12px;
+    filter: blur(8px);
+    animation: glowing 20s linear infinite;*/
+}
+
+@keyframes glowing {
+    0% {
+        background-position: 0 0;
+    }
+    50% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
+}
+
+.colon {
+    display: inline-block;
+    width: 0.3em; /* Reserva espacio constante */
+    text-align: center;
+}
+
+.day {
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+    color: #fff;
+}
+
+.day {
+    margin-right: 10px;
+    font-size: 1.5rem;
+    color: #fff;
+}
+
+.day {
+    font-size: 1.5rem;
+    font-weight: normal;
+    color: #fcfffc;
+    text-transform: uppercase;
+    margin-right: 10px;
+    margin-left: 3px;
+    font-family: 'Bangers', sans-serif; /* Usamos la misma fuente para el día */
+}
+
+
+/* Ocultar celdas en pantallas pequeñas (menores a 600px) */
+@media screen and (max-width: 600px) {
+    .ocultar-en-movil {
+        display: none;
+    }
+}
+
+input[type="email"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border: 1px solid #696969; /* Ajusta según el estilo de los otros inputs */
+    border-radius: 5px;
+    padding: 8px;
+    font-size: 16px;
+    width: 100%;
+    color: #e0e0e0;
+    background-color: #444;
+}
+
+
+
+

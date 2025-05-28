@@ -1,0 +1,255 @@
+
+:root {
+    --PrimaryColor: #560319;
+    --HoverColor: hsl(330, 19%, 89%);
+    --WhiteColor: #ffffff;
+    --BlackColor: #000000;
+    --TextColor: hsl(0, 0%, 45%);
+    --WhiteColorDim: hsl(0, 0%, 93%);
+    --GreyBg: hsl(0, 0%, 94%);
+    --GreyText: hsl(0, 0%, 75%);
+    --InputColor: hsl(0, 0%, 97%);
+}
+
+.navBarSection .headernav {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(39, 38, 38, 0.9); /* Fondo transparente */
+    width: 100%;
+    padding: 0.6rem 1rem; /* Reducido el padding para más espacio */
+    z-index: 1000;
+    transition: background-color 0.4s ease;
+    box-shadow: 0 5px 8px 5px rgba(178, 178, 178, 0.334);
+}
+
+.navBarSection .headernav .clock {
+    margin-right: 0.3rem; /* Ajuste el margen del reloj */
+}
+
+.navList .navItem a {
+    color: var(--BlackColor);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.navList .navItem button a {
+    color: var(--WhiteColor);
+    text-decoration: none;
+}
+
+.navList .navItem button {
+    background-color: var(--PrimaryColor); /* Fondo sólido para los botones */
+    border: none;
+    padding: 0.5rem 1rem;
+    color: var(--WhiteColor);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.navList .navItem button:hover {
+    background-color: var(--HoverColor); /* Color de hover */
+}
+
+.toggleNavBar {
+    display: none;
+    font-size: 40px; /* Aumentado el tamaño del botón */
+    cursor: pointer;
+    color: var(--WhiteColor); /* Color blanco para el botón */
+    background: none;
+    border: none;
+}
+
+@media screen and (max-width: 768px) {
+    .navBarSection .headernav {
+        position: absolute;
+        top: 7px; /* Margen de 7px desde la parte superior */
+        left: 50%;
+        transform: translateX(-50%); /* Centrar horizontalmente */
+        width: 100%;
+        max-width: 405px;
+        background: solid rgba(255, 255, 255, 0.2); /* Fondo transparente */        
+        text-align: center;
+        border-radius: 20px;
+        backdrop-filter: blur(5px);
+        z-index: 1000; /* Asegurar que esté en la parte superior */
+        
+    }
+
+    .navBarSection .headernav .clock {
+        margin-right: 0.5rem; /* Ajuste del margen del reloj */
+    }
+
+    .navBar {
+        position: absolute;
+        top: calc(7px + 100% + 1px); /* Se despliega justo debajo de .headernav */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 405px;
+        background: rgba(19, 19, 19, 0.9);
+        border-radius: 12px; /* Fondo con transparencia */
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        opacity: 0; /* Comienza invisible */
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .navBar.active {
+        display: flex;
+        opacity: 1; /* Muestra la barra */
+    }
+
+    .navList {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .toggleNavBar {
+        display: block;
+    }
+
+    /* Desplazar contenido hacia abajo cuando la barra esté activa */
+    body.navbar-active {
+        padding-top: 288px; /* Mueve el contenido hacia abajo */
+        transition: padding-top 0.5s ease; /* Transición suave */
+    }
+}
+
+/*Para cuando ponen el telefono de lado (Horizontal)*/
+@media screen and (max-width: 1070px) {
+    .navBarSection .headernav {
+        position: absolute;
+        top: 7px; /* Margen de 7px desde la parte superior */
+        left: 50%;
+        transform: translateX(-50%); /* Centrar horizontalmente */
+        width: 100%;
+        max-width: 505px;
+        background: solid rgba(255, 255, 255, 0.2); /* Fondo transparente */        
+        text-align: center;
+        border-radius: 20px;
+        backdrop-filter: blur(5px);
+        z-index: 1000; /* Asegurar que esté en la parte superior */
+    }
+    .navBarSection {
+        margin-bottom: 35px;
+     }
+
+    .navBarSection .headernav .clock {
+        margin-right: 0.5rem; /* Ajuste del margen del reloj */
+    }
+
+    .navBar {
+        position: absolute;
+        top: calc(7px + 100% + 1px); /* Se despliega justo debajo de .headernav */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 405px;
+        background: rgba(19, 19, 19, 0.9);
+        border-radius: 12px; /* Fondo con transparencia */
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        opacity: 0; /* Comienza invisible */
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .navBar.active {
+        display: flex;
+        opacity: 1; /* Muestra la barra */
+    }
+
+    .navList {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .toggleNavBar {
+        display: block;
+    }
+
+    /* Desplazar contenido hacia abajo cuando la barra esté activa */
+    body.navbar-active {
+        padding-top: 288px; /* Mueve el contenido hacia abajo */
+        transition: padding-top 0.5s ease; /* Transición suave */
+    }
+}
+
+
+
+/* Media queries adicionales */
+@media screen and (min-width: 556px) {
+    .mainContent {
+        grid-template-columns: repeat(2, 1fr);
+        display: grid;
+        margin: 0.5rem;
+    }
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-toggle {
+    background-color: white;
+    border: 1px solid #007bff;
+    color: #007bff;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 150px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    list-style: none;
+    padding: 5px 0;
+    z-index: 1000;
+}
+
+.dropdown-menu li {
+    padding: 5px 12px;
+}
+
+.dropdown-menu li a, .dropdown-menu li button {
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    font-size: 14px;
+    color: black;
+    cursor: pointer;
+}
+
+.dropdown-menu li a:hover, .dropdown-menu li button:hover {
+    background-color: #9c9a9a;
+    border-radius: 20px;
+    padding: 5px 10px;
+}
+
+.text-danger {
+    color: red;
+}
+
+.text-success {
+    color: green;
+}
+
+.dropdown:hover .dropdown-menu {
+    margin-top: 5px;
+    display: block;
+}

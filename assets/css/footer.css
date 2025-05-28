@@ -1,0 +1,93 @@
+/* Estilo para la footer */
+.footer {
+    background-color: rgba(36, 35, 35, 0.7); /* Gris transparente */
+    box-shadow: 0 2px 8px 2px rgba(178, 178, 178, 0.334); 
+    color: white; /* Texto blanco */
+    padding: 10px 0; /* Reducimos el espacio para que el footer no sea tan alto */
+    text-align: center; /* Centra el contenido */
+}
+
+/* Centrado del contenido */
+.secContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* Estilo para los logos */
+.footerLogo {
+    font-size: 15px; /* Ajustamos el tamaño para que no sea tan grande */
+    font-weight: bold;
+}
+
+/* Estilo para los enlaces */
+.footerLinks {
+    margin-top: 10px; /* Reducimos el espacio entre los enlaces */
+}
+
+/* Estilo para los iconos de redes sociales */
+.socials {
+    display: flex;
+    justify-content: center; /* Centra los iconos */
+    gap: 10px; /* Reducimos el espacio entre los iconos */
+    margin: 10px 0; /* Reducimos el margen superior e inferior */
+}
+
+.icon {
+    font-size: 25px; /* Reducimos el tamaño de los iconos */
+    color: white; /* Color por defecto de los iconos */
+    transition: all 0.4s ease; /* Transición suave para todos los cambios */
+    border-radius: 50%; /* Redondea los bordes de los iconos */
+    padding: 10px; /* Añadimos espacio alrededor del icono */
+    border: 2px solid transparent; /* Borde inicial transparente */
+}
+
+/* Efecto de fuego al pasar el ratón sobre los iconos */
+.icon:hover {
+    color: white; /* Mantén el color blanco del icono */
+    background: linear-gradient(45deg, #ff4500, #ffd700, #ff6347); /* Gradiente que simula el fuego */
+    background-clip: text; /* Estándar, pero con soporte limitado */
+    -webkit-background-clip: text; /* Prefijo WebKit para compatibilidad */
+    border: 12px solid transparent;
+    box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.6), 0 0 20px 5px rgba(160, 0, 0, 0.6); /* Sombra de fuego alrededor del icono */
+}
+
+/* Efecto de fuego azul para el icono de Facebook */
+.icon.fa-facebook:hover {
+    background: linear-gradient(45deg, #0066ff, #3399ff, #66ccff); /* Gradiente azul para el fuego */
+    box-shadow: 0 0 15px 5px rgba(0, 102, 255, 0.6), 0 0 20px 5px rgba(51, 153, 255, 0.6); /* Sombra de fuego azul */
+}
+
+/* Efecto de fuego rojo y amarillo para el icono de Instagram */
+.icon.fa-instagram:hover {
+    background: linear-gradient(45deg, #ff0000, #ff0000, #ff6347); /* Gradiente que simula el fuego */
+    box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.6), 0 0 20px 5px rgba(168, 0, 0, 0.6); /* Sombra de fuego alrededor del icono */
+}
+
+.warning {
+    color: #ffffff; /* Texto blanco para contraste */
+    background-color: #ff4d4d; /* Rojo claro para indicar advertencia */
+    border: 2px solid #cc0000; /* Borde rojo oscuro */
+    border-radius: 5px; /* Bordes redondeados */
+    padding: 10px 15px; /* Espaciado interno */
+    text-align: center; /* Centrado del texto */
+    font-family: Arial, sans-serif; /* Fuente clara y legible */
+    font-size: 1.5rem; /* Tamaño del texto */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra ligera para profundidad */
+}
+
+.desarrollador {
+    color: #ecf0f1; /* Texto en un tono claro */
+    text-align: center; /* Centrado del texto */
+    padding: 10px 15px; /* Espaciado interno */
+    font-size: 1.2rem; /* Tamaño de fuente más pequeño */
+    font-family: 'Arial', sans-serif; /* Fuente legible */
+    border-top: 3px solid #71777c; /* Borde superior para separación */
+    position: relative; /* Mantiene la posición relativa */
+    bottom: 0; /* Fijado al final */
+    width: 100%; /* Ocupa todo el ancho */
+    font-weight: 900px;
+}
+
+

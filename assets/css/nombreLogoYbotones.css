@@ -1,0 +1,124 @@
+@font-face {
+  font-family: 'Vedette Blanche';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/Vedeb___.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Vedette Noire';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/Veden___.woff') format('woff');
+}
+
+
+.nombreLogo{
+    color: #b8b8b8;
+    text-shadow: 2px 2px 2px #000000;
+    font-family: 'Vedette Blanche', sans-serif;
+    font-family: 'Vedette Noire', sans-serif;
+    font-size: 2.5rem;
+    margin-right: 1%;
+}
+
+.button {
+    border: 2px solid #fcfffc;
+    background: black;
+    cursor: pointer;
+    padding: 10px 20px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden; /* Asegura que el brillo no desborde el botón */
+    z-index: 1; /* Asegura que el botón esté encima del brillo */
+}
+
+.button::before {
+    content: "";
+    position: absolute; /* Cambiado a 'absolute' para posicionarlo en relación con el botón */
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    z-index: -1;
+   /* background: linear-gradient(45deg, 
+    white 0%, white 14.2%, 
+    red 14.2%, red 28.4%, 
+    white 28.4%, white 42.6%, 
+    blue 42.6%, blue 56.8%, 
+    white 56.8%, white 71%, 
+    red 71%, red 85.2%, 
+    white 85.2%, white 100%
+);*/
+
+    background-size: 400%;
+    border-radius: 12px;
+    filter: blur(8px);
+    animation: glowing 20s linear infinite;
+}
+
+@keyframes glowing {
+    0% {
+        background-position: 0 0;
+    }
+    50% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
+}
+
+.contenedor-titulo {
+    margin-top: 5px;
+    display: flex; /* Usamos flexbox para centrar contenido */
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente si hay altura */
+    width: 100%; /* Ocupa todo el ancho */
+  }
+
+.titulo-vidrio {
+    display: inline-block; /* Se ajusta al ancho del texto */
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff; /* Texto blanco para destacar */
+    padding: 10px 20px; /* Espaciado interno alrededor del texto */
+    background: rgba(255, 255, 255, 0.1); /* Fondo con transparencia */
+    backdrop-filter: blur(7px); /* Efecto de desenfoque en el fondo */
+    -webkit-backdrop-filter: blur(7px); /* Para compatibilidad con Safari */
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil para mayor profundidad */
+    margin: 0 auto; /* Centrar en caso de estar dentro de un contenedor */
+  }
+
+  /* Letras de colores*/
+  .titulo-colores {
+    font-size: 3rem; /* Tamaño grande para destacar */
+    font-weight: bold; /* Letras más gruesas */
+    text-transform: uppercase; /* Texto en mayúsculas */
+    text-align: center;
+    font-weight: 1000;
+  }
+  
+  .titulo-colores span {
+    display: inline-block; /* Asegura que cada letra se trate como un bloque en línea */
+  }
+  
+  .rojo {
+    color: red;
+  }
+  
+  .azul {
+    color: blue;
+  }
+  
+  .blanco {
+    color: white;
+  }
+  
+
+

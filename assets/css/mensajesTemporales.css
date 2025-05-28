@@ -1,0 +1,73 @@
+
+
+.flash-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 35%;
+    text-align: center;
+    z-index: 1000;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-family: Arial;
+    font-size: 50px;
+    opacity: 0.95;
+    font-weight: 500;
+}
+
+
+
+.flash-message.success {
+    background-color: #d4edda;
+    color: #747474; /* Cambia a blanco para más contraste */
+    border: 3px solid #c3e6cb;
+    font-size: 25px;
+    font-weight: bold;
+    text-shadow: -2px -2px 0 #000,  
+                  2px -2px 0 #000,
+                 -2px  2px 0 #000,
+                  2px  2px 0 #000,
+                 -2px  0px 0 #000,
+                  2px  0px 0 #000,
+                  0px -2px 0 #000,
+                  0px  2px 0 #000;
+}
+
+
+/* Mensaje de error */
+.flash-message.danger {
+    padding: 28px;
+    background-color: #f8d7da;
+    color: #4e4d4d; /* Cambia a blanco para más contraste */
+    border: 3px solid #f5c6cb;
+    font-size: 25px;
+    font-weight: bold;
+    text-shadow: -2px -2px 0 #000,  
+                  2px -2px 0 #000,
+                 -2px  2px 0 #000,
+                  2px  2px 0 #000,
+                 -2px  0px 0 #000,
+                  2px  0px 0 #000,
+                  0px -2px 0 #000,
+                  0px  2px 0 #000;
+}
+
+
+/* Botón de cierre */
+.flash-message .close-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #000;
+}
+
+.flash-message .close-btn:hover {
+    color: red;
+}

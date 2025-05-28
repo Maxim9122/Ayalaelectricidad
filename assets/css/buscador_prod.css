@@ -1,0 +1,106 @@
+#product_form {
+    display: grid;
+    flex-direction: column; /* Para alinear los elementos verticalmente */
+    align-items: center; /* Para centrar los elementos horizontalmente */
+    margin: 10px auto; /* Para centrar el formulario en la página */
+}
+
+/* Estilos del input de texto */
+#product_input {
+    width: 100%; /* Mantiene el ancho completo */
+    padding: 10px; /* Espaciado interno */
+    font-weight: bold; /* Letras en negrita */
+    border: 1px solid #ccc; /* Borde por defecto */
+    border-radius: 5px; /* Bordes redondeados */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra */
+    margin-bottom: 10px; /* Espacio entre el input y el botón */
+}
+
+/* Estilos del select */
+#product_select {
+    display: none; /* Ocultar por defecto */
+}
+
+/* Estilos del botón */
+.success {
+    background-color: #007bff; /* Color de fondo por defecto */
+    color: white; /* Color del texto */
+    font-weight: bold; /* Letras en negrita */
+    padding: 10px 20px; /* Espaciado interno */
+    border: none; /* Sin borde */
+    border-radius: 5px; /* Bordes redondeados */
+    cursor: pointer; /* Cambiar cursor al pasar por encima */
+    transition: background-color 0.3s; /* Transición suave */
+}
+
+/* Estilo del botón al hacer hover */
+.success:hover {
+    background-color: green; /* Color de fondo al hacer hover */
+}
+
+/* Estilos para el selector (cuando se muestre) */
+.product-option {
+    background-color: rgba(0, 0, 0, 0.1); /* Fondo gris para las opciones */
+    font-weight: bold; /* Letras en negrita */
+    width: 100%;
+}
+
+/* Estilo al hacer hover en las opciones del selector */
+.product-option:hover {
+    background-color: #54853b; /* Cambiar a verde al hacer hover */
+    width: 100%;
+}
+
+/* Estilos generales para el campo de entrada */
+#product_input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    outline: none;
+}
+
+/* Cambios en el borde del campo de entrada al hacer foco */
+#product_input:focus {
+    border-color: #007bff;
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Estilos generales para el select */
+#product_select {
+    width: 100%;
+    padding: 8px;
+    font-size: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    max-height: 200px; /* Limita la altura */
+    overflow-y: auto; /* Activa el desplazamiento vertical */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    outline: none;
+}
+
+/* Estilos para las opciones dentro del select */
+#product_select option.product-option {
+    padding: 8px;
+    font-size: 14px;
+    color: #333;
+    background-color: #ffffff;
+    cursor: pointer;
+}
+
+/* Estilo al pasar el cursor por encima de una opción */
+#product_select option.product-option:hover {
+    background-color: #77bd6e;
+    color: #ffffff;
+}
+
+/* Estilo para el texto de los encabezados de las opciones */
+#product_select .product-option h5 {
+    display: inline;
+    font-weight: bold;
+    font-size: 14px;
+    color: #777;
+}

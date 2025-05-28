@@ -1,0 +1,107 @@
+.low-stock-ring {
+  color: rgb(255, 0, 0); /* Color del texto */
+  border: 2px solid rgb(255, 81, 0); /* Borde del anillo */
+  padding: 1px 7px;
+  border-radius: 50%; /* Hace que sea un círculo */
+  display: inline-block;
+  min-width: 40px; /* Asegura que sea uniforme */
+  text-align: center;
+  font-weight: bold;
+  background-color: transparent; /* Fondo transparente */
+  box-shadow: 0 0 8px rgba(255, 81, 0, 0.8); /* Efecto de brillo */
+}
+
+.dropdown2 {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-toggle2 {
+  background-color: white;
+  border: 1px solid #007bff;
+  color: #007bff;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.dropdown-menu2 {
+  display: none;
+  position: absolute;
+  background-color: transparent; /* Fondo del contenedor transparente */
+  min-width: 150px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  list-style: none;
+  padding: 5px 0;
+  z-index: 1000;
+}
+
+.dropdown-menu2 li {
+  padding: 5px 12px;
+  background-color: #333333; /* Fondo gris oscuro para los items */
+  border: 1px solid transparent; /* Sin bordes visibles, solo al hacer hover */
+  border-radius: 5px;
+  transition: all 0.2s ease; /* Transición suave para agrandar el item */
+}
+
+.dropdown-menu2 li a, .dropdown-menu2 li button {
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: white; /* Texto blanco para los items */
+  cursor: pointer;
+}
+
+.dropdown-menu2 li a:hover, .dropdown-menu2 li button:hover {
+  background-color: #9c9a9a; /* Fondo gris claro al hacer hover */
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-weight: bold; /* Las letras se vuelven más gruesas */
+}
+
+/* Efecto hover para agrandar los items */
+.dropdown-menu2 li:hover {
+  transform: scale(1.05); /* Agrandar ligeramente al hacer hover */
+  border-color: white; /* Bordes blancos luminosos al hacer hover */
+}
+
+.text-danger2 {
+  color: red;
+}
+
+.text-success2 {
+  color: green;
+}
+
+.dropdown2:hover .dropdown-menu2 {
+  margin-top: 5px;
+  display: block;
+}
+
+/* Optimiza el renderizado de fuentes */
+body, input, button {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Evita que el texto se vea borroso en escalas pequeñas */
+@media screen and (max-width: 600px) {
+  body {
+      font-size: 16px; /* Ajusta el tamaño de fuente para mejor lectura */
+  }
+
+  .containerLogin {
+      transform: translateZ(0); /* Corrige problemas de renderizado en algunos navegadores */
+      will-change: transform;
+  }
+
+  h1, input, button {
+      font-weight: 600; /* Asegura que el texto tenga buena definición */
+  }
+}
