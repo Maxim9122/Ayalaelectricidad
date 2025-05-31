@@ -13,11 +13,11 @@
     gap: 1px;
     font-size: 3.7rem;
     font-weight: 700;
-    padding: 3px 7px;
+    padding: 3px 3px;
     border-radius: 10px;
     border: 2px solid #fcfffc;
     color: #eef3ef;
-    background-color: #000;
+    background-color: #272727;
     position: relative;
     animation: glow 1.5s ease-in-out infinite alternate;
     font-family: 'Bangers', sans-serif;

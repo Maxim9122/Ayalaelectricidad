@@ -301,7 +301,8 @@ public function ListCompraDetalle($id)
             $producto = $Producto_model->find($id_producto);
             $stock_actual = $producto['stock'];
             $nombre_producto = $producto['nombre']; // Obtener el nombre del producto
-
+            $precioLimpio = str_replace('.', '', $carrito['price']); // Elimina el punto de miles
+            //print_r($precioLimpio);exit;
             // Obtener la cantidad que ya estaba reservada en la venta anterior
             $cantidad_reservada = $VentaDetalle_model
                 ->where('venta_id', $id_pedido)
@@ -314,7 +315,7 @@ public function ListCompraDetalle($id)
             $stock_disponible = $stock_actual + $cantidad_reservada;
 
             $rowid = $carrito['rowid'];
-            $price = $carrito['price'];
+            $price = $precioLimpio;
             $amount = $price * $carrito['qty'];
             $qty = $carrito['qty'];
 
@@ -367,7 +368,7 @@ public function ListCompraDetalle($id)
             $producto = $Producto_model->find($id_producto);
             $stock_actual = $producto['stock'];
             $nombre_producto = $producto['nombre']; // Obtener el nombre del producto
-
+            $precioLimpio = str_replace('.', '', $carrito['price']); // Elimina el punto de miles
             // Obtener la cantidad que ya estaba reservada en la venta anterior
             $cantidad_reservada = $VentaDetalle_model
                 ->where('venta_id', $id_pedido)
@@ -380,7 +381,7 @@ public function ListCompraDetalle($id)
             $stock_disponible = $stock_actual + $cantidad_reservada;
 
             $rowid = $carrito['rowid'];
-            $price = $carrito['price'];
+            $price = $precioLimpio;
             $amount = $price * $carrito['qty'];
             $qty = $carrito['qty'];
 
@@ -428,7 +429,7 @@ public function ListCompraDetalle($id)
        $producto = $Producto_model->find($id_producto);
        $stock_actual = $producto['stock'];
        $nombre_producto = $producto['nombre']; // Obtener el nombre del producto
-
+        $precioLimpio = str_replace('.', '', $carrito['price']); // Elimina el punto de miles
        // Obtener la cantidad que ya estaba reservada en la venta anterior
        $cantidad_reservada = $VentaDetalle_model
            ->where('venta_id', $id_pedido)
@@ -441,7 +442,7 @@ public function ListCompraDetalle($id)
        $stock_disponible = $stock_actual + $cantidad_reservada;
 
        $rowid = $carrito['rowid'];
-       $price = $carrito['price'];
+       $price = $precioLimpio;
        $amount = $price * $carrito['qty'];
        $qty = $carrito['qty'];
 
@@ -574,7 +575,7 @@ public function ListCompraDetalle($id)
             $producto = $Producto_model->find($id_producto);
             $stock_actual = $producto['stock'];
             $nombre_producto = $producto['nombre']; // Obtener el nombre del producto
-
+            $precioLimpio = str_replace('.', '', $carrito['price']); // Elimina el punto de miles
             // Obtener la cantidad que ya estaba reservada en la venta anterior
             $cantidad_reservada = $VentaDetalle_model
                 ->where('venta_id', $id_pedido)
@@ -587,7 +588,7 @@ public function ListCompraDetalle($id)
             $stock_disponible = $stock_actual + $cantidad_reservada;
 
             $rowid = $carrito['rowid'];
-            $price = $carrito['price'];
+            $price = $precioLimpio;
             $amount = $price * $carrito['qty'];
             $qty = $carrito['qty'];
 
@@ -748,7 +749,7 @@ public function ListCompraDetalle($id)
             }
 
             //Formateo para que solo guarde 2 decimales.
-            $total_bonificado_OK = number_format($total_bonificado_OK, 2, '.', '');
+            $total_bonificado_OK = number_format($total_bonificado_OK, 0, '.', '.', '.', '');
 
 
             //Establecer zona horaria y obtener fecha/hora en formato correcto
@@ -929,14 +930,19 @@ public function ListCompraDetalle($id)
     }
 
     function convertirAFloat($numero) {
-        if (empty($numero)) {
-            return 0.0; // Si el valor es vacío, devuelve 0.0
-        }
-        // Remueve los puntos (miles) y reemplaza la coma por punto (decimal)
-        $numero = str_replace('.', '', $numero);
-        $numero = str_replace(',', '.', $numero);
-        return floatval($numero);
+    if (empty($numero)) {
+        return 0.0;
     }
+
+    // Si contiene coma, asume formato europeo (ej: 40.000,00)
+    if (strpos($numero, ',') !== false) {
+        $numero = str_replace('.', '', $numero); // quita separador de miles
+        $numero = str_replace(',', '.', $numero); // reemplaza decimal
+    }
+
+    return floatval($numero);
+    }
+
     
     $monto_transferencia = convertirAFloat($this->request->getPost('pagoTransferencia'));
     $monto_en_Efectivo = convertirAFloat($this->request->getPost('pagoEfectivo'));
@@ -985,6 +991,7 @@ public function ListCompraDetalle($id)
         $total_conDescuento = $total;
     }
     
+    //print_r($total_conDescuento);exit;
     // Establecer zona horaria y obtener fecha/hora en formato correcto
     date_default_timezone_set('America/Argentina/Buenos_Aires');
     $hora = date('H:i:s'); // Formato TIME
@@ -1265,6 +1272,8 @@ public function ListCompraDetalle($id)
     // Redirige a la vista de la factura
     return redirect()->to('Carrito_controller/generarTicket/' . $id_cabecera);
 }
+
+
 //Genera ticket venta normal
 public function generarPresupuesto($id_cabecera)
 {
@@ -1316,7 +1325,8 @@ public function generarPresupuesto($id_cabecera)
             }
             .ticket {
                 width: 100%;
-                font-size: 12px; /* Ajustar tamaño de fuente */
+                font-size: 18px; /* Ajustar tamaño de fuente */
+                font-weight:bold;
             }
             h1 {
                 font-size: 18px;
@@ -1333,15 +1343,17 @@ public function generarPresupuesto($id_cabecera)
                 text-align: center;
                 margin: 3px 0;
                 font-weight: bold;
+                font-size: 14px;
             }
             h5 {
                 text-align: center;
                 margin: 3px 0;
                 font-weight: bold;
+                font-size: 12px;
             }
             .ticket p {
                 margin: 2px 0;
-                font-size: 10px;
+                font-size: 15px;
                 font-weight: bold;
                 text-align: justify; /* Justificar el texto */
             }
@@ -1360,6 +1372,7 @@ public function generarPresupuesto($id_cabecera)
             }
             .ticket .details td {
                 padding: 0px;
+                font-size: 14px;
             }
             .ticket .details th {
                 text-align: left;
@@ -1370,12 +1383,12 @@ public function generarPresupuesto($id_cabecera)
     <body>
         <div class="ticket">
              <!-- Derecha: Fecha y hora -->
-                        <div style="text-align: right; font-size: 10px;">
+                        <div style="text-align: right; font-size: 12px;">
                             Fecha: <?= ($cabecera['tipo_compra'] == 'Pedido') 
                                         ? date('d-m-Y H:i') 
                                         : $cabecera['fecha'] . ' ' . $cabecera['hora']; ?>
                         </div>
-            <h4>Presupuesto</h4>
+            <h4>Presupuesto Nro:<?= number_format($cabecera['id']) ?></h4>
             <h5>no valido como factura</5>
             <!-- Cabecera del ticket -->
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -1395,40 +1408,46 @@ public function generarPresupuesto($id_cabecera)
                 
 
                 <table style="width:100%; border-collapse: collapse; font-size: 10px;">
-                    <thead>
-                        <tr>
-                            <th style="border-bottom: 1px solid #000; text-align: left;">Cant.</th>
-                            <th style="border-bottom: 1px solid #000; text-align: left;">Descripción</th>
-                            <th style="border-bottom: 1px solid #000; text-align: right;">Precio</th>
-                            <th style="border-bottom: 1px solid #000; text-align: right;">SubTotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($detalles as $detalle): ?>
-                            <?php 
-                                $precio_unitario = $detalle['precio'];
-                                $subtotal = $detalle['cantidad'] * $precio_unitario;
-                            ?>
-                        <tr>
-                            <td style="border-bottom: 1px solid #ccc;"><?= $detalle['cantidad'] ?></td>
-                            <td style="border-bottom: 1px solid #ccc;"><?= $productos[$detalle['producto_id']]['nombre'] ?></td>
-                            <td style="border-bottom: 1px solid #ccc; text-align: right;">$<?= number_format($detalle['precio'], 2) ?></td>
-                            <td style="border-bottom: 1px solid #ccc; text-align: right;">$<?= number_format($subtotal, 2) ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td style="text-align: right; font-weight: bold; border-top: 1px solid #000;">TOTAL</td>
-                            <td style="text-align: right; font-weight: bold;">
-                                $<?= number_format($cabecera['total_venta'], 2) ?>
-                            </td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
-                </table>
+            <thead>
+                <tr>
+                    <th style="border-bottom: 1px solid #000; text-align: left;">Cant.</th>
+                    <th style="border-bottom: 1px solid #000; text-align: left;">Descripción</th>
+                    <th style="border-bottom: 1px solid #000; text-align: right;">Precio</th>
+                    <th style="border-bottom: 1px solid #000; text-align: right;">SubTotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($detalles as $detalle): ?>
+                    <?php 
+                        $precio_unitario = $detalle['precio'];
+                        $subtotal = $detalle['cantidad'] * $precio_unitario;
+                    ?>
+                    <tr>
+                        <td style="border-bottom: 1px solid #ccc;"><?= $detalle['cantidad'] ?></td>
+                        <td style="border-bottom: 1px solid #ccc;"><?= $productos[$detalle['producto_id']]['nombre'] ?></td>
+                        <td style="border-bottom: 1px solid #ccc; text-align: right;">$ <?= number_format($detalle['precio'], 0, '.', '.') ?></td>
+                        <td style="border-bottom: 1px solid #ccc; text-align: right;">$ <?= number_format($subtotal, 0, '.', '.') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                
+                <!-- Dos saltos de línea (espaciado visual antes del total) -->
+                <tr><td colspan="4" style="height: 10px;"></td></tr>
+                <tr><td colspan="4" style="height: 10px;"></td></tr>
+            </tbody>
+
+            <tfoot>                        
+                <tr>
+                    <td></td>
+                    <td></td>                            
+                    <td style="text-align: right; font-weight: bold;">TOTAL:</td>
+                    <td style="text-align: right; font-weight: bold;">
+                        $ <?= number_format($cabecera['total_venta'], 0, '.', '.') ?>
+                    </td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+
             </div>
 
 
@@ -1441,9 +1460,9 @@ public function generarPresupuesto($id_cabecera)
             <p><strong>Cajero:</strong> <?= nl2br(htmlspecialchars($cajero_nombre)) ?></p>
             <p><strong>Vendedor:</strong> <?= nl2br(htmlspecialchars($nombreVendedor)) ?></p>
             <p><strong>Fecha y Hora:</strong> <?= date('d-m-Y H:i', strtotime($cabecera['fecha'] . ' ' . $cabecera['hora'])) ?></p>
-            <p><strong>Total Anterior: $ </strong> <?= number_format($cabecera['total_anterior'], 2) ?></p>
-            <p><strong>Total Actual: $ </strong> <?= number_format($cabecera['total_bonificado'], 2) ?></p>
-            <p><strong>Diferencia: $ </strong> <?= number_format($cabecera['total_bonificado'] - $cabecera['total_anterior'], 2) ?></p>
+            <p><strong>Total Anterior: $ </strong> <?= number_format($cabecera['total_anterior'], 0, '.', '.') ?></p>
+            <p><strong>Total Actual: $ </strong> <?= number_format($cabecera['total_bonificado'], 0, '.', '.') ?></p>
+            <p><strong>Diferencia: $ </strong> <?= number_format($cabecera['total_bonificado'] - $cabecera['total_anterior'], 0, '.', '.') ?></p>
             <p>Si la Diferencia es negativa, eso es saldo a favor para el Cliente.</p>
             <?php endif; ?>
 
@@ -1557,7 +1576,8 @@ public function generarTicket($id_cabecera)
             }
             .ticket {
                 width: 100%;
-                font-size: 12px; /* Ajustar tamaño de fuente */
+                font-size: 18px; /* Ajustar tamaño de fuente */
+                font-weight:bold;
             }
             h1 {
                 font-size: 18px;
@@ -1574,15 +1594,17 @@ public function generarTicket($id_cabecera)
                 text-align: center;
                 margin: 3px 0;
                 font-weight: bold;
+                font-size: 14px;
             }
             h5 {
                 text-align: center;
                 margin: 3px 0;
                 font-weight: bold;
+                font-size: 12px;
             }
             .ticket p {
                 margin: 2px 0;
-                font-size: 10px;
+                font-size: 15px;
                 font-weight: bold;
                 text-align: justify; /* Justificar el texto */
             }
@@ -1601,6 +1623,7 @@ public function generarTicket($id_cabecera)
             }
             .ticket .details td {
                 padding: 0px;
+                font-size: 14px;
             }
             .ticket .details th {
                 text-align: left;
@@ -1611,12 +1634,12 @@ public function generarTicket($id_cabecera)
     <body>
         <div class="ticket">
              <!-- Derecha: Fecha y hora -->
-                        <div style="text-align: right; font-size: 10px;">
+                        <div style="text-align: right; font-size: 12px;">
                             Fecha: <?= ($cabecera['tipo_compra'] == 'Pedido') 
                                         ? date('d-m-Y H:i') 
                                         : $cabecera['fecha'] . ' ' . $cabecera['hora']; ?>
                         </div>
-            <h4>Remito</h4>
+            <h4>Remito Nro:<?= number_format($cabecera['id']) ?></h4>
             <h5>no valido como factura</5>
             <!-- Cabecera del ticket -->
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -1653,18 +1676,21 @@ public function generarTicket($id_cabecera)
                         <tr>
                             <td style="border-bottom: 1px solid #ccc;"><?= $detalle['cantidad'] ?></td>
                             <td style="border-bottom: 1px solid #ccc;"><?= $productos[$detalle['producto_id']]['nombre'] ?></td>
-                            <td style="border-bottom: 1px solid #ccc; text-align: right;">$<?= number_format($detalle['precio'], 2) ?></td>
-                            <td style="border-bottom: 1px solid #ccc; text-align: right;">$<?= number_format($subtotal, 2) ?></td>
+                            <td style="border-bottom: 1px solid #ccc; text-align: right;">$<?= number_format($detalle['precio'], 0, '.', '.') ?></td>
+                            <td style="border-bottom: 1px solid #ccc; text-align: right;">$<?= number_format($subtotal, 0, '.', '.') ?></td>
                         </tr>
                         <?php endforeach; ?>
+                        <!-- Dos saltos de línea (espaciado visual antes del total) -->
+                            <tr><td colspan="4" style="height: 10px;"></td></tr>
+                            <tr><td colspan="4" style="height: 10px;"></td></tr>
                     </tbody>
                     <tfoot>
                         <tr>
                             <td></td>
                             <td></td>
-                            <td style="text-align: right; font-weight: bold; border-top: 1px solid #000;">TOTAL</td>
+                            <td style="text-align: right; font-weight: bold;">TOTAL</td>
                             <td style="text-align: right; font-weight: bold;">
-                                $<?= number_format($cabecera['total_venta'], 2) ?>
+                                $<?= number_format($cabecera['total_venta'], 0, '.', '.') ?>
                             </td>
                             <td></td>
                         </tr>
@@ -1682,9 +1708,9 @@ public function generarTicket($id_cabecera)
             <p><strong>Cajero:</strong> <?= nl2br(htmlspecialchars($cajero_nombre)) ?></p>
             <p><strong>Vendedor:</strong> <?= nl2br(htmlspecialchars($nombreVendedor)) ?></p>
             <p><strong>Fecha y Hora:</strong> <?= date('d-m-Y H:i', strtotime($cabecera['fecha'] . ' ' . $cabecera['hora'])) ?></p>
-            <p><strong>Total Anterior: $ </strong> <?= number_format($cabecera['total_anterior'], 2) ?></p>
-            <p><strong>Total Actual: $ </strong> <?= number_format($cabecera['total_bonificado'], 2) ?></p>
-            <p><strong>Diferencia: $ </strong> <?= number_format($cabecera['total_bonificado'] - $cabecera['total_anterior'], 2) ?></p>
+            <p><strong>Total Anterior: $ </strong> <?= number_format($cabecera['total_anterior'], 0, '.', '.') ?></p>
+            <p><strong>Total Actual: $ </strong> <?= number_format($cabecera['total_bonificado'], 0, '.', '.') ?></p>
+            <p><strong>Diferencia: $ </strong> <?= number_format($cabecera['total_bonificado'] - $cabecera['total_anterior'], 0, '.', '.') ?></p>
             <p>Si la Diferencia es negativa, eso es saldo a favor para el Cliente.</p>
             <?php endif; ?>
 
@@ -2187,31 +2213,31 @@ public function generarTicketFacturaC($id_cabecera)
                 <h4>COD: <?= $cabecera['id'] ?></h4>
                 <?php foreach ($detalles as $detalle): ?>
                     <div>
-                        <p><?= $productos[$detalle['producto_id']]['nombre'] ?> Cant:<?= $detalle['cantidad'] ?> x $<?= number_format($detalle['precio'], 2) ?></p>
+                        <p><?= $productos[$detalle['producto_id']]['nombre'] ?> Cant:<?= $detalle['cantidad'] ?> x $<?= number_format($detalle['precio'], 0, '.', '.') ?></p>
                     </div>
                 <?php endforeach; ?>            
             </div>
 
             <!-- Totales -->
-            <p>Subtotal sin descuentos: $<?= number_format($cabecera['total_venta'], 2) ?></p>
+            <p>Subtotal sin descuentos: $<?= number_format($cabecera['total_venta'], 0, '.', '.') ?></p>
             <p>Descuento: 
             <?= ($cabecera['tipo_pago'] == 'Efectivo' || $cabecera['tipo_pago'] == 'Mixto') 
-                ? '$' . number_format(($cabecera['monto_efectivo'] * $cd_efectivo) - $cabecera['monto_efectivo'], 2) 
+                ? '$' . number_format(($cabecera['monto_efectivo'] * $cd_efectivo) - $cabecera['monto_efectivo'], 0, '.', '.') 
                 : '$0.00' ?>
             </p>
             <p>Adicional por Tarjeta: 
             <?= ($cabecera['tipo_pago'] == 'Tarjeta' || $cabecera['tipo_pago'] == 'Mixto') 
-                ? '$' . number_format($cabecera['monto_tarjetaC'] - ($cabecera['monto_tarjetaC'] / 1.1), 2) 
+                ? '$' . number_format($cabecera['monto_tarjetaC'] - ($cabecera['monto_tarjetaC'] / 1.1), 0, '.', '.') 
                 : '$0.00' ?>
             </p>
-            <p>Total: $<?= number_format($cabecera['total_bonificado'], 2) ?></p>
+            <p>Total: $<?= number_format($cabecera['total_bonificado'], 0, '.', '.') ?></p>
             <?php if ($CostoEnvio > 0): ?>
             <p>Costo de Envio: $ <?= $CostoEnvio ?></p>
             <?php endif; ?>            
             <hr>
             
             <p>Reg. Transparencia fiscal al consumidor</p>
-            <p>IVA CONTENIDO: $ <?= number_format($cabecera['total_bonificado'] * 0.21, 2) ?></p>
+            <p>IVA CONTENIDO: $ <?= number_format($cabecera['total_bonificado'] * 0.21, 0, '.', '.') ?></p>
             <p>Otros Imp. Nac. Indirectos: $0.00</p>
             <p>Tipo de pago: <?=$cabecera['tipo_pago'];?></p>
             <p>Referencia electronica del Comprobante:</p>

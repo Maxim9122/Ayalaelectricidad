@@ -139,8 +139,7 @@ function cerrarMensaje() {
       <tr class="colorTexto2">
          <th>Nombre</th>
          <th>Precio Venta</th>
-         <th class="ocultar-en-movil">Categoría</th>
-         <th>Imagen</th>
+         <th class="ocultar-en-movil">Categoría</th>        
          <th>Stock</th>
          <th>Cantidad</th>
          <th>Acciones</th>
@@ -161,8 +160,7 @@ function cerrarMensaje() {
              }
          }
          ?>
-         <td class="ocultar-en-movil"><?php echo $categoria_nombre; ?></td>
-         <td><img class="frmImg" src="<?php echo base_url('assets/uploads/'.$prod['imagen']);?>"></td>
+         <td class="ocultar-en-movil"><?php echo $categoria_nombre; ?></td>        
          
          <?php if($prod['stock'] <= $prod['stock_min']){ ?>
             <td class="text-center">

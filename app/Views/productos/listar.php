@@ -159,10 +159,8 @@ function cerrarMensaje() {
    <thead>
       <tr class="colorTexto2">
          <th>Nombre</th>
-         <th>Precio Venta</th>
-         <th>Precio Efectivo(-5%)</th>
-         <th class="ocultar-en-movil">Categoría</th>
-         <th>Imagen</th>
+         <th>Precio Venta</th>        
+         <th class="ocultar-en-movil">Categoría</th>        
          <th>Stock</th>
          <th>Cantidad</th>
          <th>Acciones</th>
@@ -173,8 +171,7 @@ function cerrarMensaje() {
       <?php foreach($productos as $prod): ?>
       <tr>
          <td><?php echo $prod['nombre']; ?></td>
-         <td>$ <?php echo number_format($prod['precio_vta'], 2, '.', ','); ?></td>
-         <td>$ <?php echo number_format($prod['precio_vta'] / $cd_efectivo, 2, '.', ','); ?></td>
+         <td>$ <?php echo number_format($prod['precio_vta'], 0, '.', '.'); ?></td>         
          <?php 
          $categoria_nombre = 'Desconocida';
          foreach ($categorias as $categoria) {
@@ -184,8 +181,7 @@ function cerrarMensaje() {
              }
          }
          ?>
-         <td class="ocultar-en-movil"><?php echo $categoria_nombre; ?></td>
-         <td><img class="frmImg" src="<?php echo base_url('assets/uploads/'.$prod['imagen']);?>"></td>
+         <td class="ocultar-en-movil"><?php echo $categoria_nombre; ?></td>         
          
          <?php if($prod['stock'] <= $prod['stock_min']){ ?>
             <td class="text-center">

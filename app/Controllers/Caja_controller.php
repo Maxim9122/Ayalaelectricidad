@@ -17,7 +17,7 @@ class Caja_controller extends Controller{
 //verificacion de codigo de acceso
     public function verificarCodigo()
     {
-        $codigoCorrecto = "7791293043746"; // Código estático en el backend
+        $codigoCorrecto = "7559"; // Código estático en el backend
         $codigoIngresado = $this->request->getPost('codigo');
 
         if ($codigoIngresado === $codigoCorrecto) {

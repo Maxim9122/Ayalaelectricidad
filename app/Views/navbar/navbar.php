@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multirrubro Blass</title>
+  <title>Ayala Electricidad</title>
   <link rel="icon" href="<?php echo base_url('./assets/img/iconMB2.png');?>">
   <link rel="stylesheet" href="<?php echo base_url('./assets/css/navbar.css');?>">
   <link rel="stylesheet" href="<?php echo base_url('./assets/css/clock.css');?>">
@@ -62,10 +62,7 @@
     <div class="headernav">
         <div class="logoDiv">
             <div class="clock">
-                <div id="day" class="day"></div>
-                <div id="hours"></div>
-                <span class="colon" id="colon">:</span>
-                <div id="minutes"></div>
+            <div id="day" class="day" style="margin-top:7px;"></div>            
             </div>
         </div>
 
@@ -171,7 +168,7 @@
 
           <li class="navItem cart-container">
               <a href="<?= base_url('CarritoList') ?>">
-                  <img class="navImg" src="<?= base_url('assets/img/icons/iconMB2.png') ?>">
+                  <img class="navImg" src="<?= base_url('assets/img/icons/carrito2.png') ?>">
               </a>
               <div class="cart-dropdown">
                   <?php 
@@ -260,52 +257,22 @@ toggleButton.addEventListener('click', function() {
   </script>
 
 
-  <script>
-
-    function handleScroll() {
-      var headernav = document.querySelector('.headernav');
-      var scrollPosition = window.scrollY;
-
-      if (scrollPosition > 0) {
-          headernav.classList.add('scrolled');
-      } else {
-          headernav.classList.remove('scrolled');
-      }
-    }
-
-    window.addEventListener('scroll', handleScroll);
-  </script>
-
-<script>
-    //Funciones del Reloj
-    let showColon = true;
-
+ <script>
 function updateClock() {
-    const hoursElement = document.getElementById('hours');
-    const minutesElement = document.getElementById('minutes');
-    const colonElement = document.getElementById('colon');
     const dayElement = document.getElementById('day');
-
-    // Obtener la fecha y hora actuales
     const now = new Date();
-    const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
+
     const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    const dayName = days[now.getDay()];    
 
-    // Alternar visibilidad del colon
-    colonElement.textContent = showColon ? ':' : ' '; // Espacio no separable
-    showColon = !showColon;
-
-    // Actualizar horas, minutos y día
-    hoursElement.textContent = hours;
-    minutesElement.textContent = minutes;
-    dayElement.textContent = days[now.getDay()];
+    dayElement.textContent = `AYALA ELECTRICIDAD - ${dayName}`;
 }
 
-// Actualizar el reloj cada medio segundo
-setInterval(updateClock, 500);
-updateClock(); // Llamar inicialmente
+setInterval(updateClock, 1000);
+updateClock();
 </script>
+
+
 
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

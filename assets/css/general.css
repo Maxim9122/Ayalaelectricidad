@@ -54,14 +54,14 @@ label {
 /* Estilos de los campos de entrada */
 .inputBox {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
 }
 
 .inputBox input[type="text"],
 .inputBox input[type="file"],
 .inputBox select {
     width: 100%;
-    padding: 10px;
+    padding: 1px;
     border: 1px solid #ddd;
     border-radius: 4px;
     background: #f9f9f9;
@@ -97,7 +97,7 @@ label {
 .colorTexto2{
     color: #ffff;
     align-items: center;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.1);
     padding: 7pX;
     border-radius: 30px;
 }
@@ -229,7 +229,7 @@ label {
 }
 
 body {
-    background: linear-gradient(rgba(33,33,33,0.722), rgba(33,33,33,0.722)),url(../img/MRB2.png);
+    background: linear-gradient(to bottom, #e0e0e0, #b0b0b0);
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -279,11 +279,11 @@ li{
 }
 
 .btn {
-    padding: .4rem 1rem;
+    padding: .2rem .7rem;
     background-color: var(--primary-black); /* Fondo negro */
     border: 2px solid var(--primary-white); /* Borde blanco */
     outline: none;
-    border-radius: 2rem; /* Bordes redondeados */
+    border-radius: 1rem; /* Bordes redondeados */
     cursor: pointer;
     color: var(--primary-white); /* Texto blanco */
     font-size: 0.8rem;
@@ -360,8 +360,8 @@ li{
 }
 
 img, video{
-    width: 100%;
-    height: auto;
+    width: 25px;
+    height: 25px;
 }
 
 input{

@@ -108,7 +108,7 @@ endif;
         ?>
         <br>
         <div align="center">
-            <u><i><h2 align="center">Resumen de la Compra</h2></i></u>
+            <u><i><h2 align="center" style="color:black;">Resumen de la Compra</h2></i></u>
 
             <?php if($estado == 'Cobrando'){ ?>
                 <!-- Botón para abrir el modal -->
@@ -158,30 +158,30 @@ endif;
         <?php endif; ?>
             <table style="font-weight: 900;" class="tableResponsive">
             <tr>
-            <td style="color:rgb(192, 250, 214);"><strong>Total General:</strong></td>
-            <td style="color: #ffff;">
+            <td style="color:black;"><strong>Total General:</strong></td>
+            <td style="color:black;">
             <strong id="totalCompra">
-                $<?php echo number_format(($gran_total > 0 ? $gran_total : $total_venta), 2, '.', ','); ?>
+                $<?php echo number_format(($gran_total > 0 ? $gran_total : $total_venta), 0, '.', '.'); ?>
             </strong>
             </td>
             </tr>
             <tr>
-            <td style="color:rgb(192, 250, 214);"><strong>Vendedor:</strong></td>
-            <td style="color: #ffff;">
+            <td style="color:black;"><strong>Vendedor:</strong></td>
+            <td style="color:black;">
                 <?php echo (!empty($nombre_vendedor) ? $nombre_vendedor : $nombre); ?>
 
             </td>                      
             </tr>
             <?php if ($nombre_cli != ''): ?><!-- Filtro cajero-->
             <tr>
-                <td style="color:rgb(192, 250, 214);"><strong>Nombre Cliente:</strong></td>
-                <td style="color:#ffff;"><strong><?php echo $nombre_cli ?></strong></td>
+                <td style="color:black;"><strong>Nombre Cliente:</strong></td>
+                <td style="color:black;"><strong><?php echo $nombre_cli ?></strong></td>
             </tr>  
             <?php endif; ?>
-            <?php if ($perfil == 3): ?><!-- Filtro cajero-->
+            <?php if ($perfil): ?><!-- Filtro cajero-->
 
-                <tr>
-                <td style="color:rgb(192, 250, 214);"><strong>Tipo Cliente:</strong></td>
+                <tr style="display: none;">
+                <td style="color:black;"><strong>Tipo Cliente:</strong></td>
                 <td>
                     <?php if ($clientes): ?>
                         <select name="cliente_id" class="selector">
@@ -201,10 +201,10 @@ endif;
                  <?php endif; ?><!-- Fin del if filtro cajero-->
 
 
-                 <?php if ($perfil == 2 && $estado == ''): ?><!-- Filtro Vendedor-->
+                 <?php if ($perfil && $estado == ''): ?><!-- Filtro Vendedor-->
             </tr>
                 <tr>
-                <td style="color:rgb(192, 250, 214);"><strong>Nombre Identificador del Cliente:</strong></td>
+                <td style="color:black;"><strong>Nombre Identificador del Cliente:</strong></td>
                 <td>
                     
                 <input class="selector" type="text" name="nombre_prov" placeholder="Ingrese nombre cliente" maxlength="20" required>
@@ -213,30 +213,30 @@ endif;
                  </tr>
                  <?php endif; ?><!-- Fin del if filtro vendedor-->
 
-                 <?php if ($perfil == 3 && $estado == 'Cobrando'): ?>
+                 <?php if ($perfil && $estado == ''): ?>
                           
                 <tr style="display: none;">
-                    <td style="color: rgb(192, 250, 214);"><strong>Monto en Tarjeta de Crédito</strong></td>
+                    <td style="color:black;"><strong>Monto en Tarjeta de Crédito</strong></td>
                     <td>
                         <input class="selector" type="text" id="pagoTarjetaCredito" name="pagoTarjetaCredito" placeholder="Monto en $" maxlength="15" oninput="this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'); formatearMiles(); calcularMontoEfectivo();">
                     </td>
                 </tr>
                 <tr style="display: none;">
-                    <td style="color: rgb(192, 250, 214);"><strong>Monto a Cobrar con Tarjeta de Crédito (+10%)</strong></td>
+                    <td style="color:black;"><strong>Monto a Cobrar con Tarjeta de Crédito (+10%)</strong></td>
                     <td>
                         <span id="montoTarjetaCreditoAdvertencia" style="color: yellow; font-weight: bold;">$0.00</span>
                     </td>
                 </tr>
 
                 <tr>
-                    <td style="color: rgb(192, 250, 214);"><strong>Monto en Transferencia:</strong></td>
+                    <td style="color:black;"><strong>Monto en Transferencia:</strong></td>
                     <td>
                         <input class="selector" type="text" id="pagoTransferencia" name="pagoTransferencia" placeholder="Monto en $" maxlength="15" oninput="this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'); formatearMiles(); calcularMontoEfectivo();">
                     </td>
                 </tr>
                 
                 <tr>
-                    <td style="color: rgb(192, 250, 214);"><strong>Monto en Efectivo:</strong></td>
+                    <td style="color:black;"><strong>Monto en Efectivo:</strong></td>
                     <td>
                         <input class="selector" type="text" id="pagoEfectivo" name="pagoEfectivo" placeholder="Monto en $" maxlength="15" readonly>
                     </td>
@@ -244,7 +244,7 @@ endif;
                 <?php endif; ?>
 
                 <tr>
-                <td style="color: rgb(192, 250, 214);"><strong>Tipo de Compra o Pedido:</strong></td>
+                <td style="color:black;"><strong>Tipo de Compra o Pedido:</strong></td>
                 <td>
                 <select name="tipo_compra" id="tipoCompra" class="selector">
                 <?php if ($estado == 'Cobrando') {  ?>
@@ -271,7 +271,7 @@ endif;
 
                 </tr>
                 <tr id="fechaPedidoFila" style="display: <?php echo !empty($fecha_pedido) ? 'table-row' : 'none'; ?>;">
-                <td style="color: rgb(192, 250, 214);"><strong>Fecha de entrega del Pedido:</strong></td>
+                <td style="color:black;"><strong>Fecha de entrega del Pedido:</strong></td>
                 <td>
                     <input class="selector" type="date" name="fecha_pedido" id="fechaPedido" 
                            value="<?php echo !empty($fecha_pedido) ? date('Y-m-d', strtotime($fecha_pedido)) : date('Y-m-d'); ?>" 
@@ -282,7 +282,7 @@ endif;
                 
                 <?php if ($estado == 'Cobrando') {  ?>
                 <tr>
-                <td style="color: rgb(192, 250, 214);"><strong>Con Envío:</strong></td>
+                <td style="color:black;"><strong>Con Envío:</strong></td>
                 <td>
                     <select name="con_envio" id="conEnvio" class="selector">
                         <option value="No">No</option>
@@ -291,7 +291,7 @@ endif;
                 </td>
                 </tr>
                 <tr id="costoEnvioFila" style="display: none;">
-                <td style="color: rgb(192, 250, 214);"><strong>Costo de Envío:</strong></td>
+                <td style="color:black;"><strong>Costo de Envío:</strong></td>
                 <td>
                     <input class="selector" type="text" id="costoEnvio" name="costoEnvio" placeholder="Costo de envío en $" maxlength="15" oninput="formatearCostoEnvio(this);">
                 </td>
@@ -305,11 +305,11 @@ endif;
             </table>
             <section class="botones-container" style="width:65%;">
 
-            <?php if ($total_venta == '') { ?>               
+            <?php if ($total_venta == 0) { ?>               
             <a class="btn" href="<?php echo base_url('CarritoList') ?>">Volver</a>
             <?php } ?>
 
-            <?php if ($total_venta != '') { ?>
+            <?php if ($total_venta > 0) { ?>
                 <a href="<?php echo base_url('cancelarCobro/'.$id_pedido);?>" class="btn danger" onclick="return confirmarAccionC_Cobro();">
                     Cancelar Cobro
                 </a>
@@ -326,11 +326,11 @@ endif;
             <?php echo form_hidden('id_pedido', $id_pedido); ?>
             <?php echo form_hidden('tipo_proceso', ''); ?>
 
-            <?php if ($perfil == 2 || $estado == 'Modificando'): ?>
-                <input type="submit" name="confirmarPerfil2" value="Confirmar" class="btn">
-            <?php elseif ($perfil == 3 && $estado == 'Cobrando'): ?>
-                <input type="submit" name="confirmarPerfil3" value="Confirmar" class="btn">
-            <?php endif; ?>
+            
+                <input type="submit" name="confirmarPerfil2" value="Registrar Pedido" class="btn">
+            
+                <input type="submit" name="confirmarPerfil3" value="Registrar Compra" class="btn">            
+             
 
             </section>
 
@@ -591,7 +591,7 @@ $totalVenta = ($gran_total > 0) ? $gran_total : $total_venta;
 
         // Mostrar el monto en efectivo con descuento
         document.getElementById('pagoEfectivo').value = montoEfectivoConDescuento.toLocaleString('de-DE', { 
-            minimumFractionDigits: 2, 
+            minimumFractionDigits: 0, 
             maximumFractionDigits: 2 
         });
 
@@ -599,7 +599,7 @@ $totalVenta = ($gran_total > 0) ? $gran_total : $total_venta;
         if (pagoTransferencia === 0 && pagoTarjetaCredito === 0) {
             const totalConDescuento = totalVenta; // (/ cd_efectivo)
             document.getElementById('pagoEfectivo').value = totalConDescuento.toLocaleString('de-DE', { 
-                minimumFractionDigits: 2, 
+                minimumFractionDigits: 0, 
                 maximumFractionDigits: 2 
             });
         }
@@ -635,10 +635,10 @@ $totalVenta = ($gran_total > 0) ? $gran_total : $total_venta;
 <div id="confirmationModalPerfil3" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <p>¿Desea facturar (Factura tipo C) o solo imprimir ticket?</p>
-        <button id="invoiceArca" class="btn">Facturar C (Arca)</button>
+        <p>¿Confirmar la Venta.?</p>
+        <button id="invoiceArca" class="btn" style="display: none;">Facturar C (Arca)</button>
         <br><br>
-        <button id="printTicket" class="btn">Imprimir Presupuesto</button>
+        <button id="printTicket" class="btn">Si, Imprimir Remito</button>
 
     </div>
 </div>
