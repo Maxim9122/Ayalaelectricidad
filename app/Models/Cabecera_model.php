@@ -130,7 +130,7 @@ class Cabecera_model extends Model
     $builder = $db->table($this->table . ' u');
     $builder->select("
         u.id, 
-        c.nombre AS nombre_cliente, 
+        u.nombre_prov_client AS nombre_cliente, 
         v.nombre AS nombre_vendedor, 
         u.estado, 
         u.total_venta,

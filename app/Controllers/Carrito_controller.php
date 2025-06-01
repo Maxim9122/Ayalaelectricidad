@@ -633,7 +633,8 @@ public function ListCompraDetalle($id)
 
             // Recorrer el carrito y calcular el total
             foreach ($cart->contents() as $item) {
-                $total_venta += $item['subtotal']; // Sumar cada subtotal (precio * cantidad)
+                $precioLimpio = str_replace('.', '', $item['subtotal']); // Elimina el punto de miles
+                $total_venta += $precioLimpio; // Sumar cada subtotal (precio * cantidad)
             }                
         
     
@@ -748,10 +749,7 @@ public function ListCompraDetalle($id)
 
             }
 
-            //Formateo para que solo guarde 2 decimales.
-            $total_bonificado_OK = number_format($total_bonificado_OK, 0, '.', '.', '.', '');
-
-
+        
             //Establecer zona horaria y obtener fecha/hora en formato correcto
             date_default_timezone_set('America/Argentina/Buenos_Aires');
             $hora = date('H:i:s'); // Formato TIME
@@ -785,7 +783,7 @@ public function ListCompraDetalle($id)
                     $id_producto = $carrito['id'];
                     $cantidad_original = isset($detalles_originales_map[$id_producto]) ? $detalles_originales_map[$id_producto]['cantidad'] : 0;
                     $cantidad_nueva = $carrito['qty'];
-                
+                    
                     // Obtener el stock actual desde la base de datos
                     $producto = $Producto_model->find($id_producto);
                     $stock_actual = $producto['stock'];
@@ -925,10 +923,10 @@ public function ListCompraDetalle($id)
     
     //id del cliente seleccionado o se selecciona Consumidor final por defecto.
     $id_cliente = $this->request->getPost('cliente_id');
-    if (!$id_cliente) {
+    if ($id_cliente == 'Anonimo') {
         $id_cliente = 1; // Valor por defecto si no se envía cliente_id
     }
-
+    
     function convertirAFloat($numero) {
     if (empty($numero)) {
         return 0.0;
@@ -944,9 +942,10 @@ public function ListCompraDetalle($id)
     }
 
     
-    $monto_transferencia = convertirAFloat($this->request->getPost('pagoTransferencia'));
-    $monto_en_Efectivo = convertirAFloat($this->request->getPost('pagoEfectivo'));
-    $monto_tarjetaC = convertirAFloat($this->request->getPost('pagoTarjetaCredito'));
+    $monto_transferencia = (int) str_replace('.', '', $this->request->getPost('pagoTransferencia'));
+    $monto_en_Efectivo   = (int) str_replace('.', '', $this->request->getPost('pagoEfectivo'));
+    $monto_tarjetaC      = (int) str_replace('.', '', $this->request->getPost('pagoTarjetaCredito'));
+
     if($monto_tarjetaC){
         $monto_tarjetaC = $monto_tarjetaC * 1.1;
     }
@@ -983,9 +982,7 @@ public function ListCompraDetalle($id)
     $total = $this->request->getPost('total_venta');
     //Total menos el descuento si se pago en efectivo.
     $total_conDescuento = $monto_transferencia + $monto_en_Efectivo + $monto_tarjetaC;
-
-    //print_r($total_conDescuento);
-    //exit;
+    
     //Si no trajo el descuento y esa variable quedo vacia se asigna el mismo valor de la venta total.
     if (!$total_conDescuento) {
         $total_conDescuento = $total;
@@ -1183,23 +1180,31 @@ public function ListCompraDetalle($id)
     } else {
         //Si el perfil es vendedor guarda la compra con el estado Pendiente
         
-        if($perfil == 2){ 
+        if($perfil && $estado == ''){ 
         // Guardar cabecera de la venta tipo compra normal
         $cabecera_model = new Cabecera_model();
         $ventas_id = $cabecera_model->save([
+            'estado'            => 'Sin_Facturar',
+            'total_venta'       => $total,
+            'tipo_pago'         => $tipo_pago_cobro,
+            'total_bonificado'  => $total_conDescuento,                  
+            'fecha_pedido'      => $fecha_pedido_formateada,
             'fecha'        => $fecha,
             'hora'         => $hora,
+            'hora_entrega'      => $hora,
             'id_cliente'   => $id_cliente,
             'nombre_prov_client' => $bombre_provisorios_cliente,
-            'id_usuario'   => $id_usuario,
-            'total_venta'  => $total,            
-            'total_bonificado' => $total_conDescuento,
+            'id_usuario'   => $id_usuario,            
             'tipo_compra' => $tipo_compra,
-            'estado' => 'Pendiente'
+            'costo_envio'       => $costo_envio,
+            'monto_efectivo'    => $monto_en_Efectivo,
+            'monto_transferencia' => $monto_transferencia,
+            'monto_tarjetaC' => $monto_tarjetaC
+            
         ]);
         }
         
-        if($perfil == 3){ 
+        if($perfil && $estado == 'Cobrando'){ 
             // Se está cobrando una venta
             if($estado == 'Cobrando'){
                 $Cabecera_model = new Cabecera_model();                
@@ -1231,11 +1236,10 @@ public function ListCompraDetalle($id)
 
     }
 
-    // Obtener ID de la nueva cabecera guardada
-    $id_cabecera = $cabecera_model->getInsertID();
-
     // Guardar detalles de la venta si el carrito no está vacío
     if ($cart):
+        // Obtener ID de la nueva cabecera guardada
+        $id_cabecera = $cabecera_model->getInsertID();
         foreach ($cart->contents() as $item):
             $VentaDetalle_model = new VentaDetalle_model();
             $VentaDetalle_model->save([
@@ -1263,7 +1267,7 @@ public function ListCompraDetalle($id)
         session()->setFlashdata('msg', 'Pedido Guardado con Éxito!');
         return redirect()->to('catalogo');
     }
-    if($perfil == 2){
+    if($perfil == 0){
         session()->setFlashdata('msg', 'Compra Registrada con Exito!');
         return redirect()->to('catalogo');
     }
@@ -1536,6 +1540,8 @@ public function generarTicket($id_cabecera)
     $cabecera = $ventaModel->find($id_cabecera);
     
     $CostoEnvio = $cabecera['costo_envio'];
+
+    $ClienteNom = $cabecera['nombre_prov_client'];
    
     // Actualizar el campo costo_envio a 0 porque se muestra una sola vez.
     $ventaModel->update($id_cabecera, ['costo_envio' => 0]);
@@ -1648,9 +1654,14 @@ public function generarTicket($id_cabecera)
                             <div style="font-size: 18px; font-weight: bold;">Ferreteria Ayala</div>
                         </div>
                     </div>
-                    <div style="text-align: left">Cliente: <?= $cliente['cuil'] > 0 ? $cliente['nombre'] . ' Cuil: ' . $cliente['cuil'] : $cliente['nombre'] ?></div>
+                    <div style="text-align: left">
+                        Cliente: 
+                        <?= !empty($cliente) ? 
+                            ($cliente['cuil'] > 0 ? $cliente['nombre'] . ' Cuil: ' . $cliente['cuil'] : $cliente['nombre']) 
+                            : $ClienteNom ?>
+                    </div>
                             <div style="text-align: left">Atendido por: <?= $nombreVendedor ?></div>
-                            <div style="text-align: left">Cajero: <?= $cajero_nombre ?></div>
+                            <!-- <div style="text-align: left">Cajero: <?= $cajero_nombre ?></div> -->
                     <hr>
 
             <!-- Detalle de la compra -->

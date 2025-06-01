@@ -54,7 +54,7 @@ table.dataTable tbody tr:hover {
 .dataTables_wrapper select {
     background-color: rgba(87, 87, 87, 0.8);
     border: 1px solid #ccc;
-    color: white;
+    color: black;
     padding: 5px 10px;
     border-radius: 5px;
     outline: none;
@@ -75,7 +75,7 @@ table.dataTable tbody tr:hover {
 .dataTables_paginate .paginate_button {
     background-color: rgba(87, 87, 87, 0.8);
     border: 1px solid #ccc;
-    color: white;
+    color: rgb(12, 12, 12);
     padding: 5px 10px;
     margin: 2px;
     border-radius: 5px;
@@ -84,7 +84,7 @@ table.dataTable tbody tr:hover {
 }
 
 .dataTables_paginate .paginate_button:hover {
-    background-color: rgba(120, 120, 120, 0.8);
+    background-color: rgba(58, 58, 58, 0.8);
 }
 
 /* Asegurar que el menú desplegable tenga el mismo ancho que el botón */

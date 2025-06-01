@@ -67,7 +67,7 @@ class Login_controller extends Controller
                 if($ses_data['perfil_id'] == 2){
                 return redirect()->to('catalogo');
                 }else if($ses_data['perfil_id'] == 3){
-                return redirect()->to('caja');
+                return redirect()->to('catalogo');
                 }else{
                 return redirect()->to('compras');   
                 }

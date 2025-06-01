@@ -7,9 +7,21 @@ class Productos_model extends Model
     protected $primaryKey = 'id';
     protected $allowedFields = ['nombre','descripcion', 'imagen' ,'categoria_id', 'precio', 'precio_vta', 'stock','stock_min','eliminado', 'codigo_barra'];
 
-    public function getProdBaja($eliminado){
+    // Agregamos método para paginar con condición
+    public function getProductosPaginados($eliminado = 'NO', $busqueda = null)
+    {
+    $builder = $this->where('eliminado', $eliminado);
 
-    	return $this->where('eliminado',$eliminado)->findAll();
+    if ($busqueda) {
+        $builder = $builder->like('nombre', $busqueda);
+    }
+
+    return $builder->paginate(20);
+    }
+
+    public function getPager()
+    {
+        return $this->pager;
     }
 
     public function getTipo($tipo){
@@ -31,5 +43,6 @@ class Productos_model extends Model
 
     	return $this->where('stock <= stock_min')->findAll();
     }
+    
 
 }

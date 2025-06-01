@@ -93,7 +93,8 @@
   
   <br><br>
   <?php $Recaudacion = 0; ?>
-  <table class="table table-responsive table-hover" id="users-list">
+  <table class="table table-responsive table-hover" id="users-list" style="text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, 
+                 -1px 1px 0 #000, 1px 1px 0 #000;">
        <thead>
           <tr class="colorTexto2">
              <th>Nro Venta</th>
@@ -141,7 +142,7 @@
                 } else {
                     echo 'transparent'; // Fondo transparente si no coincide con ninguna condición
                 }
-            ?>; color: #ffff;">$<?php echo $vta['total_bonificado']; ?></td>
+            ?>; color: #ffff;">$<?php echo number_format($vta['total_bonificado'], 0, '.', '.'); ?></td>
             <td><?php echo $vta['tipo_pago']; ?></td>
                         
              <td class="row">               

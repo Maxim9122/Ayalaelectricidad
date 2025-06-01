@@ -68,9 +68,10 @@
     </svg>Despachados</a>
   <br><br>
   <?php $Recaudacion = 0; ?>
-  <table class="table table-responsive table-hover" id="users-list">
+  <table class="table table-responsive table-hover" id="users-list" style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;">
        <thead>
-          <tr class="colorTexto2">
+          <tr class="" style="color:black">
              <th>Nro Pedido</th>
              <th style="color:orange">Cliente</th>
              <th>Teléfono</th>
@@ -104,7 +105,7 @@
             
         <td>
         <div class="dropdown">
-        <span class="dropdown-toggle btn">Acciones▼</span>
+        <span class="dropdown-toggle btn" style="color:black">Acciones▼</span>
         <ul class="dropdown-menu">
             <li>
                 <a href="<?php echo base_url('DetalleVta/'.$p['id']); ?>">

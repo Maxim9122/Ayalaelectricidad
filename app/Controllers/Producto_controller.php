@@ -236,36 +236,44 @@ class Producto_controller extends Controller{
        
     }
 
-	public function ProductosDisp(){
-        $session = session();
-        
-        if (!$session->has('id')) { 
-            return redirect()->to(base_url('login'));
-        }
-        $Model = new categoria_model();
-    	$dato['categorias']=$Model->getCategoria();//trae la categoria del db
-        $ProductosModel = new Productos_model();
-        $eliminado = 'NO';
-        $productos = $ProductosModel->getProdBaja($eliminado);
+	public function ProductosDisp() {
+    $session = session();
     
-        // Verificar si algún producto tiene stock bajo
-        $productos_bajo_stock = array_filter($productos, function($producto) {
-            return $producto['stock'] <= $producto['stock_min'];
-        });
-    
-        // Si hay productos con stock bajo, guardamos un mensaje en sesión
-        if (!empty($productos_bajo_stock)) {
-            $session->setFlashdata('mensaje_stock', '¡Atención! Algunos productos tienen stock bajo o nulo.');
-        }
-    
-        $dato1['titulo'] = 'Productos Disponibles'; 
-        $data['productos'] = $productos;
-    
-        echo view('navbar/navbar');
-        echo view('header/header', $dato1);        
-        echo view('productos/listar', $data + $dato);
-        echo view('footer/footer');
+    if (!$session->has('id')) {
+        return redirect()->to(base_url('login'));
     }
+
+    $Model = new categoria_model();
+    $dato['categorias'] = $Model->getCategoria();
+
+    $ProductosModel = new Productos_model();
+    $eliminado = 'NO';
+
+    // Obtener productos paginados
+    $busqueda = $this->request->getGet('search');
+    $productos = $ProductosModel->getProductosPaginados($eliminado, $busqueda);
+
+    $pager = $ProductosModel->getPager();
+
+    // Verificar si hay productos con stock bajo
+    $productos_bajo_stock = array_filter($productos, function($producto) {
+        return $producto['stock'] <= $producto['stock_min'];
+    });
+
+    if (!empty($productos_bajo_stock)) {
+        $session->setFlashdata('mensaje_stock', '¡Atención! Algunos productos tienen stock bajo o nulo.');
+    }
+
+    $dato1['titulo'] = 'Productos Disponibles';
+    $data['productos'] = $productos;
+    $data['pager'] = $pager;
+
+    echo view('navbar/navbar');
+    echo view('header/header', $dato1);        
+    echo view('productos/listar', $data + $dato);
+    echo view('footer/footer');
+}
+
     
 
     public function ProductosStockBajo(){

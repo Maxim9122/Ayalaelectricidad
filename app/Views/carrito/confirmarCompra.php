@@ -66,9 +66,8 @@ if ($session->has('nombre_vendedor')) {
     $nombre_vendedor = $session->get('nombre_vendedor');
 }
 
-//print_r($nombre_cli);
+//print_r($estado);exit;
 
-//exit;
 if ($session->has('total_venta')) {
     $total_venta = $session->get('total_venta');
 }
@@ -108,7 +107,8 @@ endif;
         ?>
         <br>
         <div align="center">
-            <u><i><h2 align="center" style="color:black;">Resumen de la Compra</h2></i></u>
+            <u><i><h2 align="center" style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;">Resumen de la Compra</h2></i></u>
 
             <?php if($estado == 'Cobrando'){ ?>
                 <!-- Botón para abrir el modal -->
@@ -157,6 +157,27 @@ endif;
             <br>
         <?php endif; ?>
             <table style="font-weight: 900;" class="tableResponsive">
+            <tr>
+                <td style="color:black;"><strong>Tipo de Compra o Pedido:</strong></td>
+                <td>
+                <select name="tipo_compra" id="tipoCompra" class="selector" onchange="toggleInputs()">
+                <?php if ($estado == 'Cobrando') {  ?>
+                    <option value="Compra_Normal" <?php echo $tipo_compra == 'Compra_Normal' ? 'selected' : ''; ?>>
+                    <?php echo $estado; ?> -> <?php echo $tipo_compra; ?>
+                    </option>
+                    <?php } else if ($tipo_compra == 'Compra_Normal') {  ?>
+                        <option value="Compra_Normal" <?php echo $tipo_compra == 'Compra_Normal' ? 'selected' : ''; ?>>Compra Normal</option>  
+                    <?php } else if ($tipo_compra == 'Pedido') {  ?>
+                        <option value="Pedido" <?php echo $tipo_compra == 'Pedido' ? 'selected' : ''; ?>>Reservar Pedido</option>
+                    <?php } else {  ?>                    
+                        <option value="Compra_Normal" selected>Compra Normal</option>
+                        <option value="Pedido">Reservar Pedido</option>
+                    <?php } ?>
+                </select>
+                <?php echo form_hidden('tipo_compra_input', $tipo_compra); ?>
+                </td>
+            </tr>
+            
             <tr>
             <td style="color:black;"><strong>Total General:</strong></td>
             <td style="color:black;">
@@ -228,14 +249,14 @@ endif;
                     </td>
                 </tr>
 
-                <tr>
+                <tr id="transferenciaRow">
                     <td style="color:black;"><strong>Monto en Transferencia:</strong></td>
                     <td>
                         <input class="selector" type="text" id="pagoTransferencia" name="pagoTransferencia" placeholder="Monto en $" maxlength="15" oninput="this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'); formatearMiles(); calcularMontoEfectivo();">
                     </td>
                 </tr>
                 
-                <tr>
+                <tr id="efectivoRow">
                     <td style="color:black;"><strong>Monto en Efectivo:</strong></td>
                     <td>
                         <input class="selector" type="text" id="pagoEfectivo" name="pagoEfectivo" placeholder="Monto en $" maxlength="15" readonly>
@@ -243,33 +264,6 @@ endif;
                 </tr>
                 <?php endif; ?>
 
-                <tr>
-                <td style="color:black;"><strong>Tipo de Compra o Pedido:</strong></td>
-                <td>
-                <select name="tipo_compra" id="tipoCompra" class="selector">
-                <?php if ($estado == 'Cobrando') {  ?>
-
-                    
-                    <option value="Compra_Normal" <?php echo $tipo_compra == 'Compra_Normal' ? 'selected' : ''; ?>>
-                    <?php echo $estado; ?> -> <?php echo $tipo_compra; ?>
-                    </option>
-
-                    <?php } else if ($tipo_compra == 'Compra_Normal') {  ?>
-                        <option value="Compra_Normal" <?php echo $tipo_compra == 'Compra_Normal' ? 'selected' : ''; ?>>Compra Normal</option>  
-            
-                    <?php } else if ($tipo_compra == 'Pedido') {  ?>
-                        <option value="Pedido" <?php echo $tipo_compra == 'Pedido' ? 'selected' : ''; ?>>Reservar Pedido</option>
-                    
-                    <?php } else {  ?>                    
-                        <option value="Compra_Normal" <?php echo $tipo_compra == 'Compra_Normal' ? 'selected' : ''; ?>>Compra Normal</option>
-                        <option value="Pedido" <?php echo $tipo_compra == 'Pedido' ? 'selected' : ''; ?>>Reservar Pedido</option>
-                    
-                    <?php } ?>
-                </select>
-                <?php echo form_hidden('tipo_compra_input', $tipo_compra); ?>
-                </td>
-
-                </tr>
                 <tr id="fechaPedidoFila" style="display: <?php echo !empty($fecha_pedido) ? 'table-row' : 'none'; ?>;">
                 <td style="color:black;"><strong>Fecha de entrega del Pedido:</strong></td>
                 <td>
@@ -280,7 +274,7 @@ endif;
                 </td>
                 </tr>   
                 
-                <?php if ($estado == 'Cobrando') {  ?>
+                <?php if ($estado == '') {  ?>
                 <tr>
                 <td style="color:black;"><strong>Con Envío:</strong></td>
                 <td>
@@ -305,10 +299,12 @@ endif;
             </table>
             <section class="botones-container" style="width:65%;">
 
-            <?php if ($total_venta == 0) { ?>               
-            <a class="btn" href="<?php echo base_url('CarritoList') ?>">Volver</a>
-            <?php } ?>
-
+            <?php if ($gran_total > 0 || $total_venta > 0) { ?>               
+                <a class="btn" href="<?php echo base_url('CarritoList') ?>">Volver</a>
+            <?php } else {?>
+                <a class="btn" href="<?php echo base_url('catalogo') ?>">Volver a Productos</a>
+            <?php } ?>    
+            
             <?php if ($total_venta > 0) { ?>
                 <a href="<?php echo base_url('cancelarCobro/'.$id_pedido);?>" class="btn danger" onclick="return confirmarAccionC_Cobro();">
                     Cancelar Cobro
@@ -317,7 +313,7 @@ endif;
                 <a href="<?php echo base_url('cancelar_edicion/'.$id_pedido);?>" class="btn danger" onclick="return confirmarAccionPedido();">
                     Cancelar Modificación Pedido
                 </a>
-            <?php } else { ?>
+            <?php } else if ($gran_total > 0){ ?>
                 <a href="<?php echo base_url('carrito_elimina/all');?>" class="btn danger" onclick="return confirmarAccionCompra();">
                     Cancelar Todo
                 </a>
@@ -325,12 +321,19 @@ endif;
             
             <?php echo form_hidden('id_pedido', $id_pedido); ?>
             <?php echo form_hidden('tipo_proceso', ''); ?>
+                
+            <?php if ($gran_total > 0 || $total_venta > 0) { ?>
+    
+                <?php if ($estado == 'Modificando' || $estado == '') { ?>
+                    <input type="submit" name="confirmarPerfil2" value="Registrar Pedido" class="btn" id="registrarPedidoBtn">
+                <?php } ?>
 
-            
-                <input type="submit" name="confirmarPerfil2" value="Registrar Pedido" class="btn">
-            
-                <input type="submit" name="confirmarPerfil3" value="Registrar Compra" class="btn">            
-             
+                <?php if ($estado == 'Cobrando' || $estado == '') { ?>
+                    <input type="submit" name="confirmarPerfil3" value="Registrar Venta" class="btn" id="registrarCompraBtn">
+                <?php } ?>
+
+            <?php } ?>
+
 
             </section>
 
@@ -355,7 +358,35 @@ endif;
                 document.getElementById("costoEnvio").value = ""; // Limpiar el valor
             }
         });
+        
+        // Ejecutar toggleInputs al cargar la página
+        toggleInputs();
     });
+
+    // Función para mostrar/ocultar elementos según el tipo de compra
+    function toggleInputs() {
+    const tipoCompra = document.getElementById("tipoCompra").value;
+    const transferenciaRow = document.getElementById("transferenciaRow");
+    const efectivoRow = document.getElementById("efectivoRow");
+    const fechaPedidoFila = document.getElementById("fechaPedidoFila");
+    const registrarPedidoBtn = document.getElementById("registrarPedidoBtn");
+    const registrarCompraBtn = document.getElementById("registrarCompraBtn");
+    const estadoModificando = <?php echo json_encode($estado == 'Modificando'); ?>;
+    
+    if (tipoCompra === "Pedido" || estadoModificando) {
+        if (transferenciaRow) transferenciaRow.style.display = "none";
+        if (efectivoRow) efectivoRow.style.display = "none";
+        fechaPedidoFila.style.display = "table-row";
+        registrarPedidoBtn.style.display = "inline-block";
+        registrarCompraBtn.style.display = "none";
+    } else {
+        if (transferenciaRow) transferenciaRow.style.display = "table-row";
+        if (efectivoRow) efectivoRow.style.display = "table-row";
+        fechaPedidoFila.style.display = "none";
+        registrarPedidoBtn.style.display = "none";
+        registrarCompraBtn.style.display = "inline-block";
+    }
+    }
 
     // Función para formatear el costo de envío
     function formatearCostoEnvio(input) {
@@ -629,360 +660,4 @@ $totalVenta = ($gran_total > 0) ? $gran_total : $total_venta;
             actualizarFechaPedido();
         });
     });
-</script>
-
-<!-- Modal para Perfil 3 (Imprimir Presupuesto o Facturar) -->
-<div id="confirmationModalPerfil3" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <p>¿Confirmar la Venta.?</p>
-        <button id="invoiceArca" class="btn" style="display: none;">Facturar C (Arca)</button>
-        <br><br>
-        <button id="printTicket" class="btn">Si, Imprimir Remito</button>
-
-    </div>
-</div>
-
-<!-- Segundo modal (Confirmación de facturación) -->
-<div id="confirmationFacturaModal" class="modal">
-    <div class="modal-content">
-        <span class="closeFactura">&times;</span>
-        <p>¿Estás seguro de que deseas FACTURAR.? (Factura tipo C)</p>
-        <button id="confirmFactura" class="btn">Sí, Facturar</button>
-        <button id="cancelFactura" class="btn danger">Cancelar</button>
-    </div>
-</div>
-
-
-
-<!-- Modal para Perfil 2 (Registrar Compra) -->
-<div id="confirmationModalPerfil2" class="modal">
-    <div class="modal-content">
-        <span class="close" id="closePerfil2">&times;</span>
-        <p>¿Registrar Compra/Pedido.?</p>
-        <button id="confirmarRegistro" class="btn">Sí, Registrar</button>
-    </div>
-</div>
-        <!-- Script Modal perfil 2 -->
-<script>
-   document.addEventListener("DOMContentLoaded", function () {
-    const modalConfirmacionPerfil2 = document.getElementById("confirmationModalPerfil2");
-    const btnConfirmarPerfil2 = document.querySelector("input[name='confirmarPerfil2']");
-    const spanClosePerfil2 = document.getElementById("closePerfil2"); // Cambiado a ID
-    const btnConfirmarRegistro = document.getElementById("confirmarRegistro");
-
-    function abrirModal(modal) {
-        modal.style.display = "block";
-        setTimeout(() => modal.classList.add("show"), 10);
-    }
-
-    function cerrarModal(modal) {
-        modal.classList.remove("show");
-        setTimeout(() => modal.style.display = "none", 300);
-    }
-
-    // Abrir modal al hacer clic en "Confirmar"
-    btnConfirmarPerfil2.addEventListener("click", function (event) {
-        event.preventDefault();
-        abrirModal(modalConfirmacionPerfil2);
-    });
-
-    // Cerrar modal al hacer clic en "Sí, Registrar"
-    btnConfirmarRegistro.addEventListener("click", function () {
-        document.querySelector("form").submit();
-    });
-
-    // Cerrar modal al hacer clic en la "X"
-    spanClosePerfil2.addEventListener("click", function () {
-        cerrarModal(modalConfirmacionPerfil2);
-    });
-
-    // Cerrar modal al hacer clic fuera del contenido
-    window.addEventListener("click", function (event) {
-        if (event.target == modalConfirmacionPerfil2) {
-            cerrarModal(modalConfirmacionPerfil2);
-        }
-    });
-
-    // Cerrar modal al presionar la tecla Escape
-    window.addEventListener("keydown", function (event) {
-        if (event.key === "Escape") {
-            cerrarModal(modalConfirmacionPerfil2);
-        }
-    });
-});
-</script>
-
-<style>
-
-   /* Estilos para el modal */
-
-.modal {
-    display: none; /* Oculto por defecto */
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-
-    background-color: rgba(0, 0, 0, 0.4);
-
-    padding-top: 60px;
-}
-
-/* Agregamos animación de zoom */
-.modal-content {
-    background-color: #fefefe;
-    margin: 5% auto;
-    padding: 20px;
-    border: 7px solid #888;
-    width: 70%;
-    max-width: 400px;
-    text-align: center;
-    transform: scale(0.5); /* Estado inicial pequeño */
-    transition: transform 0.3s ease-in-out;
-}
-
-.modal-content p {
-    font-weight: 750;
-    background-color: #fefefe;
-    margin: 5% auto;
-    padding: 20px;
-    border: 7px solid #888;
-    width: 70%;
-    max-width: 400px;
-    text-align: center;
-}
-
-/* Cuando el modal se muestra, aplicamos el efecto de zoom */
-.modal.show .modal-content {
-    transform: scale(1); /* Escala normal al abrir */
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    font-weight: 700;
-    color: red;
-    text-decoration: none;
-    cursor: pointer;
-    box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.3);
-}
-</style>
-
-
-<!-- Script para el manejo del modal del Cajero (perfil 3)-->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-    const modalConfirmacionPerfil3 = document.getElementById("confirmationModalPerfil3");
-    const modalFactura = document.getElementById("confirmationFacturaModal");
-    const btnConfirmarPerfil3 = document.querySelector("input[name='confirmarPerfil3']");
-    const btnInvoiceArca = document.getElementById("invoiceArca");
-    const btnPrintTicket = document.getElementById("printTicket");
-    const spanClosePerfil3 = document.getElementsByClassName("close")[0];
-
-    const spanCloseFactura = document.getElementsByClassName("closeFactura")[0];
-    const btnConfirmFactura = document.getElementById("confirmFactura");
-    const btnCancelFactura = document.getElementById("cancelFactura");
-    const tipoProcesoInput = document.querySelector("input[name='tipo_proceso']");
-
-
-    function abrirModal(modal) {
-        modal.style.display = "block";
-        setTimeout(() => modal.classList.add("show"), 10);
-    }
-
-    function cerrarModal(modal) {
-        modal.classList.remove("show");
-        setTimeout(() => modal.style.display = "none", 300);
-    }
-
-    btnConfirmarPerfil3.addEventListener("click", function (event) {
-        event.preventDefault();
-        abrirModal(modalConfirmacionPerfil3);
-
-    });
-
-    btnInvoiceArca.addEventListener("click", function (event) {
-        event.preventDefault();
-
-        cerrarModal(modalConfirmacionPerfil3);
-
-        setTimeout(() => abrirModal(modalFactura), 300);
-    });
-
-    btnPrintTicket.addEventListener("click", function () {
-        tipoProcesoInput.value = "ticket";
-        document.querySelector("form").submit();
-    });
-
-    btnConfirmFactura.addEventListener("click", function () {
-        tipoProcesoInput.value = "factura";
-        document.querySelector("form").submit();
-    });
-
-    btnCancelFactura.addEventListener("click", function () {
-        cerrarModal(modalFactura);
-
-        setTimeout(() => abrirModal(modalConfirmacionPerfil3), 300);
-    });
-
-    spanClosePerfil3.addEventListener("click", function () {
-        cerrarModal(modalConfirmacionPerfil3);
-
-    });
-
-    spanCloseFactura.addEventListener("click", function () {
-        cerrarModal(modalFactura);
-    });
-
-    window.addEventListener("click", function (event) {
-
-        if (event.target == modalConfirmacionPerfil3) {
-            cerrarModal(modalConfirmacionPerfil3);
-
-        }
-        if (event.target == modalFactura) {
-            cerrarModal(modalFactura);
-        }
-    });
-
-    window.addEventListener("keydown", function (event) {
-        if (event.key === "Escape") {
-
-            cerrarModal(modalConfirmacionPerfil3);
-
-            cerrarModal(modalFactura);
-        }
-    });
-});
-
-</script>
-
-
-<style>
-    .modal-personalizado {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    justify-content: center;
-    align-items: center;
-    }
-
-    .modal-contenido {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        width: 80%;
-        max-width: 800px;
-        transform: scale(0); /* Inicia invisible (zoom out) */
-        transition: transform 0.3s ease; /* Duración de la animación */
-        border-color: #8be9fd;
-        box-shadow: 0 0 15px #8be9fd;
-    }
-
-    /* Zoom al abrir */
-    .modal-contenido.zoom-in {
-        transform: scale(1); /* Escala normal */
-    }
-
-    /* Zoom al cerrar */
-    .modal-contenido.zoom-out {
-        transform: scale(0); /* Vuelve a escala 0 */
-    }
-
-    .cerrar-modal {
-        position: absolute;
-        right: 15px;
-        top: 10px;
-        font-size: 30px;
-        color: #888;
-        cursor: pointer;
-    }
-
-    .cerrar-modal:hover {
-        color: red;
-    }
-
-    .tabla-detalles {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px;        
-    }
-
-    .tabla-detalles th, .tabla-detalles td {
-        border: 1px solid #ddd;
-        padding: 10px;
-        text-align: left;
-    }
-
-    .tabla-detalles th {
-        background-color: #f5f5f5;
-    }
-
-    .btn-ver-detalles {
-        padding: 10px 20px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-    }
-
-    .btn-ver-detalles:hover {
-        background-color: #45a149;
-    }
-</style>
-
-<script>
-   function abrirModal() {
-    const modal = document.getElementById('miModal');
-    const modalContent = modal.querySelector('.modal-contenido');
-    
-    // Resetear estilos antes de abrir
-    modal.style.display = 'flex';
-    modalContent.classList.remove('zoom-out');
-    
-    // Forzar un "reflow" para que la animación funcione
-    void modalContent.offsetWidth; // Truco para reiniciar la animación
-    
-    // Aplicar zoom-in
-    modalContent.classList.add('zoom-in');
-}
-
-function cerrarModal() {
-    const modal = document.getElementById('miModal');
-    const modalContent = modal.querySelector('.modal-contenido');
-    
-    // Quitar zoom-in y aplicar zoom-out
-    modalContent.classList.remove('zoom-in');
-    modalContent.classList.add('zoom-out');
-    
-    // Esperar a que termine la animación antes de ocultar
-    setTimeout(() => {
-        modal.style.display = 'none';
-    }, 300); // 300ms = duración de la animación (debe coincidir con CSS)
-}
-
-// Cerrar al hacer clic fuera del modal
-window.onclick = function(event) {
-    const modal = document.getElementById('miModal');
-    if (event.target === modal) {
-        cerrarModal();
-    }
-};
 </script>

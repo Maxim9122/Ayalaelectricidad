@@ -100,7 +100,8 @@
           </li>
 
           <?php } else if( (($perfil == 2 || $perfil == 3)) ) { ?>
-          <li class="navItem">
+          <li class="navItem" style="text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, 
+                 -1px 1px 0 #000, 1px 1px 0 #000;">
           
 
         <?php if ($estado): ?>
@@ -129,7 +130,7 @@
         ?>
 
         <h5 class="resaltado" style="
-        color: white; 
+        color: black; 
         font-weight: bold; 
         border: 1px solid <?php echo $color; ?>; 
         padding: 7px; 

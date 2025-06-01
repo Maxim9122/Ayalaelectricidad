@@ -229,7 +229,7 @@ label {
 }
 
 body {
-    background: linear-gradient(to bottom, #e0e0e0, #b0b0b0);
+    background: linear-gradient(rgba(33,33,33,0.372), rgba(33,33,33,0.372));
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -279,7 +279,7 @@ li{
 }
 
 .btn {
-    padding: .2rem .7rem;
+    padding: .3rem .7rem;
     background-color: var(--primary-black); /* Fondo negro */
     border: 2px solid var(--primary-white); /* Borde blanco */
     outline: none;

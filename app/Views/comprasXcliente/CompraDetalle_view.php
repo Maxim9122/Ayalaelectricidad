@@ -17,6 +17,7 @@ $vta_num = 0;
 .detalle-compra-tabla td {
     color: white; /* Letra blanca */
     font-weight: bold; /* Negrita */
+    background: #32404e;
 }
 
 </style>
@@ -28,7 +29,8 @@ $vta_num = 0;
 <div style="clear: both;"></div>
 <br>
 
-<h2 class="detalle-compra-titulo">Detalle de la Compra</h2>
+<h2 class="detalle-compra-titulo" style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;">Detalle de la Compra</h2>
 <br>
 
 <?php if (!empty($ventas)): ?>
@@ -117,9 +119,9 @@ $vta_num = 0;
     </thead>
     <tbody>
       <tr>
-          <td>$ <?php echo $total_anterior; ?></td>
-          <td>$ <?php echo $total_actual; ?></td>
-          <td style="color:orange;">$ <?php echo $total_actual - $total_anterior; ?></td>
+          <td>$ <?php echo number_format($total_anterior,0 ,'.','.'); ?></td>
+          <td>$ <?php echo number_format($total_actual,0 ,'.','.'); ?></td>
+          <td style="color:orange;">$ <?php echo number_format(($total_actual - $total_anterior),0 ,'.','.'); ?></td>
       </tr>
     </tbody>
   </table>
@@ -162,8 +164,8 @@ $vta_num = 0;
             <td><?php echo $vta['id']; ?></td>
             <td><?php echo $vta['nombre']; ?></td>
             <td><?php echo $vta['cantidad']; ?></td>
-            <td>$ <?php echo $vta['precio']; ?></td>
-            <td>$ <?php echo $vta['total']; ?></td>
+            <td>$ <?php echo number_format($vta['precio'],0 ,'.','.'); ?></td>
+            <td>$ <?php echo number_format($vta['total'],0 ,'.','.'); ?></td>
           </tr>
         <?php endforeach; ?>
       <?php endif; ?>
@@ -176,38 +178,23 @@ $vta_num = 0;
       <tr>
           <th>Pago Efectivo</th>
           <th>Pago Transferencia</th>
-          <th>Pago Tarteja C.Adi.</th>
+         <!-- <th>Pago Tarteja C.Adi.</th> -->
           <th>Total</th>
       </tr>
       <br>
     </thead>
     <tbody>
       <tr>
-          <td>$ <?php echo $monto_efectivo; ?></td>
-          <td>$ <?php echo $monto_transferencia; ?></td>
-          <td>$ <?php echo $monto_tarjetaC; ?></td>
-          <td style="background-color:green;">$ <?php echo $monto_transferencia + $monto_efectivo + $monto_tarjetaC; ?></td>
+          <td>$ <?php echo number_format($monto_efectivo,0 ,'.','.'); ?></td>
+          <td>$ <?php echo number_format($monto_transferencia,0 ,'.','.'); ?></td>
+         <!-- <td>$ <?php echo number_format($monto_tarjetaC,0 ,'.','.'); ?></td> -->
+          <td style="background-color:green;">$ <?php echo number_format(($monto_transferencia + $monto_efectivo + $monto_tarjetaC),0 ,'.','.'); ?></td>
       </tr>
     </tbody>
   </table>
         <!-- Totales con desc y sin y adicionaes o no-->
         </table>
-  <table class="comprados detalle-compra-tabla">
-    <thead>
-      <tr>
-          <th>Total Con Descuento Pago Efectivo y Pago Tarjeta Sin Adicional</th>
-         
-      </tr>
-      <br>
-    </thead>
-    <tbody>
-      <tr>
-
-      <td>$ <?php echo $monto_transferencia + $monto_efectivo + ($monto_tarjetaC / 1.1); ?></td>
-          
-      </tr>
-    </tbody>
-  </table>
+  
   <?php } ?>
         <!-- Total venta sin descuento-->
   </table>
@@ -221,7 +208,7 @@ $vta_num = 0;
     </thead>
     <tbody>
       <tr>
-          <td>$ <?php echo $total_sin_desc; ?></td>
+          <td>$ <?php echo number_format($total_sin_desc ,0 ,'.','.'); ?></td>
           
       </tr>
     </tbody>

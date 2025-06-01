@@ -28,6 +28,7 @@
         z-index: 1000;
         box-shadow: 0px 0px 10px #ff073a; /* Efecto neón */
     }
+    
 </style>
 <script>
     setTimeout(function() {
@@ -70,40 +71,31 @@ function cerrarMensaje() {
   <br>
   
   <style>
-    /* Mover el buscador a la derecha */
-    .dataTables_filter {
-        display: flex;
-        justify-content: flex-end;
-        width: 100%;
-    }
-
-    /* Mover el selector de "registros por página" a la derecha */
-    .dataTables_length {
-        text-align: right;
-        width: 100%;
-    }
-
-    .dataTables_length select {
-        display: inline-block;
-        margin: 0 auto;
-    }
-
-    /* Hacer el campo de búsqueda más largo y ancho */
-    .dataTables_filter input {
-        width: 300px; /* Ajusta el tamaño según sea necesario */
-        height: 55px; /* Ajusta la altura si lo deseas */
-        font-size: 24px; /* Tamaño de la fuente */
-        padding: 5px 10px; /* Añadir espacio dentro del campo */
-        border-radius: 5px; /* Bordes redondeados */
-        border: 1px solid #ccc; /* Borde gris claro */
-    }
-
-    /* Cambiar el color y hacer más nítida la letra del placeholder */
-    .dataTables_filter input::placeholder {
-        color: white; /* Cambiar a blanco */
-        opacity: 1; /* Asegura que el color del placeholder no sea opaco */
-        font-weight: bold; /* Hacer el texto más nítido */
-    }
+    .paginacion-productos .pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+}
+.paginacion-productos .pagination li {
+    margin: 10px 5px;
+}
+.paginacion-productos .pagination li a,
+.paginacion-productos .pagination li span {
+    display: inline-block;
+    padding: 8px 12px;
+    background-color: #000;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    border: 1px solid #ff073a;
+}
+.paginacion-productos .pagination li.active span {
+    background-color: #ff073a;
+    color: black;
+    font-weight: bold;
+}
+    
 </style>
 
 
@@ -145,19 +137,20 @@ function cerrarMensaje() {
     </section>
 
     <div style="position: relative; width: 100%;">
-    <!-- Tu contenido actual aquí -->
+    <!-- Tu contenido actual aquí
      <?php if($perfil == 1 || $perfil == 3){?>
      <br><br><br>                   
-    <!-- Botón Descontar Defectuosos -->
+     Botón Descontar Defectuosos
     <a class="btn" href="<?php echo base_url('descontarDefectuosos');?>" style="position: absolute; bottom: 0; right: 0; margin: 20px; color:red; font-weight: 900;">
         Descontar Defectuosos
     </a>
-    <?php  } ?>
+    <?php  } ?> -->
 </div>
 
-  <table class="" id="users-list">
+  <table class="" id="" style="color:black; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;">
    <thead>
-      <tr class="colorTexto2">
+      <tr style="color:black;">
          <th>Nombre</th>
          <th>Precio Venta</th>        
          <th class="ocultar-en-movil">Categoría</th>        
@@ -208,7 +201,7 @@ function cerrarMensaje() {
                <?php echo form_hidden('precio_vta', $prod['precio_vta']); ?>
                
                <input type="hidden" name="cantidad" id="inputCantidad_<?php echo $prod['id']; ?>" value="1">
-               <?php if($perfil == 2 || $estado == 'Modificando' || $estado == 'Modificando_SF') {?>
+               <?php if($perfil || $estado == 'Modificando' || $estado == 'Modificando_SF') {?>
                <button type="submit" class="btn btn-agregar" data-id="<?php echo $prod['id']; ?>">Agregar</button>
                <?php  } ?>
                <?php echo form_close(); ?>
@@ -220,8 +213,20 @@ function cerrarMensaje() {
          
       </tr>
       <?php endforeach; ?>
-      <?php endif; ?>
+      <?php endif; ?>   
+
    </tbody>
+   <div class="paginacion-productos" style="text-align: end; margin-top: 20px;">
+    <?= $pager->links() ?>
+    </div>
+
+    <form method="get" action="<?= base_url('catalogo') ?>" style="margin-bottom: 20px; text-align: center;">
+    <?php $request = \Config\Services::request(); ?>
+    <input type="text" name="search" value="<?= esc($request->getGet('search')) ?>" placeholder="Buscar productos...">
+    <button type="submit" style="padding: 8px;">Buscar</button>
+    </form>
+
+
 </table>
      <br>
   </div>
