@@ -1143,10 +1143,11 @@ public function ListCompraDetalle($id)
     
 
     //Identifico si es una compra para facturar si este campo viene con el dato "Factura"
-    $facturacion = $this->request->getPost('tipo_proceso');
+    $proceso = $this->request->getPost('tipo_proceso');
+    //print_r($proceso);exit;
     
     //Si el tipo de proceso es para facturar y el estado es Cobrando se manda a facturar.
-    if($estado == 'Cobrando' && $facturacion == "factura"){
+   /* if($estado == 'Cobrando' && $facturacion == "factura"){
                 
             $Cabecera_model = new Cabecera_model();
             $Cabecera_model->update($id_pedido, [
@@ -1169,7 +1170,7 @@ public function ListCompraDetalle($id)
         $cart->destroy(); 
         //Una vez guardada la compra manda a verificar la factura en ARCA.
         return redirect()->to('Carrito_controller/verificarTA/' . $id_pedido);
-    }
+    } */
 
 
     // Guardar la nueva cabecera del Pedido (Nuevo) utiliza el mismo carrito.
@@ -1241,8 +1242,13 @@ public function ListCompraDetalle($id)
                 $session->remove(['nombre_cli','estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
             }
             
-            $cart->destroy();            
-            return redirect()->to('Carrito_controller/generarTicket/' . $id_pedido);
+            $cart->destroy(); 
+            if($proceso == 'boleta'){            
+                return redirect()->to('Carrito_controller/generarTicket/' . $id_pedido);
+            } else {
+                session()->setFlashdata('msg', 'Compra Registrada con Exito!');
+                return redirect()->to('catalogo');
+            }
         }
         
 
@@ -1283,10 +1289,14 @@ public function ListCompraDetalle($id)
         session()->setFlashdata('msg', 'Compra Registrada con Exito!');
         return redirect()->to('catalogo');
     }
+    
+    if($proceso == 'boleta'){            
+        return redirect()->to('Carrito_controller/generarTicket/' . $id_cabecera);
+    } else {
+        session()->setFlashdata('msg', 'Compra Registrada con Exito!');
+        return redirect()->to('catalogo');
+    }
 
-    session()->setFlashdata('msg', 'Compra Guardada con Éxito!');
-    // Redirige a la vista de la factura
-    return redirect()->to('Carrito_controller/generarTicket/' . $id_cabecera);
 }
 
 
@@ -1507,7 +1517,13 @@ public function generarPresupuesto($id_cabecera)
     // Guardar el archivo PDF en un archivo temporal
     $output = $dompdf->output();
     $tempFolder = 'path/to/temp/folder';  // Ruta de la carpeta temporal
-    $tempFile = $tempFolder . '/ticket.pdf';  // Ruta completa del archivo PDF
+    // Sanitizar nombre del cliente para usarlo como nombre de archivo
+    $nombreClienteSanitizado = preg_replace('/[^A-Za-z0-9_\-]/', '_', $cabecera['nombre_prov_client']);
+    $nombreArchivo = 'presupuesto_' . $nombreClienteSanitizado . '.pdf';
+    $tempFile = $tempFolder . '/' . $nombreArchivo;
+
+    // Guardar el nombre del archivo en sesión para usarlo luego
+    session()->set('nombre_archivo_presupuesto', $nombreArchivo);
     
     // Crear la carpeta si no existe
     if (!is_dir($tempFolder)) {
@@ -1765,7 +1781,14 @@ public function generarTicket($id_cabecera)
     // Guardar el archivo PDF en un archivo temporal
     $output = $dompdf->output();
     $tempFolder = 'path/to/temp/folder';  // Ruta de la carpeta temporal
-    $tempFile = $tempFolder . '/ticket.pdf';  // Ruta completa del archivo PDF
+    // Sanitizar nombre del cliente para usarlo como nombre de archivo
+    $nombreClienteSanitizado = preg_replace('/[^A-Za-z0-9_\-]/', '_', $cabecera['nombre_prov_client']);
+    $nombreArchivo = 'boleta_' . $nombreClienteSanitizado . '.pdf';
+    $tempFile = $tempFolder . '/' . $nombreArchivo;
+
+    // Guardar el nombre del archivo en sesión para usarlo luego
+    session()->set('nombre_archivo_presupuesto', $nombreArchivo);
+
     
     // Crear la carpeta si no existe
     if (!is_dir($tempFolder)) {
@@ -1803,7 +1826,14 @@ public function generarTicket($id_cabecera)
 // En tu ruta 'descargar_ticket', puedes usar:
 public function descargar_ticket()
 {
-    $filePath = 'path/to/temp/folder/ticket.pdf';
+    $tempFolder = 'path/to/temp/folder';
+    $nombreArchivo = session()->get('nombre_archivo_presupuesto');
+    $filePath = $tempFolder . '/' . $nombreArchivo;
+
+    if (file_exists($filePath)) {
+        return $this->response->download($filePath, null)->setFileName($nombreArchivo);
+    }
+
     if (file_exists($filePath)) {
         return $this->response->download($filePath, null)->setFileName('ticket.pdf');
     }

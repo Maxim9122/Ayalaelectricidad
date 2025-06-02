@@ -20,10 +20,14 @@ class Productos_model extends Model
     return $builder->paginate(20, 'default', $page);
     }
 
-
     public function getPager()
     {
         return $this->pager;
+    }
+
+    public function getProdBaja($eliminado){
+
+    	return $this->where('eliminado',$eliminado)->findAll();
     }
 
     public function getTipo($tipo){

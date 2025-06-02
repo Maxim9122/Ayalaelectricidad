@@ -115,19 +115,19 @@ if ($session->has('total_venta')) {
 }
 
 .cerrar-modal {
-    color: #39ff14;
+    color:rgb(230, 30, 30);
     float: right;
-    font-size: 28px;
+    font-size: 35px;
     font-weight: bold;
     cursor: pointer;
 }
 
 .cerrar-modal:hover {
-    color: #fff;
+    color: red;
 }
 
 .zoom-in {
-    animation: zoomIn 0.3s ease-in-out;
+    animation: zoomIn 0.5s ease-in-out;
 }
 
 @keyframes zoomIn {
@@ -356,7 +356,7 @@ endif;
                 </td>
                 </tr>   
                 
-                <?php if ($estado == '') {  ?>
+                <?php if ($estado == '' || $estado == 'Cobrando') {  ?>
                 <tr>
                 <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
                  -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Con Envío:</strong></td>
@@ -744,3 +744,111 @@ $totalVenta = ($gran_total > 0) ? $gran_total : $total_venta;
         });
     });
 </script>
+
+<!-- Fondo oscuro -->
+<div id="modalFondo" class="modal-fondo"></div>
+
+<!-- Modal de confirmación -->
+<div id="modalConfirmacion" class="modal-contenedor">
+    <p class="modal-texto">¿QUÉ DESEA HACER.?</p>
+    <div class="modal-botones">
+        <button type="button" class="btn-modal" onclick="seleccionarProceso('boleta')">BOLETA REMITO</button>
+        <button type="button" class="btn-modal" onclick="seleccionarProceso('guardar')">GUARDAR COMPRA</button>
+        <button type="button" class="btn-cancelar" onclick="cerrarModalP()">VOLVER</button>
+    </div>
+</div>
+<style>
+    .modal-fondo {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9998;
+}
+
+.modal-contenedor {
+    display: none;
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -30%);
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    border: 2px solid #444;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 9999;
+    max-width: 300px;
+    text-align: center;
+}
+
+.modal-texto {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #333;
+    font-weight:900;
+}
+
+.modal-botones {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-modal {
+    background-color: #1e90ff;
+    color: white;
+    font-weight:900;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-top:10px;
+}
+
+.btn-modal:hover {
+    background-color: #0d74d1;
+}
+
+.btn-cancelar {
+    background-color: #aaa;
+    color: white;
+    font-weight:900;
+    margin-top:10px;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-cancelar:hover {
+    background-color: #888;
+}
+
+</style>
+
+
+<script>
+document.getElementById('registrarCompraBtn').addEventListener('click', function(event) {
+    event.preventDefault();
+    document.getElementById('modalConfirmacion').style.display = 'block';
+    document.getElementById('modalFondo').style.display = 'block';
+});
+
+function seleccionarProceso(valor) {
+    document.querySelector('input[name="tipo_proceso"]').value = valor;
+    cerrarModal();
+    document.querySelector('form').submit();
+}
+
+function cerrarModalP() {
+    document.getElementById('modalConfirmacion').style.display = 'none';
+    document.getElementById('modalFondo').style.display = 'none';
+}
+</script>
+

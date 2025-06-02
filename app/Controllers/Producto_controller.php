@@ -29,7 +29,8 @@ class Producto_controller extends Controller{
         
         // Validar y actualizar precio
         if ($this->request->getPost('precio') !== null && $this->request->getPost('precio') !== '') {
-            $nuevoPrecio = (float)$this->request->getPost('precio');
+            $nuevoPrecio = $this->request->getPost('precio');
+            $nuevoPrecio = str_replace('.', '', $nuevoPrecio); // Elimina el punto de miles
             if ($nuevoPrecio != $productoActual['precio']) {
                 $data['precio'] = $nuevoPrecio;
                 $hayCambios = true;
@@ -38,7 +39,8 @@ class Producto_controller extends Controller{
         
         // Validar y actualizar precio_vta
         if ($this->request->getPost('precio_vta') !== null && $this->request->getPost('precio_vta') !== '') {
-            $nuevoPrecioVta = (float)$this->request->getPost('precio_vta');
+            $nuevoPrecioVta = $this->request->getPost('precio_vta');            
+            $nuevoPrecioVta = str_replace('.', '', $nuevoPrecioVta); // Elimina el punto de miles         
             if ($nuevoPrecioVta != $productoActual['precio_vta']) {
                 $data['precio_vta'] = $nuevoPrecioVta;
                 $hayCambios = true;
@@ -53,7 +55,8 @@ class Producto_controller extends Controller{
                 $hayCambios = true;
             }
         }
-        
+    $page = $this->request->getPost('page') ?? 1;
+    
         // Actualizar solo si hay cambios
         if ($hayCambios) {
             try {
@@ -66,7 +69,7 @@ class Producto_controller extends Controller{
             session()->setFlashdata('msg', 'No se realizaron cambios');
         }
         
-        return redirect()->to(base_url('Lista_Productos'));
+        return redirect()->to(base_url('Lista_Productos?page=' . $page));
     }
 
 	public function nuevoProducto(){
@@ -193,8 +196,16 @@ class Producto_controller extends Controller{
         $Model = new categoria_model();
     	$dato['categorias']=$Model->getCategoria();//trae la categoria del db
         $ProductosModel = new Productos_model();
-        $eliminado = 'NO';
-        $productos = $ProductosModel->getProdBaja($eliminado);
+        $eliminado = 'NO';       
+
+        // Capturamos la página actual de paginación (por defecto 1 si no existe)
+        $page = $this->request->getGet('page') ?? 1;
+
+        $busqueda = $this->request->getGet('search');
+        // Pasamos la página actual para que paginate sepa cuál devolver
+        $productos = $ProductosModel->getProductosPaginados($eliminado, $busqueda, $page);
+
+        $pager = $ProductosModel->getPager();
     
         // Verificar si algún producto tiene stock bajo
         $productos_bajo_stock = array_filter($productos, function($producto) {
@@ -207,8 +218,11 @@ class Producto_controller extends Controller{
         }
         //print_r($dato);
         //exit;
-        $dato1['titulo']='Lista de Productos'; 
+        $dato1['titulo'] = 'Productos Disponibles';
         $data['productos'] = $productos;
+        $data['pager'] = $pager;
+        $data['page'] = $page;  // <-- enviar la página actual a la vista
+
         echo view('navbar/navbar');
         echo view('header/header',$dato1);
          echo view('admin/productos_view', $data + $dato);
