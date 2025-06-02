@@ -8,7 +8,7 @@ class Productos_model extends Model
     protected $allowedFields = ['nombre','descripcion', 'imagen' ,'categoria_id', 'precio', 'precio_vta', 'stock','stock_min','eliminado', 'codigo_barra'];
 
     // Agregamos método para paginar con condición
-    public function getProductosPaginados($eliminado = 'NO', $busqueda = null)
+   public function getProductosPaginados($eliminado = 'NO', $busqueda = null, $page = 1)
     {
     $builder = $this->where('eliminado', $eliminado);
 
@@ -16,8 +16,10 @@ class Productos_model extends Model
         $builder = $builder->like('nombre', $busqueda);
     }
 
-    return $builder->paginate(20);
+    // paginate(20, 'default', página actual)
+    return $builder->paginate(20, 'default', $page);
     }
+
 
     public function getPager()
     {

@@ -87,6 +87,66 @@ if ($session->has('total_venta')) {
 .contenedor {
     text-align: center;
 }
+
+
+
+.modal-personalizado {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+}
+
+.modal-contenido {
+    background-color: #111;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #39ff14; /* Borde verde fluor */
+    width: 90%;
+    max-width: 600px;
+    color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 5px #39ff14;
+}
+
+.cerrar-modal {
+    color: #39ff14;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.cerrar-modal:hover {
+    color: #fff;
+}
+
+.zoom-in {
+    animation: zoomIn 0.3s ease-in-out;
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.tabla-detalles {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+}
+
+.tabla-detalles th, .tabla-detalles td {
+    border: 1px solid #39ff14;
+    padding: 8px;
+    text-align: center;
+}
+
 </style>
 <?php
 $gran_total = 0;
@@ -109,45 +169,56 @@ endif;
         <div align="center">
             <u><i><h2 align="center" style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
                  -1px 1px 0 #fff, 1px 1px 0 #fff;">Resumen de la Compra</h2></i></u>
-
-            <?php if($estado == 'Cobrando'){ ?>
+            
                 <!-- Botón para abrir el modal -->
-                <button type="button" class="btn-ver-detalles" onclick="abrirModal()">
+                <button type="button" class="btn" onclick="abrirModal()">
                     Ver Productos Adquiridos
-                </button>
+                </button>          
 
-                <!-- Modal personalizado con animación de zoom -->
+                <!-- Modal personalizado -->
                 <div id="miModal" class="modal-personalizado">
                     <div class="modal-contenido zoom-in">
                         <span class="cerrar-modal" onclick="cerrarModal()">&times;</span>
-                        <h2 style="color:black;">Detalles de la Compra</h2>
-                        <?php if (!empty($ventas)): ?>
-                            <table class="tabla-detalles" style="color:black;">
+                        <h2>Detalles del Carrito</h2>
+
+                        <?php if ($cart): ?>
+                            <table class="tabla-detalles">
                                 <thead>
                                     <tr>
-                                        <th style="color:black;">Producto</th>
-                                        <th style="color:black;">Cantidad</th>
-                                        <th style="color:black;">Precio Unitario</th>
-                                        <th style="color:black;">Subtotal</th>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unitario</th>
+                                        <th>Subtotal</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($ventas as $venta): ?>
+                                    <?php foreach ($cart->contents() as $item): ?>
                                         <tr>
-                                            <td><?= $venta['nombre'] ?></td>
-                                            <td><?= $venta['cantidad'] ?></td>
-                                            <td><?= number_format($venta['precio'], 2) ?></td>
-                                            <td><?= number_format($venta['precio'] * $venta['cantidad'], 2) ?></td>
+                                            <td><?= esc($item['name']) ?></td>
+                                            <td><?= esc($item['qty']) ?></td>
+                                            <td>$<?= number_format($item['price'], 2) ?></td>
+                                            <td>$<?= number_format($item['price'] * $item['qty'], 2) ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
                         <?php else: ?>
-                            <p>No hay detalles de venta disponibles.</p>
+                            <p>No hay productos en el carrito.</p>
                         <?php endif; ?>
                     </div>
                 </div>
-            <?php } ?>
+           
+            <script>
+                function abrirModal() {
+                    document.getElementById("miModal").style.display = "block";
+                }
+
+                function cerrarModal() {
+                    document.getElementById("miModal").style.display = "none";
+                }
+            </script>
+
+
 
                 <br>
         <?php if (!empty($id_pedido) && $total_venta == ''): ?>
@@ -158,7 +229,8 @@ endif;
         <?php endif; ?>
             <table style="font-weight: 900;" class="tableResponsive">
             <tr>
-                <td style="color:black;"><strong>Tipo de Compra o Pedido:</strong></td>
+                <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Tipo de Compra o Pedido:</strong></td>
                 <td>
                 <select name="tipo_compra" id="tipoCompra" class="selector" onchange="toggleInputs()">
                 <?php if ($estado == 'Cobrando') {  ?>
@@ -179,24 +251,30 @@ endif;
             </tr>
             
             <tr>
-            <td style="color:black;"><strong>Total General:</strong></td>
-            <td style="color:black;">
+            <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Total General:</strong></td>
+            <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;">
             <strong id="totalCompra">
                 $<?php echo number_format(($gran_total > 0 ? $gran_total : $total_venta), 0, '.', '.'); ?>
             </strong>
             </td>
             </tr>
             <tr>
-            <td style="color:black;"><strong>Vendedor:</strong></td>
-            <td style="color:black;">
+            <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Vendedor:</strong></td>
+            <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;">
                 <?php echo (!empty($nombre_vendedor) ? $nombre_vendedor : $nombre); ?>
 
             </td>                      
             </tr>
             <?php if ($nombre_cli != ''): ?><!-- Filtro cajero-->
             <tr>
-                <td style="color:black;"><strong>Nombre Cliente:</strong></td>
-                <td style="color:black;"><strong><?php echo $nombre_cli ?></strong></td>
+                <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Nombre Cliente:</strong></td>
+                <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong><?php echo $nombre_cli ?></strong></td>
             </tr>  
             <?php endif; ?>
             <?php if ($perfil): ?><!-- Filtro cajero-->
@@ -225,7 +303,8 @@ endif;
                  <?php if ($perfil && $estado == ''): ?><!-- Filtro Vendedor-->
             </tr>
                 <tr>
-                <td style="color:black;"><strong>Nombre Identificador del Cliente:</strong></td>
+                <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Nombre Identificador del Cliente:</strong></td>
                 <td>
                     
                 <input class="selector" type="text" name="nombre_prov" placeholder="Ingrese nombre cliente" maxlength="20" required>
@@ -234,7 +313,7 @@ endif;
                  </tr>
                  <?php endif; ?><!-- Fin del if filtro vendedor-->
 
-                 <?php if ($perfil && $estado == ''): ?>
+                 <?php if ($perfil && ($estado == ''  ||  $estado == 'Cobrando')): ?>
                           
                 <tr style="display: none;">
                     <td style="color:black;"><strong>Monto en Tarjeta de Crédito</strong></td>
@@ -250,14 +329,16 @@ endif;
                 </tr>
 
                 <tr id="transferenciaRow">
-                    <td style="color:black;"><strong>Monto en Transferencia:</strong></td>
+                    <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Monto en Transferencia:</strong></td>
                     <td>
                         <input class="selector" type="text" id="pagoTransferencia" name="pagoTransferencia" placeholder="Monto en $" maxlength="15" oninput="this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'); formatearMiles(); calcularMontoEfectivo();">
                     </td>
                 </tr>
                 
                 <tr id="efectivoRow">
-                    <td style="color:black;"><strong>Monto en Efectivo:</strong></td>
+                    <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Monto en Efectivo:</strong></td>
                     <td>
                         <input class="selector" type="text" id="pagoEfectivo" name="pagoEfectivo" placeholder="Monto en $" maxlength="15" readonly>
                     </td>
@@ -265,7 +346,8 @@ endif;
                 <?php endif; ?>
 
                 <tr id="fechaPedidoFila" style="display: <?php echo !empty($fecha_pedido) ? 'table-row' : 'none'; ?>;">
-                <td style="color:black;"><strong>Fecha de entrega del Pedido:</strong></td>
+                <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Fecha de entrega del Pedido:</strong></td>
                 <td>
                     <input class="selector" type="date" name="fecha_pedido" id="fechaPedido" 
                            value="<?php echo !empty($fecha_pedido) ? date('Y-m-d', strtotime($fecha_pedido)) : date('Y-m-d'); ?>" 
@@ -276,7 +358,8 @@ endif;
                 
                 <?php if ($estado == '') {  ?>
                 <tr>
-                <td style="color:black;"><strong>Con Envío:</strong></td>
+                <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Con Envío:</strong></td>
                 <td>
                     <select name="con_envio" id="conEnvio" class="selector">
                         <option value="No">No</option>

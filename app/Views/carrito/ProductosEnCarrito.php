@@ -211,8 +211,7 @@ if (!empty($session)) {
 
 <div class="" >
 <div class="contenedor">
-        <u><i><h2 style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;">Productos En Carrito</h2></i></u>
+        <u><i><h2 >Productos En Carrito</h2></i></u>
         <br>
         <?php if ($estado == 'Modificando'): ?>
             <h3 class="resaltado">
@@ -273,7 +272,7 @@ $resto_desc_pago_efec = 0;
                 <tr class=" colorTexto2"  >
                     <td class="ocultar-en-movil">ID</td>
                     <td>Nombre</td>
-                    <td>Precio</td>                    
+                    <td style="width:170px;">Precio</td>                    
                     <td>Cantidad</td>
                     <td>Subtotal</td>                    
                     <td>Eliminar?</td>
@@ -363,8 +362,7 @@ $resto_desc_pago_efec = 0;
                                 <input class="motivo" type="text" id="motivo_cambio" name="motivo_modif" placeholder="Ingrese el motivo de los cambios">
                         
                         <h4 style="color:orange;">Montos a Favor de la Venta Anterior:</h4>
-                                <h4 class="total_ant_pagos" style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;"> Pago Efectivo: $
+                                <h4 class="total_ant_pagos" > Pago Efectivo: $
                                     <?php
                                     echo number_format($pago_efec, 0, '.', '.');
                                     ?>
@@ -372,8 +370,7 @@ $resto_desc_pago_efec = 0;
                                     echo number_format(($pago_efec * $cd_efectivo), 0, '.', '.');
                                     ?>) -->                   
                                 </h4>
-                                <h4 class="total_ant_pagos" style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;"> Pago Transferencia: $
+                                <h4 class="total_ant_pagos" > Pago Transferencia: $
                                     <?php
                                     echo number_format($pago_transfer, 0, '.', '.');
                                     ?>                    
@@ -394,19 +391,16 @@ $resto_desc_pago_efec = 0;
                                     echo number_format($total_anterior_bonif, 0, '.', '.');
                                     ?>                    
                                 </h4> -->
-                                <h4 class="total_ant" style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;">Total General Anterior: $
+                                <h4 class="total_ant" >Total General Anterior: $
                                     <?php //Gran Total Anterior
                                     echo number_format($total_anterior_gen, 0, '.', '.');
                                     ?>                    
                                 </h4>
                                 <!-- Nuevo Total de la venta -->
-                                <h4 class="total_ant" id="total_actual" style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;">Nuevo Total Actual: $ <?php echo number_format($gran_total, 0, '.', '.'); ?></h4>
+                                <h4 class="total_ant" id="total_actual" >Nuevo Total Actual: $ <?php echo number_format($gran_total, 0, '.', '.'); ?></h4>
                         <!-- Mostrar la opcion de tipo de pago solo si el nuevo total es mayor al anterior -->
                          <?php if($gran_total > $total_anterior_gen){ ?>
-                                <label style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;" for="tipo_pago">Paga la Diferencia Con:</label>
+                                <label  for="tipo_pago">Paga la Diferencia Con:</label>
                                 <select class="total_ant" id="tipo_pago" name="tipo_pago_dif" onchange="calcularDiferencia()">
                                     <option value="Transferencia">Transferencia</option>
                                     <option value="Efectivo">Efectivo</option>
@@ -492,7 +486,7 @@ $resto_desc_pago_efec = 0;
                             <?php } else {  ?>
 
                                 <h4 style="background-color:green;color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;"" class="total_ant" id="diferencia">Diferencia a Cobrar: $  <?php echo number_format($gran_total - $total_anterior_gen, 0, '.', '.'); ?></h4>
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;" class="total_ant" id="diferencia">Diferencia a Cobrar: $  <?php echo number_format($gran_total - $total_anterior_gen, 0, '.', '.'); ?></h4>
                             
                             <?php } ?>
                         </td>       
@@ -548,11 +542,12 @@ $resto_desc_pago_efec = 0;
                             </a>
                             <?php  } ?>
                         <!-- Submit boton. Actualiza los datos en el carrito -->
-                        <button style="color:black" type="submit" class="success" onclick="setAccion('actualizar')">
+                        <button style="margin-top:15px; background-color:green;color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                        -1px 1px 0 #fff, 1px 1px 0 #fff;"  type="submit" class="success" onclick="setAccion('actualizar')">
                             Actualizar Importes
                         </button>                        
                                 
-                            <br><br>
+                        <section style="margin-top:12px;">
                             <?php if(($tipo_compra == 'Pedido' || $perfil) && ($estado == '' || $estado == 'Modificando')) { ?>
                         <!-- " Confirmar orden envia a carrito_controller/muestra_compra  -->
                         <a style="color:black" href="javascript:void(0);" class="success" onclick="setAccion('confirmar')">Continuar Compra</a>
@@ -565,6 +560,7 @@ $resto_desc_pago_efec = 0;
                         <!-- Envia los cambios y Modifica e impacta los cambios de la venta modificada -->
                         <a style="color:" href="javascript:void(0);" class="success" onclick="confirmarGuardarCambios()">Guardar Cambios</a>    
                         <?php } ?>
+                        </section>
                     </td>
                 </tr>
                 <?php echo form_close();

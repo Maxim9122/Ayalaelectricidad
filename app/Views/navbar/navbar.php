@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ayala Electricidad</title>
-  <link rel="icon" href="<?php echo base_url('./assets/img/iconMB2.png');?>">
+  <link rel="icon" href="<?php echo base_url('./assets/img/carrito2.png');?>">
   <link rel="stylesheet" href="<?php echo base_url('./assets/css/navbar.css');?>">
   <link rel="stylesheet" href="<?php echo base_url('./assets/css/clock.css');?>">
   <link rel="stylesheet" href="<?php echo base_url('./assets/css/mensajesTemporales.css');?>">
@@ -153,9 +153,9 @@
 
           </li>
           <?php if($perfil == 3) { ?>
-          <li class="nnavItem">
+         <!-- <li class="nnavItem">
             <a class="btn" href="<?php echo base_url('caja');?>">CAJA</a>            
-          </li>
+          </li> -->
           <li class="nnavItem">
             <a class="btn signUp" href="<?php echo base_url('compras');?>">VENTAS</a>
           </li>          

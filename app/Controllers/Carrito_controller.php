@@ -149,6 +149,7 @@ public function ListCompraDetalle($id)
     $nombre = $_POST['nombre'];
     $precio = $_POST['precio_vta'];
     $cantidad = isset($_POST['cantidad']) ? (int)$_POST['cantidad'] : 1;
+    $page = $this->request->getPost('page') ?? 1;
 
     $prodModel = new Productos_model();
     $producto = $prodModel->getProducto($producto_id);
@@ -214,7 +215,7 @@ public function ListCompraDetalle($id)
     }
 
     session()->setFlashdata('msg', 'Producto Agregado!');
-    return redirect()->to(base_url('catalogo'));
+    return redirect()->to(base_url('catalogo?page=' . $page));    
     }
 
 
@@ -858,7 +859,7 @@ public function ListCompraDetalle($id)
                 ]);
                 
                 // Limpiar la sesión y el carrito
-                $session->remove(['pago_efec','pago_transfer','pago_tarjeta','estado', 'id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido', 'tipo_compra', 'tipo_pago', 'total_venta', 'total_bonificado', 'total_anterior']);
+                $session->remove(['nombre_cli','pago_efec','pago_transfer','pago_tarjeta','estado', 'id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido', 'tipo_compra', 'tipo_pago', 'total_venta', 'total_bonificado', 'total_anterior']);
                 $cart->destroy();
                 
                 // Redirigir al usuario con un mensaje de éxito
@@ -940,16 +941,27 @@ public function ListCompraDetalle($id)
 
     return floatval($numero);
     }
+   
+    $pagoTransferencia    = $this->request->getPost('pagoTransferencia');
+    $pagoEfectivo         = $this->request->getPost('pagoEfectivo');
+    $pagoTarjetaCredito   = $this->request->getPost('pagoTarjetaCredito');
 
-    
-    $monto_transferencia = (int) str_replace('.', '', $this->request->getPost('pagoTransferencia'));
-    $monto_en_Efectivo   = (int) str_replace('.', '', $this->request->getPost('pagoEfectivo'));
-    $monto_tarjetaC      = (int) str_replace('.', '', $this->request->getPost('pagoTarjetaCredito'));
+    $monto_transferencia = !empty($pagoTransferencia)
+        ? (int) str_replace('.', '', $pagoTransferencia)
+        : 0;
+
+    $monto_en_Efectivo = !empty($pagoEfectivo)
+        ? (int) str_replace('.', '', $pagoEfectivo)
+        : 0;
+
+    $monto_tarjetaC = !empty($pagoTarjetaCredito)
+        ? (int) str_replace('.', '', $pagoTarjetaCredito)
+        : 0;
+
 
     if($monto_tarjetaC){
         $monto_tarjetaC = $monto_tarjetaC * 1.1;
     }
-    
 
     //Verificamos si se envio el costo de envio
     $costo_envio =  convertirAFloat($this->request->getPost('costoEnvio'));    
@@ -1120,7 +1132,7 @@ public function ListCompraDetalle($id)
         }
     
         // Limpiar sesión y carrito
-        $session->remove(['estado', 'id_vendedor', 'nombre_vendedor', 'id_cliente_pedido', 'id_pedido', 'fecha_pedido', 'tipo_compra', 'tipo_pago']);
+        $session->remove(['nombre_cli','estado', 'id_vendedor', 'nombre_vendedor', 'id_cliente_pedido', 'id_pedido', 'fecha_pedido', 'tipo_compra', 'tipo_pago']);
         $cart->destroy();
     
         session()->setFlashdata('msg', 'Pedido actualizado con éxito!');
@@ -1226,7 +1238,7 @@ public function ListCompraDetalle($id)
                     'monto_tarjetaC' => $monto_tarjetaC
                 ]);           
                 
-                $session->remove(['estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
+                $session->remove(['nombre_cli','estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
             }
             
             $cart->destroy();            
@@ -1310,7 +1322,7 @@ public function generarPresupuesto($id_cabecera)
 
     // Obtener la información del cliente
     $cliente = $clienteModel->find($cabecera['id_cliente']);
-
+    
     // Obtener el nombre del vendedor    
     $vendedor = $Us_Model->find($cabecera['id_usuario']);
     $nombreVendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
@@ -1347,13 +1359,13 @@ public function generarPresupuesto($id_cabecera)
                 text-align: center;
                 margin: 3px 0;
                 font-weight: bold;
-                font-size: 14px;
+                font-size: 10px;
             }
             h5 {
                 text-align: center;
                 margin: 3px 0;
                 font-weight: bold;
-                font-size: 12px;
+                font-size: 9px;
             }
             .ticket p {
                 margin: 2px 0;
@@ -1392,18 +1404,26 @@ public function generarPresupuesto($id_cabecera)
                                         ? date('d-m-Y H:i') 
                                         : $cabecera['fecha'] . ' ' . $cabecera['hora']; ?>
                         </div>
-            <h4>Presupuesto Nro:<?= number_format($cabecera['id']) ?></h4>
+            <h4>Presupuesto Nro: <?= number_format($cabecera['id'],0,'.','.') ?></h4>
             <h5>no valido como factura</5>
             <!-- Cabecera del ticket -->
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <!-- Izquierda: datos del cliente y vendedor -->
-                        <div style="font-size: 10px;">
+                        <div>
                             <div style="font-size: 18px; font-weight: bold;">Ferreteria Ayala</div>
                         </div>
                     </div>
-                    <div style="text-align: left">Cliente: <?= $cliente['cuil'] > 0 ? $cliente['nombre'] . ' Cuil: ' . $cliente['cuil'] : $cliente['nombre'] ?></div>
-                            <div style="text-align: left">Atendido por: <?= $nombreVendedor ?></div>
-                            <div style="text-align: left">Cajero: <?= $cajero_nombre ?></div>
+                    <?php if ($cliente['id_cliente'] == 1): ?>
+                        <div style="text-align: left; font-size: 12px;">
+                            Cliente: <?= $cabecera['nombre_prov_client'] ?>
+                        </div>
+                    <?php else: ?>
+                        <div style="text-align: left font-size: 12px;">
+                            Cliente: <?= $cliente['cuil'] > 0 ? $cliente['nombre'] . ' Cuil: ' . $cliente['cuil'] : $cliente['nombre'] ?>
+                        </div>
+                    <?php endif; ?>
+                            <div style="text-align: left; font-size: 12px;">Atendido por: <?= $nombreVendedor ?></div>
+                            <!-- <div style="text-align: left">Cajero: <?= $cajero_nombre ?></div> -->
                     <hr>
 
             <!-- Detalle de la compra -->
@@ -1540,8 +1560,6 @@ public function generarTicket($id_cabecera)
     $cabecera = $ventaModel->find($id_cabecera);
     
     $CostoEnvio = $cabecera['costo_envio'];
-
-    $ClienteNom = $cabecera['nombre_prov_client'];
    
     // Actualizar el campo costo_envio a 0 porque se muestra una sola vez.
     $ventaModel->update($id_cabecera, ['costo_envio' => 0]);
@@ -1600,13 +1618,13 @@ public function generarTicket($id_cabecera)
                 text-align: center;
                 margin: 3px 0;
                 font-weight: bold;
-                font-size: 14px;
+                font-size: 10px;
             }
             h5 {
                 text-align: center;
                 margin: 3px 0;
                 font-weight: bold;
-                font-size: 12px;
+                font-size: 9px;
             }
             .ticket p {
                 margin: 2px 0;
@@ -1645,22 +1663,27 @@ public function generarTicket($id_cabecera)
                                         ? date('d-m-Y H:i') 
                                         : $cabecera['fecha'] . ' ' . $cabecera['hora']; ?>
                         </div>
-            <h4>Remito Nro:<?= number_format($cabecera['id']) ?></h4>
+            <h4>Remito Nro: <?= number_format($cabecera['id'],0,'.','.') ?></h4>
             <h5>no valido como factura</5>
             <!-- Cabecera del ticket -->
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <!-- Izquierda: datos del cliente y vendedor -->
-                        <div style="font-size: 10px;">
+                        <div>
                             <div style="font-size: 18px; font-weight: bold;">Ferreteria Ayala</div>
                         </div>
                     </div>
                     <div style="text-align: left">
-                        Cliente: 
-                        <?= !empty($cliente) ? 
-                            ($cliente['cuil'] > 0 ? $cliente['nombre'] . ' Cuil: ' . $cliente['cuil'] : $cliente['nombre']) 
-                            : $ClienteNom ?>
+                    <?php if ($cliente['id_cliente'] == 1): ?>
+                        <div style="text-align: left; font-size: 12px;">
+                            Cliente: <?= $cabecera['nombre_prov_client'] ?>
+                        </div>
+                    <?php else: ?>
+                        <div style="text-align: left font-size: 12px;">
+                            Cliente: <?= $cliente['cuil'] > 0 ? $cliente['nombre'] . ' Cuil: ' . $cliente['cuil'] : $cliente['nombre'] ?>
+                        </div>
+                    <?php endif; ?>
                     </div>
-                            <div style="text-align: left">Atendido por: <?= $nombreVendedor ?></div>
+                            <div style="text-align: left; font-size: 12px;">Atendido por: <?= $nombreVendedor ?></div>
                             <!-- <div style="text-align: left">Cajero: <?= $cajero_nombre ?></div> -->
                     <hr>
 

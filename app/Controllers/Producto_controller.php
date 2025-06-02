@@ -238,7 +238,7 @@ class Producto_controller extends Controller{
 
 	public function ProductosDisp() {
     $session = session();
-    
+
     if (!$session->has('id')) {
         return redirect()->to(base_url('login'));
     }
@@ -249,13 +249,16 @@ class Producto_controller extends Controller{
     $ProductosModel = new Productos_model();
     $eliminado = 'NO';
 
-    // Obtener productos paginados
+    // Capturamos la página actual de paginación (por defecto 1 si no existe)
+    $page = $this->request->getGet('page') ?? 1;
+
     $busqueda = $this->request->getGet('search');
-    $productos = $ProductosModel->getProductosPaginados($eliminado, $busqueda);
+    // Pasamos la página actual para que paginate sepa cuál devolver
+    $productos = $ProductosModel->getProductosPaginados($eliminado, $busqueda, $page);
 
     $pager = $ProductosModel->getPager();
 
-    // Verificar si hay productos con stock bajo
+    // Productos con stock bajo (igual que antes)
     $productos_bajo_stock = array_filter($productos, function($producto) {
         return $producto['stock'] <= $producto['stock_min'];
     });
@@ -267,12 +270,13 @@ class Producto_controller extends Controller{
     $dato1['titulo'] = 'Productos Disponibles';
     $data['productos'] = $productos;
     $data['pager'] = $pager;
+    $data['page'] = $page;  // <-- enviar la página actual a la vista
 
     echo view('navbar/navbar');
     echo view('header/header', $dato1);        
     echo view('productos/listar', $data + $dato);
     echo view('footer/footer');
-}
+    }
 
     
 

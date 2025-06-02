@@ -229,7 +229,7 @@ label {
 }
 
 body {
-    background: linear-gradient(rgba(33,33,33,0.372), rgba(33,33,33,0.372));
+    background: linear-gradient(rgba(33,33,33,0.372), rgba(34, 98, 151, 0.39));
     background-size: cover;
     background-position: center;
     background-attachment: fixed;

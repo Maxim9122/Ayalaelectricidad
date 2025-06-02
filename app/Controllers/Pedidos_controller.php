@@ -227,7 +227,7 @@ public function cancelar_edicion($id_pedido){
             
         // Después de guardar el pedido (cuando ya no se necesiten los datos de la sesión)
         $session = session();
-        $session->remove(['estado','id_vendedor', 'nombre_vendedor', 'id_cliente_pedido' , 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
+        $session->remove(['nombre_cli','estado','id_vendedor', 'nombre_vendedor', 'id_cliente_pedido' , 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
         // Actualizar el estado del pedido a "Pendiente"
         $Cabecera_model->update($id_pedido, ['estado' => 'Pendiente']);
         $cart->destroy();

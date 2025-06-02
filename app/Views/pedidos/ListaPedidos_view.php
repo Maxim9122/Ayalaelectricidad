@@ -68,7 +68,7 @@
     </svg>Despachados</a>
   <br><br>
   <?php $Recaudacion = 0; ?>
-  <table class="table table-responsive table-hover" id="users-list" style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+  <table class="table table-responsive table-hover" id="users-list" style="color:black; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, 
                  -1px 1px 0 #fff, 1px 1px 0 #fff;">
        <thead>
           <tr class="" style="color:black">

@@ -29,6 +29,145 @@
         box-shadow: 0px 0px 10px #ff073a; /* Efecto neón */
     }
     
+    table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-weight: bold;
+  color: #333;
+  padding:125px;
+  text-align:center;
+}
+
+/* Encabezado */
+thead {
+  background-color: #f0f0f0;
+}
+
+tbody tr:hover {
+  background-color:rgb(132, 160, 192) !important; /* Color de hover */
+  cursor: pointer;
+}
+
+thead th {
+  padding: 3px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+/* Filas y celdas */
+tbody tr {
+  background-color: #fff;
+  border-bottom: 1px solid #ccc;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tbody td {
+  padding: 3px;
+  border: 1px solid #ccc;
+}
+
+/* RESPONSIVE: formato tipo lista en pantallas pequeñas */
+@media (max-width: 768px) {
+  table.responsive-card,
+  table.responsive-card thead,
+  table.responsive-card tbody,
+  table.responsive-card th,
+  table.responsive-card td,
+  table.responsive-card tr {
+    display: block;
+  }
+
+  table.responsive-card thead {
+    display: none;
+  }
+
+  table.responsive-card tbody tr {
+    margin-bottom: 3px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1px;
+    background-color: #000;
+  }
+
+  table.responsive-card tbody td {
+    border: none;
+    padding: 1px 3px;
+    position: relative;
+    font-weight: 900;
+  }
+
+  table.responsive-card tbody td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    font-weight: 900;
+    color: #666;
+    font-size: 0.9em;
+  }
+}
+
+
+.busqueda-form-derecha {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+    margin-right: 5px;
+    margin-top:10px;
+    flex-wrap: wrap;
+}
+
+.busqueda-input {
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    flex: 1 1 250px;
+    max-width: 400px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.busqueda-btn {
+    padding: 10px 20px;
+    background-color:rgb(88, 87, 87);
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Segoe UI', sans-serif;
+    transition: background-color 0.3s ease;
+}
+
+.busqueda-btn:hover {
+    background-color:rgb(78, 117, 83);
+}
+
+@media (max-width: 600px) {
+    .busqueda-form-derecha {
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .busqueda-input {
+        width: auto;
+        min-width: 200px;
+        max-width: 100%;
+        flex: none;
+    }
+
+    .busqueda-btn {
+        width: auto;
+    }
+}
+
+
+
 </style>
 <script>
     setTimeout(function() {
@@ -71,15 +210,17 @@ function cerrarMensaje() {
   <br>
   
   <style>
-    .paginacion-productos .pagination {
+   .paginacion-productos .pagination {
     display: flex;
     justify-content: center;
     list-style: none;
     padding: 0;
 }
+
 .paginacion-productos .pagination li {
     margin: 10px 5px;
 }
+
 .paginacion-productos .pagination li a,
 .paginacion-productos .pagination li span {
     display: inline-block;
@@ -90,11 +231,16 @@ function cerrarMensaje() {
     border-radius: 4px;
     border: 1px solid #ff073a;
 }
+
+/* Página actual seleccionada */
+.paginacion-productos .pagination li.active a,
 .paginacion-productos .pagination li.active span {
     background-color: #ff073a;
-    color: black;
+    color: white;
     font-weight: bold;
+    border-bottom: 4px solid white;
 }
+
     
 </style>
 
@@ -107,7 +253,12 @@ function cerrarMensaje() {
   <button type="submit" class="success" style="display: none;">Codigo de Barra</button>
   <br>
     <div style="position: relative; display: inline-block;">
-        <input oninput="this.value = this.value.replace(/\D/g, '')" type="text" id="product_input" placeholder="Agregar producto por codigo de barra..." autocomplete="off" required onfocus="this.value=''" />
+    <input oninput="this.value = this.value.replace(/\D/g, '')"
+       type="text"
+       id="product_input"
+       placeholder="Agregar producto por codigo de barra..."
+       autocomplete="off"
+       required />
         <input type="hidden" id="cantidad" name="cantidad">
         <select id="product_select" name="product_id" required size="3">
             <option class="separador">Seleccione un Producto!</option>
@@ -137,6 +288,23 @@ function cerrarMensaje() {
     </section>
 
     <div style="position: relative; width: 100%;">
+
+    <form method="get" action="<?= base_url('catalogo') ?>" class="busqueda-form-derecha">
+    <?php $request = \Config\Services::request(); ?>
+    <input type="text" name="search" value="<?= esc($request->getGet('search')) ?>" placeholder="Buscar productos..." class="busqueda-input" autofocus>
+    <button type="submit" class="busqueda-btn">Buscar</button>
+    </form>
+    <script>
+    window.addEventListener('DOMContentLoaded', function() {
+        const input = document.querySelector('.busqueda-input');
+        if (input) {
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length); // Opcional: pone el cursor al final
+        }
+    });
+    </script>
+
+
     <!-- Tu contenido actual aquí
      <?php if($perfil == 1 || $perfil == 3){?>
      <br><br><br>                   
@@ -151,12 +319,12 @@ function cerrarMensaje() {
                  -1px 1px 0 #fff, 1px 1px 0 #fff;">
    <thead>
       <tr style="color:black;">
-         <th>Nombre</th>
-         <th>Precio Venta</th>        
-         <th class="ocultar-en-movil">Categoría</th>        
-         <th>Stock</th>
-         <th>Cantidad</th>
-         <th>Acciones</th>
+         <th style="text-align:center;">Nombre</th>
+         <th style="text-align:center;">Precio Venta</th>        
+         <th class="ocultar-en-movil" style="text-align:center;">Categoría</th>        
+         <th style="text-align:center;">Stock</th>
+         <th style="text-align:center;">Cantidad</th>
+         <th style="text-align:center;">Acciones</th>
       </tr>
    </thead>
    <tbody>
@@ -199,6 +367,7 @@ function cerrarMensaje() {
                <?php echo form_hidden('id', $prod['id']); ?>
                <?php echo form_hidden('nombre', $prod['nombre']); ?>
                <?php echo form_hidden('precio_vta', $prod['precio_vta']); ?>
+               <?php echo form_hidden('page', $page ?? 1); ?>  <!-- Página actual enviada aquí -->
                
                <input type="hidden" name="cantidad" id="inputCantidad_<?php echo $prod['id']; ?>" value="1">
                <?php if($perfil || $estado == 'Modificando' || $estado == 'Modificando_SF') {?>
@@ -219,13 +388,6 @@ function cerrarMensaje() {
    <div class="paginacion-productos" style="text-align: end; margin-top: 20px;">
     <?= $pager->links() ?>
     </div>
-
-    <form method="get" action="<?= base_url('catalogo') ?>" style="margin-bottom: 20px; text-align: center;">
-    <?php $request = \Config\Services::request(); ?>
-    <input type="text" name="search" value="<?= esc($request->getGet('search')) ?>" placeholder="Buscar productos...">
-    <button type="submit" style="padding: 8px;">Buscar</button>
-    </form>
-
 
 </table>
      <br>
