@@ -252,6 +252,8 @@ class Producto_controller extends Controller{
 
 	public function ProductosDisp() {
     $session = session();
+    $cart = \Config\Services::cart();
+		$carrito['carrito']=$cart->contents();
 
     if (!$session->has('id')) {
         return redirect()->to(base_url('login'));
@@ -289,6 +291,7 @@ class Producto_controller extends Controller{
     echo view('navbar/navbar');
     echo view('header/header', $dato1);        
     echo view('productos/listar', $data + $dato);
+    echo view('carrito/ProductosEnCarrito',$carrito);
     echo view('footer/footer');
     }
 

@@ -17,7 +17,7 @@ class Productos_model extends Model
     }
 
     // paginate(20, 'default', página actual)
-    return $builder->paginate(20, 'default', $page);
+    return $builder->paginate(5, 'default', $page);
     }
 
     public function getPager()
