@@ -68,11 +68,10 @@
     </svg>Despachados</a>
   <br><br>
   <?php $Recaudacion = 0; ?>
-  <table class="table table-responsive table-hover" id="users-list" style="color:black; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, 
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;">
+  <table class="table table-responsive table-hover" id="users-list" style="color:white; ">
        <thead>
-          <tr class="" style="color:black">
-             <th>Nro Pedido</th>
+          <tr class="" style="color:white font-weight:900;">
+             <th style="">Nro Pedido</th>
              <th style="color:orange">Cliente</th>
              <th>Teléfono</th>
              <th>Vendedor</th>
@@ -89,10 +88,10 @@
             <?php foreach($pedidos as $p): ?>
     <tr>
         <td><?php echo $p['id']; ?></td>
-        <td style="color:orange"><?php echo $p['nombre_cliente']; ?></td>
+        <td><?php echo $p['nombre_cliente']; ?></td>
         <td><?php echo $p['telefono']; ?></td>
         <td><?php echo $p['nombre_usuario'];?></td>
-        <td style="color:orange">$<?php echo $p['total_venta'];?></td>
+        <td>$ <?php echo $p['total_venta'];?></td>
         <td><?php echo $p['fecha'];?></td>
         <td><?php echo $p['hora'];?></td>
         <td><?php echo $p['fecha_pedido'];?></td>
@@ -105,7 +104,7 @@
             
         <td>
         <div class="dropdown">
-        <span class="dropdown-toggle btn" style="color:black">Acciones▼</span>
+        <span class="dropdown-toggle btn" style="color:white">Acciones▼</span>
         <ul class="dropdown-menu">
             <li>
                 <a href="<?php echo base_url('DetalleVta/'.$p['id']); ?>">

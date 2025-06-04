@@ -191,14 +191,15 @@
   
 <div style="width: 100%; text-align: end;">
 <div style="position: relative; width: 100%;">
-    <!-- Tu contenido actual aquí -->
+    <br> 
+    <!-- Tu contenido actual aquí 
      <?php if($perfil == 1 || $perfil == 3){?>
      <br><br><br><br>                   
-    <!-- Botón Descontar Defectuosos -->
+     Botón Descontar Defectuosos 
     <a class="btn" href="<?php echo base_url('descontarDefectuosos');?>" style="position: absolute; bottom: 0; right: 0; margin: 20px; color:red; font-weight: 900;">
         Descontar Defectuosos
     </a>
-    <?php  } ?>
+    <?php  } ?> -->
 </div>
 
   <div class="dropdown2" style="margin-right: 45px;">
@@ -245,11 +246,12 @@
   <?php $TotalArticulos= 0; 
         $totalCU = 0;
   ?>
-
+  <!-- Si no se busco nada aun no muestra nada -->
+        <?php if (isset($pager)): ?>
   <br>
   <table class="table table-responsive table-hover" id="">
        <thead>
-          <tr class="colorTexto2">
+          <tr class="colorTexto">
              <th>Nombre</th>
              <th style="display:none;">Precio Costo</th>
              <th>Precio Venta</th>
@@ -262,7 +264,7 @@
           <?php if($productos): ?>
           <?php foreach($productos as $prod): ?>
             <tr>
-             <td><?php echo $prod['nombre']; ?></td>
+             <td style="font-weight:900;"><?php echo $prod['nombre']; ?></td>
              <td style="display:none;">
                     <form method="post" action="<?php echo base_url('/EdicionRapidaProd') ?>">
                     <?php echo form_hidden('page', $page ?? 1); ?>  <!-- Página actual enviada aquí -->
@@ -288,7 +290,7 @@
                  }
              }
              ?>
-             <td><?php echo $categoria_nombre; ?></td>  
+             <td style="font-weight:900;"><?php echo $categoria_nombre; ?></td>  
             
              
              <td class="text-center">
@@ -331,7 +333,11 @@
          <?php endif; ?>
 
         <div class="paginacion-productos" style="text-align: end; margin-top: 20px;">
-        <?= $pager->links() ?>
+            
+         <?= $pager->links() ?>
+
+        <?php endif; ?>
+
         </div>
 
      </table>
@@ -345,29 +351,7 @@
 <script type="text/javascript" src="<?php echo base_url('./assets/js/jquery.dataTables.min.js');?>"></script>
 
 <script>
-  $(document).ready(function () {
-    $('#users-list').DataTable({
 
-        "stateSave": true, // Habilitar el guardado del estado
-
-      "language": {
-        "lengthMenu": "Mostrar _MENU_ registros por página.",
-        "zeroRecords": "Lo sentimos! No hay resultados.",
-        "info": "Mostrando la página _PAGE_ de _PAGES_",
-        "infoEmpty": "No hay registros disponibles.",
-        "infoFiltered": "(filtrado de _MAX_ registros totales)",
-        "search": "Buscar: ",
-        "paginate": {
-          "next": "Siguiente",
-          "previous": "Anterior"
-        }
-      },
-      initComplete: function () {
-        // Agregar el placeholder personalizado al buscador
-        $('#users-list_filter input').attr('placeholder', 'Nombre,categoría,stock etc...');
-      }
-    });
-  });
 
   function formatearMiles() {
     const input = document.getElementById('pago');

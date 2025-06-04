@@ -36,7 +36,6 @@
 </script>
 
 <!-- Fin de los mensajes temporales -->
-<br>
 
 <style>
 @media (max-width: 768px) { /* Para dispositivos con ancho menor o igual a 768px (tablets y teléfonos) */
@@ -210,9 +209,8 @@ if (!empty($session)) {
 <div class="compados" style="width:100%;">
 
 <div class="" >
-<div class="contenedor">
-        <u><i><h2 >Productos En Carrito</h2></i></u>
-        <br>
+<div class="contenedor">        
+        
         <?php if ($estado == 'Modificando'): ?>
             <h3 class="resaltado">
                 Modificando Venta/Pedido Numero: <?php echo htmlspecialchars($id_pedido, ENT_QUOTES, 'UTF-8'); ?>
@@ -222,11 +220,12 @@ if (!empty($session)) {
             <h4 class="resaltado">
                 "Importante!" Si se cambia un producto defectuosos por otro del mismo, ir al "Panel de descuento de Stock."
             </h4>
+            <br>
         <?php endif; ?>
         </div>
-        <br>
+        
         <div class="sinProductos" style="color:#ffff; " align="center" >
-            <h2>
+            <h2 style="color:black; font-weight:900;">
             <?php  
                 if (empty($carrito)) {
                     echo 'No hay productos agregados todavía.!<br><br>';

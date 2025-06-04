@@ -112,13 +112,13 @@ class Producto_controller extends Controller{
             return redirect()->to(base_url('login')); // Redirige al login si no hay sesión
         }
         $input = $this->validate([
-            'codigo_barra' => 'is_unique[productos.codigo_barra]',
+            //'codigo_barra' => 'is_unique[productos.codigo_barra]',
             'nombre'   => 'required|min_length[3]',          
-            'categoria_id' => 'required|min_length[1]|max_length[20]',
-            'precio'    => 'required|min_length[2]|max_length[10]',
+            //'categoria_id' => 'required|min_length[1]|max_length[20]',
+            //'precio'    => 'required|min_length[2]|max_length[10]',
             'precio_vta'  => 'required|min_length[2]',
             'stock'     => 'required|min_length[1]|max_length[10]',
-            'stock_min'     => 'required|min_length[1]|max_length[10]',
+            //'stock_min'     => 'required|min_length[1]|max_length[10]',
             
         ]);
         $ProductoModel = new Productos_model();
@@ -135,20 +135,20 @@ class Producto_controller extends Controller{
                 echo view('footer/footer');
         } else {
 
-        	$img = $this->request->getFile('imagen');
-        	$nombre_aleatorio= $img->getRandomName();
-        	$img->move(ROOTPATH.'assets/uploads',$nombre_aleatorio);
+        	//$img = $this->request->getFile('imagen');
+        	//$nombre_aleatorio= $img->getRandomName();
+        	//$img->move(ROOTPATH.'assets/uploads',$nombre_aleatorio);
 
             $ProductoModel->save([
                 'nombre' => $this->request->getVar('nombre'),
-                'descripcion' => $this->request->getVar('descripcion'),
-                'imagen' => $img->getName(),
-                'categoria_id' => $this->request->getVar('categoria_id'),
-                'precio' => $this->request->getVar('precio'),
+                //'descripcion' => $this->request->getVar('descripcion'),
+                //'imagen' => $img->getName(),
+                'categoria_id' => 1, //$this->request->getVar('categoria_id')
+                //'precio' => $this->request->getVar('precio'),
                 'precio_vta'  => $this->request->getVar('precio_vta'),
                 'stock' => $this->request->getVar('stock'),
-                'stock_min' => $this->request->getVar('stock_min'),
-                'codigo_barra' => $this->request->getVar('codigo_barra'),
+                //'stock_min' => $this->request->getVar('stock_min'),
+                //'codigo_barra' => $this->request->getVar('codigo_barra'),
                 'eliminado' => 'NO',
                 
             ]);  
@@ -252,6 +252,8 @@ class Producto_controller extends Controller{
 
 	public function ProductosDisp() {
     $session = session();
+    $cart = \Config\Services::cart();
+		$carrito['carrito']=$cart->contents();
 
     if (!$session->has('id')) {
         return redirect()->to(base_url('login'));
@@ -289,6 +291,7 @@ class Producto_controller extends Controller{
     echo view('navbar/navbar');
     echo view('header/header', $dato1);        
     echo view('productos/listar', $data + $dato);
+    echo view('carrito/ProductosEnCarrito',$carrito);
     echo view('footer/footer');
     }
 
@@ -389,13 +392,13 @@ class Producto_controller extends Controller{
         //print_r($_POST);exit;
         
         $input = $this->validate([
-            'codigo_barra' => "required|is_unique[productos.codigo_barra,id,{$_POST['id']}]", // Ignora el ID actual
+            //'codigo_barra' => "required|is_unique[productos.codigo_barra,id,{$_POST['id']}]", // Ignora el ID actual
             'nombre'   => 'required|min_length[3]',            
-            'categoria_id' => 'required|min_length[1]|max_length[2]',
-            'precio'    => 'required|min_length[2]|max_length[10]',
+            //'categoria_id' => 'required|min_length[1]|max_length[2]',
+            //'precio'    => 'required|min_length[2]|max_length[10]',
             'precio_vta'  => 'required|min_length[2]',
             'stock'     => 'required|min_length[1]|max_length[10]',
-            'stock_min'     => 'required|min_length[1]|max_length[10]',
+            //'stock_min'     => 'required|min_length[1]|max_length[10]',
             'eliminado' => 'required|min_length[2]|max_length[2]',
         ]);
         $Model = new Productos_model();
@@ -410,7 +413,7 @@ class Producto_controller extends Controller{
                 echo view('admin/editarProducto_view',compact('data') + $dato1);
                 echo view('footer/footer');
         } else {
-        	$validation= $this->validate([
+        /*	$validation= $this->validate([
         		'image' => ['uploaded[imagen]',
         		'mime_in[imagen,image/jpg,image/jpeg,image/png]',
         	]
@@ -433,19 +436,20 @@ class Producto_controller extends Controller{
                 'codigo_barra' => $_POST['codigo_barra'],
                 
             ];  
-         	}else{
+         	}else { */
          	$datos=[
                 'id' => $_POST['id'],
                 'nombre' =>$_POST['nombre'],
-                'descripcion' => $_POST['descripcion'],
-                'precio' => $_POST['precio'],
+                //'descripcion' => $_POST['descripcion'],
+                //'precio' => $_POST['precio'],
                 'precio_vta'  => $_POST['precio_vta'],
-                'categoria_id'  => $_POST['categoria_id'],
+                //'categoria_id'  => $_POST['categoria_id'],
                 'stock'  => $_POST['stock'],
-                'stock_min'  => $_POST['stock_min'],
+                //'stock_min'  => $_POST['stock_min'],
                 'eliminado' => $_POST['eliminado'],
-                'codigo_barra' => $_POST['codigo_barra'],
+                //'codigo_barra' => $_POST['codigo_barra'],
             ];
+            
             }
          
          $Model -> updateDatosProd($id,$datos);
@@ -454,7 +458,7 @@ class Producto_controller extends Controller{
 
          return redirect()->to(base_url('Lista_Productos'));
         }
-    }
+    //}
     
     //valida la edicion de categoria para cargar al db
     public function CategValidationEdit() {
