@@ -2,7 +2,7 @@
 $nombre = $session->get('nombre');
 $perfil = $session->get('perfil_id');
 $id = $session->get('id'); ?>  
-<?php if ($perfil == 1) { ?>
+<?php if ($perfil) { ?>
   <br>
 <div class="nuevoTurno">   
     <h2>Editar Producto</h2>
@@ -25,7 +25,7 @@ $id = $session->get('id'); ?>
             <div class="form-group-container">
                 <div class="form-group">
                     <label>Codigo de Barra</label>
-                    <input name="codigo_barra" type="text" pattern="[0-9]+" required value="<?php echo $data['codigo_barra'] ?>" maxlength="15" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <input name="codigo_barra" type="text" pattern="[0-9]+" value="<?php echo $data['codigo_barra'] ?>" maxlength="15" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     <?php if ($validation->getError('codigo_barra')) { ?>
                         <div class='alert alert-danger mt-2'><?= $validation->getError('codigo_barra'); ?></div>
                     <?php } ?>
@@ -37,6 +37,7 @@ $id = $session->get('id'); ?>
                         <div class='alert alert-danger mt-2'><?= $validation->getError('nombre'); ?></div>
                     <?php } ?>
                 </div>
+                <!--
                 <div class="form-group">
                     <label>Descripción</label>
                     <input type="text" name="descripcion" class="form-control" value="<?php echo $data['descripcion'] ?>">
@@ -52,7 +53,7 @@ $id = $session->get('id'); ?>
                     <?php if ($validation->getError('precio')) { ?>
                         <div class='alert alert-danger mt-2'><?= $validation->getError('precio'); ?></div>
                     <?php } ?>
-                </div>
+                </div> -->
 
                 <div class="form-group">
                     <label>Precio Venta</label>
@@ -71,6 +72,7 @@ $id = $session->get('id'); ?>
                         <div class='alert alert-danger mt-2'><?= $validation->getError('stock'); ?></div>
                     <?php } ?>
                 </div>
+                <!--
                 <div class="form-group">
                     <label>Stock Minimo</label>
                     <input name="stock_min" type="text" class="form-control" value="<?php echo $data['stock_min'] ?>" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
@@ -91,7 +93,7 @@ $id = $session->get('id'); ?>
                     <?php if ($validation->getError('categoria_id')) { ?>
                         <div class='alert alert-danger mt-2'><?= $validation->getError('categoria_id'); ?></div>
                     <?php } ?>
-                </div>
+                </div> -->
             </div>
             <div class="form-group-container">
       <!-- Otros campos ya existentes -->
@@ -103,7 +105,7 @@ $id = $session->get('id'); ?>
                   <div class='alert alert-danger mt-2'><?= $validation->getError('eliminado'); ?></div>
               <?php } ?>
           </div>
-
+      <!--
           <div class="form-group">
               <label>Imagen Actual:</label>
               <img class="imagenForm" src="<?php echo base_url('assets/uploads/'.$data['imagen']); ?>">
@@ -111,7 +113,7 @@ $id = $session->get('id'); ?>
               <?php if ($validation->getError('imagen')) { ?>
                   <div class='alert alert-danger mt-2'><?= $validation->getError('imagen'); ?></div>
               <?php } ?>
-          </div>
+          </div> -->
          </div>
 
             <input type="hidden" name="id" value="<?php echo $data['id'] ?>">

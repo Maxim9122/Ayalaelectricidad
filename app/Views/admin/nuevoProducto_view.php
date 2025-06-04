@@ -24,7 +24,7 @@ $id = $session->get('id');
 }
 
 </style>
-<?php if ($perfil == 1) { ?>
+<?php if ($perfil) { ?>
     <?php if (session()->getFlashdata('msg')): ?>
         <div id="flash-message" class="flash-message success">
             <?= session()->getFlashdata('msg') ?>
@@ -61,7 +61,7 @@ $id = $session->get('id');
             <div class="form-row">
                 <div class="mb-2">
                     <label>Código de Barra</label>
-                    <input name="codigo_barra" type="text" maxlength="15" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <input name="codigo_barra" type="text" maxlength="15" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     <?= $validation->getError('codigo_barra') ? "<div class='alert alert-danger mt-2'>{$validation->getError('codigo_barra')}</div>" : "" ?>
                 </div>
 
@@ -79,12 +79,13 @@ $id = $session->get('id');
                     <input name="descripcion" type="text" maxlength="20">
                     <?= $validation->getError('descripcion') ? "<div class='alert alert-danger mt-2'>{$validation->getError('descripcion')}</div>" : "" ?>
                 </div>
-
+            <!--
                 <div class="mb-2">
                     <label>Imagen</label>
                     <input name="imagen" type="file" required>
                     <?= $validation->getError('imagen') ? "<div class='alert alert-danger mt-2'>{$validation->getError('imagen')}</div>" : "" ?>
                 </div>
+            -->
             </div>
 
             <!-- Tercera fila -->
@@ -92,20 +93,20 @@ $id = $session->get('id');
                 <div class="mb-2">
                     <label>Categoría</label>
                     <select name="categoria_id" class="form-control">
-                        <option value="">Seleccione Categoría</option>
+                        <option value="1">Seleccione Categoría</option>
                         <?php foreach ($categorias as $categoria) : ?>
                             <option value="<?= $categoria['categoria_id']; ?>"><?= $categoria['descripcion']; ?></option>
                         <?php endforeach; ?>
                     </select>
                     <?= $validation->getError('categoria_id') ? "<div class='alert alert-danger mt-2'>{$validation->getError('categoria_id')}</div>" : "" ?>
                 </div>
-
+            <!--
                 <div class="mb-2">
                     <label>Precio de Costo</label>
                     <input name="precio" type="text" required maxlength="20" 
                         oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                     <?= $validation->getError('precio') ? "<div class='alert alert-danger mt-2'>{$validation->getError('precio')}</div>" : "" ?>
-                </div>
+                </div> -->
 
                 <!-- Cuarta fila -->
                 <div class="form-row">
@@ -125,14 +126,14 @@ $id = $session->get('id');
                 </div>
             </div>
 
-            <!-- Quinta fila -->
+            <!-- Quinta fila 
             <div class="form-row">
                 <div class="mb-2">
                     <label>Stock Mínimo</label>
                     <input name="stock_min" type="text" required maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     <?= $validation->getError('stock_min') ? "<div class='alert alert-danger mt-2'>{$validation->getError('stock_min')}</div>" : "" ?>
                 </div>
-            </div>
+            </div> -->
 
             <br>
             <div class="button-container">

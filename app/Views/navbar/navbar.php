@@ -79,7 +79,29 @@
           <li class="nnavItem">
             <a href="<?= base_url('pedidos')?>" class="btn">PEDIDOS</a>
           </li>
-       
+          <li class="navItem cart-container">
+              <a href="<?= base_url('catalogo') ?>">
+                  <img class="navImg" src="<?= base_url('assets/img/icons/carrito2.png') ?>">
+              </a>
+              <div class="cart-dropdown">
+                  <?php 
+                  $cart = \Config\Services::cart();
+                  $items = $cart->contents(); // Obtiene los items del carrito
+                  ?>
+                  
+                  <?php if (empty($items)): ?>
+                      <p>El carrito está vacío</p>
+                  <?php else: ?>
+                      <?php foreach ($items as $item): ?>
+                          <div class="cart-item">
+                              <span class="item-name"><?= esc($item['name']) ?></span>
+                              <span class="item-quantity"><?= esc($item['qty']) ?></span>
+                          </div>
+                          <hr>
+                      <?php endforeach; ?>
+                  <?php endif; ?>
+              </div>
+          </li>       
           <li class="nnavItem">
             <a class="btn signUp" href="<?php echo base_url('compras');?>">VENTAS</a>
           </li>
@@ -92,9 +114,10 @@
           <li class="nnavItem">
             <a href="<?= base_url('Lista_Productos')?>" class="btn">ABM_PRODUCTOS</a>
           </li>
+          <!--
           <li class="nnavItem">
             <a href="<?= base_url('ListaCategorias')?>" class="btn">P_Categorias</a>
-          </li>
+          </li> -->
           <li class="nnavItem">
           <a href="<?= base_url('/logout')?>" class="btn" onclick="return confirmarAccionSalir(event);">Salir</a>
           </li>
@@ -162,13 +185,17 @@
           <li class="nnavItem">
             <a class="btn signUp" href="<?php echo base_url('clientes');?>">CLIENTES</a>
           </li>
+          <li class="nnavItem">
+            <a class="btn signUp" href="<?php echo base_url('nuevoProducto');?>">Nvo Producto</a>
+          </li>          
             <?php } ?>
+          <!--
           <li class="nnavItem">
             <a href="<?= base_url('/catalogo')?>" class="btn">Productos</a>
-          </li>
+          </li> -->
 
           <li class="navItem cart-container">
-              <a href="<?= base_url('CarritoList') ?>">
+              <a href="<?= base_url('catalogo') ?>">
                   <img class="navImg" src="<?= base_url('assets/img/icons/carrito2.png') ?>">
               </a>
               <div class="cart-dropdown">

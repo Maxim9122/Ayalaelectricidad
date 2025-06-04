@@ -145,7 +145,7 @@ tbody td {
 }
 
 .busqueda-btn:hover {
-    background-color:rgb(78, 117, 83);
+    background-color:rgb(100, 172, 100);
 }
 
 @media (max-width: 600px) {
@@ -206,7 +206,7 @@ function cerrarMensaje() {
 <br>
 <div class="" style="width: 100%;">
   <div class="">
-  <h2 class="textoColor" text-align: center !important; >Listado de Productos</h2>
+  <h2 class="textoColor" text-align: center !important;>Carrito de Productos</h2>
   <br>
   
   <style>
@@ -245,7 +245,7 @@ function cerrarMensaje() {
 </style>
 
 
-  <section class="buscador">
+ <!-- <section class="buscador"> 
   
   <form id="product_form" action="<?php echo base_url('Carrito_agrega'); ?>" method="post">
   <label style="color: white; font-weight: bold;"><h1>Codigo de Barra</h1></label>
@@ -261,7 +261,7 @@ function cerrarMensaje() {
        required />
         <input type="hidden" id="cantidad" name="cantidad">
         <select id="product_select" name="product_id" required size="3">
-            <option class="separador">Seleccione un Producto!</option>
+            <option class="separador">Seleccione un Producto!</option> 
             <?php if ($productos): ?>
                 
                 <?php foreach ($productos as $prod): ?>
@@ -270,7 +270,7 @@ function cerrarMensaje() {
                                 value="<?php echo $prod['id']; ?>" 
                                 data-nombre="<?php echo $prod['nombre']; ?>" 
                                 data-precio="<?php echo $prod['precio_vta']; ?>" 
-                                data-stock="<?php echo $prod['stock']; ?>">  <!-- Agregamos data-stock -->
+                                data-stock="<?php echo $prod['stock']; ?>">  
                             <?php echo $prod['codigo_barra']; ?>
                         </option>
                     <?php } ?>
@@ -285,7 +285,7 @@ function cerrarMensaje() {
         <input type="hidden" name="stock" id="producto_stock">
     </div>
 </form>
-    </section>
+    </section>  -->
 
     <div style="position: relative; width: 100%;">
 
@@ -315,16 +315,17 @@ function cerrarMensaje() {
     <?php  } ?> -->
 </div>
 
-  <table class="" id="" style="color:black; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, 
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;">
+<?php if (isset($pager)): ?>
+
+  <table class="" id="" style="color:black; font-weight:900;">
    <thead>
       <tr style="color:black;">
-         <th style="text-align:center;">Nombre</th>
-         <th style="text-align:center;">Precio Venta</th>        
-         <th class="ocultar-en-movil" style="text-align:center;">Categoría</th>        
-         <th style="text-align:center;">Stock</th>
-         <th style="text-align:center;">Cantidad</th>
-         <th style="text-align:center;">Acciones</th>
+         <th style="text-align:center; font-weight:900; background:#92beea;">Nombre</th>
+         <th style="text-align:center; font-weight:900; background:#92beea;">Precio Venta</th>        
+         <th class="ocultar-en-movil" style="text-align:center; font-weight:900; background:#92beea;">Categoría</th>        
+         <th style="text-align:center; font-weight:900; background:#92beea;">Stock</th>
+         <th style="text-align:center; font-weight:900; background:#92beea;">Cantidad</th>
+         <th style="text-align:center; font-weight:900; background:#92beea;">Acciones</th>
       </tr>
    </thead>
    <tbody>
@@ -386,11 +387,15 @@ function cerrarMensaje() {
 
    </tbody>
    <div class="paginacion-productos" style="text-align: end; margin-top: 20px;">
-    <?= $pager->links() ?>
+    
+        <?= $pager->links() ?>
+
+    <?php endif; ?>
+
     </div>
 
 </table>
-     <br>
+     
   </div>
 </div>
 
@@ -436,44 +441,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-</script>
-
-<script src="<?php echo base_url('./assets/js/jquery-3.5.1.slim.min.js');?>"></script>
-<script src="<?php echo base_url('./assets/js/jquery-ui.js');?>"></script>
-<link rel="stylesheet" type="text/css" href="<?php echo base_url('./assets/css/jquery.dataTables.min.css');?>">
-<script type="text/javascript" src="<?php echo base_url('./assets/js/jquery.dataTables.min.js');?>"></script>
-
-<script>
-$(document).ready(function () {
-    // Inicializar DataTables
-    $('#users-list').DataTable({
-
-        "stateSave": true, // Habilitar el guardado del estado
-
-        "language": {
-            "lengthMenu": "Mostrar _MENU_ registros por página.",
-            "zeroRecords": "Lo sentimos! No hay resultados.",
-            "info": "Mostrando la página _PAGE_ de _PAGES_",
-            "infoEmpty": "No hay registros disponibles.",
-            "infoFiltered": "(filtrado de _MAX_ registros totales)",
-            "search": "Buscar: ",
-            "paginate": {
-                "next": "Siguiente",
-                "previous": "Anterior"
-            }
-        },
-        initComplete: function () {
-            // Cambiar el texto del placeholder en el input de búsqueda
-            $('#users-list_filter input').attr('placeholder', 'Nombre, Categoría, etc...');
-
-            // Enfocar el campo de búsqueda de la tabla después de inicializar DataTables
-            $('#users-list_filter input').focus();
-        }
-    });
-
-    // Deshabilitar autofocus en el campo de código de barras
-    document.getElementById('product_input').removeAttribute('autofocus');
-});
 </script>
 
 
