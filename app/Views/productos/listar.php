@@ -175,7 +175,7 @@ tbody td {
         if (msg) {
             msg.style.display = 'none';
         }
-    }, 1500); // Se oculta después de 1.5 segundos
+    }, 1000); // Se oculta después de 1.5 segundos
 </script>
 
 <?php if (session()->getFlashdata('msg')): ?>
@@ -186,7 +186,7 @@ tbody td {
     <script>
         setTimeout(function() {
             document.getElementById('flash-message').style.display = 'none';
-        }, 3000); // 3000 milisegundos = 3 segundos
+        }, 1000); // 1000 milisegundos = 1 segundos
     </script>
 
 <?php if (session("msgEr")): ?>
