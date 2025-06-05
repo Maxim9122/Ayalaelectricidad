@@ -27,6 +27,21 @@ class Productos_model extends Model
         return $this->pager;
     }
 
+   
+    // Para búsqueda con paginación TODOS ordenados por nombre de A a Z
+    public function getProductosPaginadosTodos($eliminado = 'NO', $busqueda = null, $page = 1)
+    {
+        $builder = $this->where('eliminado', $eliminado)
+                        ->orderBy('nombre', 'ASC');
+
+        if (!empty($busqueda)) {
+            $builder->like('nombre', $busqueda);
+        }
+
+        return $builder->paginate(10, 'default', $page);
+    }
+
+
     public function getProdBaja($eliminado){
 
     	return $this->where('eliminado',$eliminado)->findAll();

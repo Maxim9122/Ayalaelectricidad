@@ -188,7 +188,11 @@
 <section class="contenedor-titulo">
   <strong class="titulo-vidrio">ABM de Productos</strong>
   </section>
-  
+
+  <section style="width: 100%; text-align: center; margin-top:50px; font-weigth:900;">
+    <a href="<?= base_url('Lista_Productos')?>" class="btn">MOSTRAR TODOS</a>
+  </section>
+
 <div style="width: 100%; text-align: end;">
 <div style="position: relative; width: 100%;">
     <br> 
@@ -205,11 +209,11 @@
   <div class="dropdown2" style="margin-right: 45px;">
         <span class="dropdown-toggle2 btn">Mas Opciones▼</span>
         <ul class="dropdown-menu2">
-            <li>
+           <!-- <li>
             <a class="btn" href="<?php echo base_url('StockBajo');?>">
                     📄 Productos Stock Bajo
                 </a>
-            </li>
+            </li> -->
             <li>
                 <a class="btn" href="<?php echo base_url('nuevoProducto');?>">
                     📄 Crear Producto
@@ -223,6 +227,7 @@
                 </ul>
     </div>
 <br><br>
+
     <form method="get" action="<?= base_url('Lista_Productos') ?>" class="busqueda-form-derecha">
     <?php $request = \Config\Services::request(); ?>
     <input type="text" name="search" value="<?= esc($request->getGet('search')) ?>" placeholder="Buscar productos..." class="busqueda-input" autofocus>
@@ -252,25 +257,33 @@
   <table class="table table-responsive table-hover" id="">
        <thead>
           <tr class="colorTexto">
-             <th>Nombre</th>
+             <th style="text-align:center;">Nombre</th>
              <th style="display:none;">Precio Costo</th>
-             <th>Precio Venta</th>
-             <th>Categoría</th>       
-             <th>Stock</th>
-             <th>Acciones</th>
+             <th style="text-align:center;">Precio Venta</th>
+             <th style="display:none;">Categoría</th>       
+             <th style="text-align:center;">Stock</th>
+             <th style="text-align:center;">Acciones</th>
           </tr>
        </thead>
        <tbody>
           <?php if($productos): ?>
           <?php foreach($productos as $prod): ?>
             <tr>
-             <td style="font-weight:900;"><?php echo $prod['nombre']; ?></td>
-             <td style="display:none;">
+                <td style="display:none;">
                     <form method="post" action="<?php echo base_url('/EdicionRapidaProd') ?>">
+                    <input type="hidden" name="search" value="<?= esc($request->getGet('search')) ?>">
                     <?php echo form_hidden('page', $page ?? 1); ?>  <!-- Página actual enviada aquí -->
                     <input type="number" step="0.01" name="precio" value="<?php echo number_format($prod['precio'], 0, '.', '.'); ?>" 
                     class="form-control form-control-sm d-inline" style="width: 110px; text-align:center;">
+                    
              </td>
+             <td style="text-align:center;">
+                <input type="text" 
+                    name="nombre" 
+                    value="<?php echo esc($prod['nombre']); ?>" 
+                    class="form-control form-control-sm d-inline" 
+                    style="font-weight: 700; width: 300px;">
+            </td>             
              <td>
                 <input type="text" 
                     name="precio_vta" 
@@ -290,7 +303,7 @@
                  }
              }
              ?>
-             <td style="font-weight:900;"><?php echo $categoria_nombre; ?></td>  
+             <td style="display:none;"><?php echo $categoria_nombre; ?></td>  
             
              
              <td class="text-center">
@@ -308,7 +321,7 @@
              
             <td>
             <div class="botones-acciones">
-                <form action="" method="post" style="display:inline;">
+                <form action="" method="post" style="display:inline;">                    
                     <button type="submit" class="btn btn-primary">
                         💾 Edit Rápido
                     </button>
@@ -326,9 +339,10 @@
             </div>
         </td>
 
-             <?php $totalCU = $prod['precio_vta'] * $prod['stock']; ?>
-             <?php $TotalArticulos = $TotalArticulos + $totalCU; ?>
+             
             </tr>
+            <?php $totalCU = $prod['precio_vta'] * $prod['stock']; ?>
+             <?php $TotalArticulos = $TotalArticulos + $totalCU; ?>
          <?php endforeach; ?>
          <?php endif; ?>
 
@@ -344,6 +358,9 @@
      <h2 class="estiloTurno textColor day">Total en articulos: $ <?php echo $TotalArticulos ?></h2>
      <br>
   </div>
+</div>
+<div class="paginacion-productos">
+    <?= $pager->links() ?>
 </div>
 
 <script src="<?php echo base_url('./assets/js/jquery-3.5.1.slim.min.js');?>"></script>

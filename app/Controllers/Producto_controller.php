@@ -11,66 +11,71 @@ class Producto_controller extends Controller{
 
 	}
 
-    public function EdicionRapidaProd() {
-        $model = new Productos_model();
-        $id = $this->request->getPost('id_prod');
-        
-        // Obtener el producto actual primero
-        $productoActual = $model->find($id);
-        
-        if (!$productoActual) {
-            session()->setFlashdata('msgEr', 'Producto no encontrado');
-            return redirect()->to(base_url('Lista_Productos'));
-        }
-        
-        // Preparar datos para actualización
-        $data = [];
-        $hayCambios = false;
-        
-        // Validar y actualizar precio
-        if ($this->request->getPost('precio') !== null && $this->request->getPost('precio') !== '') {
-            $nuevoPrecio = $this->request->getPost('precio');
-            $nuevoPrecio = str_replace('.', '', $nuevoPrecio); // Elimina el punto de miles
-            if ($nuevoPrecio != $productoActual['precio']) {
-                $data['precio'] = $nuevoPrecio;
-                $hayCambios = true;
-            }
-        }
-        
-        // Validar y actualizar precio_vta
-        if ($this->request->getPost('precio_vta') !== null && $this->request->getPost('precio_vta') !== '') {
-            $nuevoPrecioVta = $this->request->getPost('precio_vta');            
-            $nuevoPrecioVta = str_replace('.', '', $nuevoPrecioVta); // Elimina el punto de miles         
-            if ($nuevoPrecioVta != $productoActual['precio_vta']) {
-                $data['precio_vta'] = $nuevoPrecioVta;
-                $hayCambios = true;
-            }
-        }
-        
-        // Validar y actualizar stock
-        if ($this->request->getPost('stock') !== null && $this->request->getPost('stock') !== '') {
-            $nuevoStock = (int)$this->request->getPost('stock');
-            if ($nuevoStock != $productoActual['stock']) {
-                $data['stock'] = $nuevoStock;
-                $hayCambios = true;
-            }
-        }
-    $page = $this->request->getPost('page') ?? 1;
-    
-        // Actualizar solo si hay cambios
-        if ($hayCambios) {
-            try {
-                $model->updateDatosProd($id, $data);
-                session()->setFlashdata('msg', 'Producto actualizado correctamente');
-            } catch (\Exception $e) {
-                session()->setFlashdata('msgEr', 'Error al actualizar: ' . $e->getMessage());
-            }
-        } else {
-            session()->setFlashdata('msg', 'No se realizaron cambios');
-        }
-        
-        return redirect()->to(base_url('Lista_Productos?page=' . $page));
+    //EDITO RAPIDO UN PRODUCTO
+    public function EdicionRapidaProd()
+    {
+    $model = new Productos_model();
+    $id = $this->request->getPost('id_prod');
+
+    $productoActual = $model->find($id);
+
+    if (!$productoActual) {
+        session()->setFlashdata('msgEr', 'Producto no encontrado');
+        return redirect()->to(base_url('Lista_Productos'));
     }
+
+    $data = [];
+    $hayCambios = false;
+
+    // Precio
+    if ($this->request->getPost('nombre') !== null && $this->request->getPost('nombre') !== '') {
+        $nuevoPrecio = str_replace('.', '', $this->request->getPost('nombre'));
+        if ($nuevoPrecio != $productoActual['nombre']) {
+            $data['nombre'] = $nuevoPrecio;
+            $hayCambios = true;
+        }
+    }
+
+    // Precio venta
+    if ($this->request->getPost('precio_vta') !== null && $this->request->getPost('precio_vta') !== '') {
+        $nuevoPrecioVta = str_replace('.', '', $this->request->getPost('precio_vta'));
+        if ($nuevoPrecioVta != $productoActual['precio_vta']) {
+            $data['precio_vta'] = $nuevoPrecioVta;
+            $hayCambios = true;
+        }
+    }
+
+    // Stock
+    if ($this->request->getPost('stock') !== null && $this->request->getPost('stock') !== '') {
+        $nuevoStock = (int)$this->request->getPost('stock');
+        if ($nuevoStock != $productoActual['stock']) {
+            $data['stock'] = $nuevoStock;
+            $hayCambios = true;
+        }
+    }
+
+    // ⬇️ Captura de page y search
+    $page = (int) $this->request->getVar('page') ?: 1;
+  
+    $search = $this->request->getPost('search') ?? '';
+    //print_r($search);exit;
+    // Actualiza solo si hay cambios
+    if ($hayCambios) {
+        try {
+            $model->updateDatosProd($id, $data);
+            session()->setFlashdata('msg', 'Producto actualizado correctamente');
+        } catch (\Exception $e) {
+            session()->setFlashdata('msgEr', 'Error al actualizar: ' . $e->getMessage());
+        }
+    } else {
+        session()->setFlashdata('msg', 'No se realizaron cambios');
+    }
+
+    // ⬇️ Redirección con búsqueda y página
+    return redirect()->to(base_url('Lista_Productos?page=' . $page . '&search=' . urlencode($search)));
+    }
+
+
 
 	public function nuevoProducto(){
         $session = session();
@@ -203,7 +208,7 @@ class Producto_controller extends Controller{
 
         $busqueda = $this->request->getGet('search');
         // Pasamos la página actual para que paginate sepa cuál devolver
-        $productos = $ProductosModel->getProductosPaginados($eliminado, $busqueda, $page);
+        $productos = $ProductosModel->getProductosPaginadosTodos($eliminado, $busqueda, $page);
 
         $pager = $ProductosModel->getPager();
     
@@ -229,6 +234,8 @@ class Producto_controller extends Controller{
           echo view('footer/footer');
        
     } 
+
+
     // muestra las categorias 
     public function ListaCategorias(){
         $session = session();
