@@ -70,12 +70,12 @@
              <td><?php echo $cl['nombre']; ?></td>
              <td><?php echo $cl['telefono']; ?></td>
              <td><?php echo $cl['cuil']; ?></td>
-             
+             <?php if($cl['id_cliente'] > 1){ ?>
              <td class="row">
                <a class="btn btn-outline-primary" href="<?php echo base_url('editarCliente/'.$cl['id_cliente']);?>">
                ✏️ Editar</a>
              </td>
-             
+             <?php } ?>
             </tr>
          <?php endforeach; ?>
          <?php endif; ?>

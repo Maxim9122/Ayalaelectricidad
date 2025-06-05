@@ -4,7 +4,7 @@
   <div style="" >
   
     <div>
-    <h2>Nuevo Cliente<h2>
+    <h2 style="color:white; font-weight:900;">Nuevo Cliente<h2>
     </div>
   
  <?php $validation = \Config\Services::validation(); ?>
@@ -42,6 +42,18 @@
               <?= $error = $validation->getError('telefono'); ?>
             </div>
         <?php }?>
+  </div>
+
+ <div>
+  <label for="exampleFormControlInput1" class="form-label">Dirección</label>
+  <input name="direc" type="text" placeholder="Dirección" required
+        minlength="1" maxlength="50">
+   <!-- Error -->
+   <?php if(session()->getFlashdata('msgEr')) { ?>
+    <div class='alert alert-danger mt-2'>
+        <?= session()->getFlashdata('msgEr'); ?>
+    </div>
+  <?php } ?>
   </div>
 
   <div>

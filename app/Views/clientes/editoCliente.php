@@ -2,7 +2,7 @@
 <div>
   <div class="comprados nuevoTurno" style="width: 50%;">
     <div>
-      <h2>Editar Cliente</h2>
+      <h2 style="color:black; font-weight:900;">Editar Cliente</h2>
     </div>
     <br>
  <?php $validation = \Config\Services::validation(); ?>
@@ -16,7 +16,7 @@
   <?php endif?>     
 <div media="(max-width:768px)">
   <div>
-   <label for="exampleFormControlInput1">Nombre</label>
+   <label for="exampleFormControlInput1" style="color:black;">Nombre</label>
    <input name="nombre" type="text"  placeholder="nombre" required
    minlength="3" maxlength="20" 
    value="<?php echo $data['nombre']?>">
@@ -29,7 +29,7 @@
   </div>
   
   <div>
-       <label for="exampleFormControlInput1">Teléfono</label>
+       <label for="exampleFormControlInput1" style="color:black;">Teléfono</label>
    <input name="telefono"  type="text"  placeholder="Telefono" required
    minlength="1" maxlength="10"
     
@@ -43,7 +43,19 @@
   </div>  
 
   <div>
-       <label for="exampleFormControlInput1">Cuil</label>
+       <label for="exampleFormControlInput1" style="color:black;">Dirección</label>
+   <input name="direc"  type="text"  placeholder="Dirección"
+   minlength="1" maxlength="50" value="<?php echo $data['direccion']?>" >
+    <!-- Error -->
+        <?php if($validation->getError('direc')) {?>
+            <div class='alert alert-danger mt-2'>
+              <?= $error = $validation->getError('direc'); ?>
+            </div>
+        <?php }?>
+  </div>  
+
+  <div>
+       <label for="exampleFormControlInput1" style="color:black;">Cuil</label>
        <input name="cuil" type="text" placeholder="Cuil" required
         minlength="1" maxlength="11"
         pattern="0|[0-9]{11}"

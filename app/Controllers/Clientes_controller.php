@@ -62,6 +62,7 @@ class Clientes_controller extends Controller{
             $clienteModel->save([
                 'nombre'   => $this->request->getVar('nombre'),
                 'telefono' => $this->request->getVar('telefono'),
+                'direccion'=> $this->request->getVar('direc'),
                 'cuil'     => $this->request->getVar('cuil')
             ]);
     
@@ -151,12 +152,14 @@ $input = [
                 $datos = [
                     'nombre' => $this->request->getVar('nombre'),
                     'telefono' => $this->request->getVar('telefono'),
+                    'direccion' => $this->request->getVar('direc'),
                     'cuil' => $this->request->getVar('cuil'),
                 ];
             } else {
                 $datos = [
                     'nombre' => $this->request->getVar('nombre'),
                     'telefono' => $this->request->getVar('telefono'),
+                    'direccion' => $this->request->getVar('direc'),
                     'cuil' => $this->request->getVar('cuil'),
                 ];
             }
