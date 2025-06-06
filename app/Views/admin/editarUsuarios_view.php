@@ -74,7 +74,7 @@ $id=$session->get('id');?>
                                    value="<?php echo $data['pass']?>" minlength="3" maxlength="20" required>
                         </div>
                     </div>
-
+                <?php if($data['id'] > 1){  ?>
                     <div style="width: 50%; padding: 5px;">
                         <div style="margin-bottom: 10px;">
                             <?php
@@ -94,13 +94,12 @@ $id=$session->get('id');?>
                             <label style="display: block;">Tipo de Perfil</label>
                             <select name="perfil_id" style="width: 95%; padding: 5px; border: 1px solid #ccc;">
                                 <option value="<?= $data['perfil_id'] ?>" selected><?= $perfil ?></option>
-                                <?php if ($data['perfil_id'] != 3) { echo '<option value="3">Cajero</option>'; } ?>
-                                <?php if ($data['perfil_id'] != 2) { echo '<option value="2">Vendedor</option>'; } ?>
+                                <?php if ($data['perfil_id'] != 3) { echo '<option value="3">Cajero</option>'; } ?>                                
                                 <?php if ($data['perfil_id'] != 1) { echo '<option value="1">Admin</option>'; } ?>
                             </select>
                         </div>
                     </div>
-
+                <?php } ?>
                     <div style="width: 50%; padding: 5px;">
                         <div style="margin-bottom: 10px;">
                             <label style="display: block;">Eliminado</label>

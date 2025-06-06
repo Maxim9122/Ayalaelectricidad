@@ -154,14 +154,22 @@ class Pedidos_controller extends Controller{
     $detalle_model = new VentaDetalle_model();
     $cabecera_model = new Cabecera_model(); // Asegúrate de tener este modelo
     $producto_model = new Productos_model();
-
+    $model_clientes = new Clientes_model();
     // Obtener los datos de la cabecera de la venta para obtener el id_cliente
     $cabecera = $cabecera_model->find($id_pedido);
     if($cabecera['estado'] == 'Pendiente'){
     $id_vendedor = $cabecera ? $cabecera['id_usuario'] : null;
     $vendedor = $US_model->find($id_vendedor);
     $nombre_vendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
-    $id_cliente = $cabecera ? $cabecera['id_cliente'] : null;
+
+    $id_cliente = $cabecera ? $cabecera['id_cliente'] : null;        
+    if($id_cliente > 1){ 
+    $cliente = $model_clientes->find($id_cliente);
+    $nombre_cli_regis = $cliente ? $cliente['nombre'] : 'No encontrado';
+    }else{
+    $nombre_cli_regis = null;
+    }
+
     $nombre_cli = $cabecera ? $cabecera['nombre_prov_client'] : null; 
     $id_pedido = $cabecera ? $cabecera['id'] : null;
     $fecha_pedido = $cabecera ? $cabecera['fecha_pedido'] : null;
@@ -173,6 +181,7 @@ class Pedidos_controller extends Controller{
     $session->set([
         'id_pedido' => $id_pedido,
         'id_cliente_pedido' => $id_cliente,
+        'nombre_cli_regis' => $nombre_cli_regis,
         'id_vendedor' => $id_vendedor,
         'nombre_vendedor' => $nombre_vendedor,        
         'fecha_pedido' => $fecha_pedido,
@@ -210,7 +219,7 @@ class Pedidos_controller extends Controller{
         }
     }
     // Redirigir a la vista de edición del pedido
-    return redirect()->to('CarritoList');
+    return redirect()->to('catalogo');
     }
     
     session()->setFlashdata('msg', 'Este pedido ya esta siendo Modificado por otro usuario!');
@@ -227,7 +236,7 @@ public function cancelar_edicion($id_pedido){
             
         // Después de guardar el pedido (cuando ya no se necesiten los datos de la sesión)
         $session = session();
-        $session->remove(['nombre_cli','estado','id_vendedor', 'nombre_vendedor', 'id_cliente_pedido' , 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
+        $session->remove(['nombre_cli_regis','nombre_cli','estado','id_vendedor', 'nombre_vendedor', 'id_cliente_pedido' , 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
         // Actualizar el estado del pedido a "Pendiente"
         $Cabecera_model->update($id_pedido, ['estado' => 'Pendiente']);
         $cart->destroy();

@@ -164,10 +164,10 @@
             <li>      
                 <?php  } if($vta['estado'] == 'Sin_Facturar' || $vta['estado'] == 'Modificada_SF'){  ?>
                     <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px;  padding:8px;" href="<?php echo base_url('generarTicket/'.$vta['id']); ?>">
-                        Imp.Ticket
+                        Imp.Boleta
                     </a>
                 </li>
-                <?php if($estado == '' && $perfil == 3) {?>
+                <?php if($estado == '' && $perfil) {?>
                     <li>                
                     <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" 
                     href="#" onclick="abrirModal('<?php echo base_url('modificarVenta_SF/'.$vta['id']); ?>'); return false;">

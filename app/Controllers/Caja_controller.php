@@ -78,6 +78,7 @@ class Caja_controller extends Controller{
     $producto_model = new Productos_model();
     $cabecera_model = new Cabecera_model();
     $US_model = new Usuarios_model();
+    $model_clientes = new Clientes_model();
     // Obtener los datos de la cabecera de la venta para obtener el id_cliente
     $cabecera = $cabecera_model->find($id_vta);
     if($cabecera['estado'] == 'Pendiente'){
@@ -87,19 +88,27 @@ class Caja_controller extends Controller{
     $id_vendedor = $cabecera ? $cabecera['id_usuario'] : null;
     $vendedor = $US_model->find($id_vendedor);
     $nombre_vendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
+
     $id_cliente = $cabecera ? $cabecera['id_cliente'] : null;
+    if($id_cliente > 1){ 
+    $cliente = $model_clientes->find($id_cliente);
+    $nombre_cli_regis = $cliente ? $cliente['nombre'] : 'No encontrado';
+    }else{
+    $nombre_cli_regis = null;
+    }
     $nombre_cli = $cabecera ? $cabecera['nombre_prov_client'] : null;   
     $id_pedido = $cabecera ? $cabecera['id'] : null;
     $fecha_pedido = $cabecera ? $cabecera['fecha_pedido'] : null;
     $tipo_compra = $cabecera ? $cabecera['tipo_compra'] : null;
     $tipo_pago = $cabecera ? $cabecera['tipo_pago'] : null;
     $total_venta = $cabecera ? $cabecera['total_venta'] : null;    
-    //print_r($estado);
+    //print_r($nombre_cli_regis);
     //exit;
     $session->set([
         'id_vendedor' => $id_vendedor,
         'nombre_vendedor' => $nombre_vendedor,
         'id_cliente' => $id_cliente,
+        'nombre_cli_regis' => $nombre_cli_regis,
         'nombre_cli' => $nombre_cli,
         'id_pedido' => $id_pedido,
         'fecha_pedido' => $fecha_pedido,
@@ -142,7 +151,7 @@ class Caja_controller extends Controller{
         $cart->destroy();
         $Cabecera_model = new Cabecera_model();
         $Cabecera_model->update($id_pedido, ['estado' => 'Pendiente']);           
-        $session->remove(['estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'nombre_cli' , 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
+        $session->remove(['nombre_cli_regis','estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'nombre_cli' , 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
         if($tipo_compra == 'Compra_Normal'){ 
             session()->setFlashdata('msg', 'Se Cancelo el cobro de la Venta!');
         return redirect()->to('caja');
@@ -169,7 +178,15 @@ class Caja_controller extends Controller{
     $id_vendedor = $cabecera ? $cabecera['id_usuario'] : null;
     $vendedor = $US_model->find($id_vendedor);
     $nombre_vendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
+
     $id_cliente = $cabecera ? $cabecera['id_cliente'] : null;
+    if($id_cliente > 1){ 
+    $cliente = $model_clientes->find($id_cliente);
+    $nombre_cli_regis = $cliente ? $cliente['nombre'] : 'No encontrado';
+    }else{
+    $nombre_cli_regis = null;
+    }
+
     $id_pedido = $cabecera ? $cabecera['id'] : null;
     $fecha_pedido = $cabecera ? $cabecera['fecha_pedido'] : null;
     $tipo_compra = $cabecera ? $cabecera['tipo_compra'] : null;
@@ -179,6 +196,7 @@ class Caja_controller extends Controller{
         'id_vendedor' => $id_vendedor,
         'nombre_vendedor' => $nombre_vendedor,
         'id_cliente' => $id_cliente,
+        'nombre_cli_regis' => $nombre_cli_regis,
         'id_pedido' => $id_pedido,
         'fecha_pedido' => $fecha_pedido,
         'tipo_compra' => $tipo_compra,
@@ -232,7 +250,7 @@ public function cancelar_edicion_Venta($id_pedido){
       
     // Después de guardar el pedido (cuando ya no se necesiten los datos de la sesión)
     $session = session();
-    $session->remove(['nombre_cli','estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
+    $session->remove(['nombre_cli_regis','nombre_cli','estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
     // Actualizar el estado del pedido a "Pendiente"
     $Cabecera_model->update($id_pedido, ['estado' => 'Pendiente']);
     $cart->destroy();

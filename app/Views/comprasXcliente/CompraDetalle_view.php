@@ -196,7 +196,7 @@ $vta_num = 0;
         </table>
   
   <?php } ?>
-        <!-- Total venta sin descuento-->
+        <!-- Total venta sin descuento
   </table>
   <table class="comprados detalle-compra-tabla">
     <thead>
@@ -212,7 +212,7 @@ $vta_num = 0;
           
       </tr>
     </tbody>
-  </table>
+  </table> -->
 </div>
 
 <br>

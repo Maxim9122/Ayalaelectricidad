@@ -112,14 +112,14 @@
                 </a>
             </li>
             <li>
-                <?php if(($perfil == 3 || $perfil == 2) && $estado == ''){?>
+                <?php if(($perfil == 3 || $perfil == 1) && $estado == ''){?>
                 <a href="<?php echo base_url('cargar_pedido/'.$p['id']); ?>">
                     ✏️ Modificar
                 </a>
                 <?php } ?>
             </li> 
             <li>
-            <?php if($perfil == 3 && $estado == '') { ?>
+            <?php if($perfil && $estado == '') { ?>
                 <a class="text-success btn" href="<?php echo base_url('cobrarPedido/'.$p['id']);?>">
                     ✅ Cobrar
                 </a>

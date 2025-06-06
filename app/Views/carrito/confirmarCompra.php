@@ -47,6 +47,10 @@ if ($session->has('nombre_cli')) {
     $nombre_cli = $session->get('nombre_cli');    
 }
 
+if ($session->has('nombre_cli_regis')) {
+    $nombre_cli = $session->get('nombre_cli_regis');    
+}
+//$nombre_cli = $session->get('nombre_cli_regis');
 if ($session->has('fecha_pedido')) {
     $fecha_pedido = $session->get('fecha_pedido');
 }
@@ -278,39 +282,49 @@ endif;
             </tr>  
             <?php endif; ?>
             <?php if ($perfil): ?><!-- Filtro cajero-->
-
-                <tr style="display: none;">
-                <td style="color:black;"><strong>Tipo Cliente:</strong></td>
-                <td>
-                    <?php if ($clientes): ?>
-                        <select name="cliente_id" class="selector">
-                            <option value="Anonimo">Consumidor Final</option>
-                            <?php foreach ($clientes as $cl): ?>
-                                <option value="<?php echo $cl['id_cliente']; ?>" <?php echo $cl['id_cliente'] == $id_cliente ? 'selected' : ''; ?>>
-                                    <?php echo $cl['nombre']; ?>
-                                    <?php echo "Cuil:" . $cl['cuil']; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    <?php else: ?>
-                        <span>No hay clientes disponibles</span>
-                    <?php endif; ?>
-                </td>
-                 </tr>
-                 <?php endif; ?><!-- Fin del if filtro cajero-->
-
-
-                 <?php if ($perfil && $estado == ''): ?><!-- Filtro Vendedor-->
-            </tr>
+                <?php if (!$estado): ?>
+                <!-- Selector de tipo de cliente -->
                 <tr>
-                <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Nombre Identificador del Cliente:</strong></td>
-                <td>
-                    
-                <input class="selector" type="text" name="nombre_prov" placeholder="Ingrese nombre cliente" maxlength="20" required>
-                    
-                </td>
-                 </tr>
+                    <td style="color:#000000;">SELECCIONAR TIPO DE CLIENTE:</td>
+                    <td>
+                        <select id="tipo_cliente" class="selector" onchange="cambiarTipoCliente()">
+                            <option value="no_registrado" selected>Cliente NO Registrado</option>
+                            <option value="registrado">Cliente Registrado</option>
+                        </select>
+                    </td>
+                </tr>
+            <?php endif; ?>
+                <!-- Campo para clientes registrados -->
+                <tr id="fila_cliente_registrado" style="display: none;">
+                    <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                            -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Tipo Cliente:</strong></td>
+                    <td>
+                        <?php if ($clientes): ?>
+                            <select name="cliente_id" class="selector">
+                                <option value="Anonimo">Consumidor Final</option>
+                                <?php foreach ($clientes as $cl): ?>
+                                    <option value="<?php echo $cl['id_cliente']; ?>" <?php echo $cl['id_cliente'] == $id_cliente ? 'selected' : ''; ?>>
+                                        <?php echo $cl['nombre']; ?> <?php echo "-- DIR:" . $cl['direccion']; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        <?php else: ?>
+                            <span>No hay clientes disponibles</span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+
+                <!-- Campo para nombre manual -->
+                <?php if ($perfil && $estado == ''): ?>
+                <tr id="fila_nombre_manual">
+                    <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                            -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Nombre Identificador del Cliente:</strong></td>
+                    <td>
+                        <input class="selector" type="text" name="nombre_prov" placeholder="Ingrese nombre cliente" maxlength="20">
+                    </td>
+                </tr>
+                <?php endif; ?>
+
                  <?php endif; ?><!-- Fin del if filtro vendedor-->
 
                  <?php if ($perfil && ($estado == ''  ||  $estado == 'Cobrando')): ?>
@@ -852,3 +866,21 @@ function cerrarModalP() {
 }
 </script>
 
+<script>
+function cambiarTipoCliente() {
+    const tipo = document.getElementById("tipo_cliente").value;
+    const filaNombre = document.getElementById("fila_nombre_manual");
+    const filaRegistrado = document.getElementById("fila_cliente_registrado");
+
+    if (tipo === "registrado") {
+        filaNombre.style.display = "none";
+        filaRegistrado.style.display = "";
+    } else {
+        filaNombre.style.display = "";
+        filaRegistrado.style.display = "none";
+    }
+}
+
+// Ejecutar al cargar por si el valor queda en memoria (por ej., al volver atrás)
+window.onload = cambiarTipoCliente;
+</script>

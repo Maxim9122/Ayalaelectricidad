@@ -51,8 +51,7 @@
         <div class="input-group full-width">
           <label>Perfil</label>
           <select name="perfil_id" class="form-control">
-            <option>Seleccione Perfil</option>
-            <option value="2">Vendedor</option>
+            <option>Seleccione Perfil</option>            
             <option value="1">Admin</option>
             <option value="3">Cajero</option>
           </select>

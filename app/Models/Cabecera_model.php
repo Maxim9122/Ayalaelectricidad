@@ -130,7 +130,7 @@ class Cabecera_model extends Model
     $builder = $db->table($this->table . ' u');
     $builder->select("
         u.id, 
-        u.nombre_prov_client AS nombre_cliente, 
+        IF(u.nombre_prov_client != '', u.nombre_prov_client, c.nombre) AS nombre_cliente,
         v.nombre AS nombre_vendedor, 
         u.estado, 
         u.total_venta,
@@ -141,7 +141,7 @@ class Cabecera_model extends Model
         u.hora_entrega AS hora_actual, 
         u.tipo_pago, 
         u.total_bonificado,
-        u.total_anterior           
+        u.total_anterior,           
     ");
     $builder->join('cliente c', 'u.id_cliente = c.id_cliente');
     $builder->join('usuarios v', 'u.id_usuario = v.id');
@@ -238,7 +238,7 @@ class Cabecera_model extends Model
          // Construir la consulta con los joins necesarios
          $builder = $db->table($this->table . ' u');
          $builder->select('u.id, 
-         u.nombre_prov_client AS nombre_cliente, 
+         IF(u.nombre_prov_client != "", u.nombre_prov_client, c.nombre) AS nombre_cliente, 
          c.telefono, 
          u.total_venta, 
          u.fecha, 

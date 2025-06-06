@@ -212,7 +212,7 @@ if (!empty($session)) {
 <div class="contenedor">        
         
         <?php if ($estado == 'Modificando'): ?>
-            <h3 class="resaltado">
+            <h3 class="resaltado" style="background:black;">
                 Modificando Venta/Pedido Numero: <?php echo htmlspecialchars($id_pedido, ENT_QUOTES, 'UTF-8'); ?>
             </h3>
         <?php endif; ?>
@@ -228,7 +228,9 @@ if (!empty($session)) {
             <h2 style="color:black; font-weight:900;">
             <?php  
                 if (empty($carrito)) {
-                    echo 'No hay productos agregados todavía.!<br><br>';
+                    echo '<div style="border: 2px solid orange; padding: 10px; border-radius: 5px; color: black; font-weight: 900; display: inline-block;">
+                        No hay productos agregados todavía.!
+                    </div><br><br>';
                     
                     if ($id_pedido > 0 && $tipo_compra == 'Pedido' && $estado == 'Modificando') { ?>
                         <a href="<?php echo base_url('cancelar_edicion/' . $id_pedido); ?>" class="danger" onclick="return confirmarAccionPedido();">
@@ -252,8 +254,8 @@ if (!empty($session)) {
                 } 
                 ?>
             </h2>
-        </div>
-   
+        </div>   
+
 
 <?php
 // Asegúrate de definir $gran_total antes de este script
@@ -357,11 +359,11 @@ $resto_desc_pago_efec = 0;
                             <td></td>
                             <td></td>
                             <td colspan="6" align="right">
-                                <label style="color:orange;" for="motivo_cambio">Motivo de los cambios de la Venta:</label>
+                                <label style="color:orange;" for="motivo_cambio">Motivo de la Modificación de la Venta:</label>
                                 <input class="motivo" type="text" id="motivo_cambio" name="motivo_modif" placeholder="Ingrese el motivo de los cambios">
                         
                         <h4 style="color:orange;">Montos a Favor de la Venta Anterior:</h4>
-                                <h4 class="total_ant_pagos" > Pago Efectivo: $
+                                <h4 class="total_ant_pagos" style="color:black;"> Pago Efectivo: $
                                     <?php
                                     echo number_format($pago_efec, 0, '.', '.');
                                     ?>
@@ -369,7 +371,7 @@ $resto_desc_pago_efec = 0;
                                     echo number_format(($pago_efec * $cd_efectivo), 0, '.', '.');
                                     ?>) -->                   
                                 </h4>
-                                <h4 class="total_ant_pagos" > Pago Transferencia: $
+                                <h4 class="total_ant_pagos" style="color:black;"> Pago Transferencia: $
                                     <?php
                                     echo number_format($pago_transfer, 0, '.', '.');
                                     ?>                    
@@ -390,13 +392,13 @@ $resto_desc_pago_efec = 0;
                                     echo number_format($total_anterior_bonif, 0, '.', '.');
                                     ?>                    
                                 </h4> -->
-                                <h4 class="total_ant" >Total General Anterior: $
+                                <h4 class="total_ant" style="color:black;">Total General Anterior: $
                                     <?php //Gran Total Anterior
                                     echo number_format($total_anterior_gen, 0, '.', '.');
                                     ?>                    
                                 </h4>
                                 <!-- Nuevo Total de la venta -->
-                                <h4 class="total_ant" id="total_actual" >Nuevo Total Actual: $ <?php echo number_format($gran_total, 0, '.', '.'); ?></h4>
+                                <h4 class="total_ant" id="total_actual" style="color:black;">Nuevo Total Actual: $ <?php echo number_format($gran_total, 0, '.', '.'); ?></h4>
                         <!-- Mostrar la opcion de tipo de pago solo si el nuevo total es mayor al anterior -->
                          <?php if($gran_total > $total_anterior_gen){ ?>
                                 <label  for="tipo_pago">Paga la Diferencia Con:</label>
@@ -420,15 +422,15 @@ $resto_desc_pago_efec = 0;
                                     <?php $dif_devolver = $dif_pago_efec + $pago_tarjeta + $pago_transfer; ?>
                                 <br>
                                 <h4 style="color:orange;">Montos a Devolver</h4> 
-                                    <h4 class="total_ant" >Devolver $  <?php echo number_format($dif_pago_efec, 0, '.', '.'); ?> en Efectivo</h4> 
-                                    <h4 class="total_ant" >Devolver $  <?php echo number_format($pago_transfer, 0, '.', '.'); ?> en Transferencia</h4>                                  
+                                    <h4 class="total_ant" style="color:black;">Devolver $  <?php echo number_format($dif_pago_efec, 0, '.', '.'); ?> en Efectivo</h4> 
+                                    <h4 class="total_ant" style="color:black;">Devolver $  <?php echo number_format($pago_transfer, 0, '.', '.'); ?> en Transferencia</h4>                                  
                                   <!--  <h4 class="total_ant" >Devolver $  <?php echo number_format($pago_tarjeta, 0, '.', '.'); ?> en Tarjeta</h4>  -->                         
                                     
 
                                     <br>
-                                    <h4 style="background-color:red;" class="total_ant" >Diferencia Total a Devolver: $  <?php echo number_format($dif_devolver, 2 , ',', '.'); ?></h4>
+                                    <h4 style="background-color:red; color:black;" class="total_ant" >Diferencia Total a Devolver: $  <?php echo number_format($dif_devolver, 2 , ',', '.'); ?></h4>
                                     
-                                    <h3 style="background-color:red; color:#ffff;" class="diferencia_result">Atencion! La diferencia Resultó Plata a favor del Cliente.</h3>
+                                    <h3 style="background-color:red; color:black;" class="diferencia_result">Atencion! La diferencia Resultó Plata a favor del Cliente.</h3>
                              <!-- Ahora si el nuevo total es mayor que el pago en efectivo anterior se convierte el total nuevo 
                               en precio de descuento para descontar el pago en efectivo que tambien esta en formato precio descuento -->    
                         <?php } else if($gran_total > ($pago_efec * $cd_efectivo)){  ?> 
@@ -525,11 +527,11 @@ $resto_desc_pago_efec = 0;
                             <a style="color:black" href="<?php echo base_url('cancelar_edicion/'.$id_pedido);?>" class="danger" onclick="return confirmarAccionPedido();">
                                 Cancelar Modificación Pedido
                             </a>
-                            <?php } else if ($perfil == 3 && $tipo_compra == 'Compra_Normal' && $estado == 'Modificando'){?>
+                            <?php } else if ($perfil && $tipo_compra == 'Compra_Normal' && $estado == 'Modificando'){?>
                                 <a style="color:black" href="<?php echo base_url('cancelar_edicion_Venta/'.$id_pedido);?>" class="danger" onclick="return confirmarAccionVenta();">
                                 Cancelar Modificación Venta
                                 </a>
-                            <?php  } else if ($perfil == 3 && $estado == 'Modificando_SF'){?>
+                            <?php  } else if ($perfil && $estado == 'Modificando_SF'){?>
                                 <a style="color:black" href="<?php echo base_url('cancelar_edicion_Venta_SF/'.$id_pedido);?>" class="danger" onclick="return confirmarAccionVenta_SF();">
                                 Cancelar Cambios en Venta
                                 </a>

@@ -8,6 +8,7 @@ use Dompdf\Options;
 
 use CodeIgniter\Controller;
 Use App\Models\Productos_model;
+Use App\Models\categoria_model;
 Use App\Models\Cabecera_model;
 Use App\Models\VentaDetalle_model;
 Use App\Models\Clientes_model;
@@ -129,13 +130,48 @@ public function ListCompraDetalle($id)
 }
 
     public function productosAgregados(){
-        $cart = \Config\Services::cart();
+        $session = session();
+    $cart = \Config\Services::cart();
 		$carrito['carrito']=$cart->contents();
-        $data['titulo']='Productos en el Carrito'; 
-		echo view('navbar/navbar');
-        echo view('header/header',$data);        
-        echo view('carrito/ProductosEnCarrito',$carrito);
-        echo view('footer/footer');
+
+    if (!$session->has('id')) {
+        return redirect()->to(base_url('login'));
+    }
+    
+    $Model = new categoria_model();
+    $dato['categorias'] = $Model->getCategoria();
+
+    $ProductosModel = new Productos_model();
+    $eliminado = 'NO';
+
+    // Capturamos la página actual de paginación (por defecto 1 si no existe)
+    $page = $this->request->getGet('page') ?? 1;
+
+    $busqueda = $this->request->getGet('search');
+    // Pasamos la página actual para que paginate sepa cuál devolver
+    $productos = $ProductosModel->getProductosPaginados($eliminado, $busqueda, $page);
+
+    $pager = $ProductosModel->getPager();
+
+    // Productos con stock bajo (igual que antes)
+    $productos_bajo_stock = array_filter($productos, function($producto) {
+        return $producto['stock'] <= $producto['stock_min'];
+    });
+
+    if (!empty($productos_bajo_stock)) {
+        $session->setFlashdata('mensaje_stock', '¡Atención! Algunos productos tienen stock bajo o nulo.');
+    }
+
+    $dato1['titulo'] = 'Productos Disponibles';
+    $data['productos'] = $productos;
+    $data['pager'] = $pager;
+    $data['page'] = $page;  // <-- enviar la página actual a la vista
+
+    echo view('navbar/navbar');
+    echo view('header/header', $dato1);        
+    echo view('productos/listar', $data + $dato);
+    echo view('carrito/ProductosEnCarrito',$carrito);
+    echo view('footer/footer');
     }
 
     //Agrega elemento al carrito
@@ -912,21 +948,23 @@ public function ListCompraDetalle($id)
     //id del vendedor
     $id_usuario = $session->get('id');
 
+    //id del cliente seleccionado o se selecciona Consumidor final por defecto.
+    $id_cliente = $this->request->getPost('cliente_id');    
+
     if(!$id_pedido){    
     //Nombre provisorio del cliente para identificar venta
     $bombre_provisorios_cliente = $this->request->getPost('nombre_prov');    
-    if (!$bombre_provisorios_cliente) {
+    if (!$bombre_provisorios_cliente && $id_cliente == 'Anonimo') {
         session()->setFlashdata('msgEr', 'El Campo nombre cliente es Obligatorio!');
         return redirect()->to('casiListo');
     }
     }
-
     
-    //id del cliente seleccionado o se selecciona Consumidor final por defecto.
-    $id_cliente = $this->request->getPost('cliente_id');
     if ($id_cliente == 'Anonimo') {
         $id_cliente = 1; // Valor por defecto si no se envía cliente_id
     }
+
+    //print_r($id_cliente);exit;
     
     function convertirAFloat($numero) {
     if (empty($numero)) {
@@ -1101,8 +1139,7 @@ public function ListCompraDetalle($id)
         // 3️⃣ **Actualizar la cabecera del pedido**
         $Cabecera_model->update($id_pedido, [
             'fecha' => $fecha,
-            'hora' => $hora,
-            'id_cliente' => $id_cliente,
+            'hora' => $hora,            
             'total_venta' => $total,
             'total_bonificado' => $total_conDescuento,
             'tipo_compra' => 'Pedido',
@@ -1231,8 +1268,7 @@ public function ListCompraDetalle($id)
                     'fecha_pedido'      => $fecha_pedido_formateada,
                     'fecha'             => $fecha,                                      
                     'hora'              => $hora,
-                    'hora_entrega'      => $hora,
-                    'id_cliente'        => $id_cliente,
+                    'hora_entrega'      => $hora,                    
                     'costo_envio'       => $costo_envio,
                     'monto_efectivo'    => $monto_en_Efectivo,
                     'monto_transferencia' => $monto_transferencia,
@@ -1332,7 +1368,11 @@ public function generarPresupuesto($id_cabecera)
 
     // Obtener la información del cliente
     $cliente = $clienteModel->find($cabecera['id_cliente']);
-    
+    if($cabecera['id_cliente'] > 1){
+        $nomPresu = $cliente['nombre'];
+    }else{
+        $nomPresu = $cabecera['nombre_prov_client'];
+    }
     // Obtener el nombre del vendedor    
     $vendedor = $Us_Model->find($cabecera['id_usuario']);
     $nombreVendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
@@ -1424,12 +1464,12 @@ public function generarPresupuesto($id_cabecera)
                         </div>
                     </div>
                     <?php if ($cliente['id_cliente'] == 1): ?>
-                        <div style="text-align: left; font-size: 12px;">
+                        <div style="text-align: left; font-size: 15px;">
                             Cliente: <?= $cabecera['nombre_prov_client'] ?>
                         </div>
                     <?php else: ?>
-                        <div style="text-align: left font-size: 12px;">
-                            Cliente: <?= $cliente['cuil'] > 0 ? $cliente['nombre'] . ' Cuil: ' . $cliente['cuil'] : $cliente['nombre'] ?>
+                        <div style="text-align: left font-size: 15px;">
+                            Cliente: <?= $cliente['cuil'] > 0 ? $cliente['nombre'] . ' Dirección: ' . $cliente['direccion'] : $cliente['nombre'] ?>
                         </div>
                     <?php endif; ?>
                             <div style="text-align: left; font-size: 12px;">Atendido por: <?= $nombreVendedor ?></div>
@@ -1482,25 +1522,7 @@ public function generarPresupuesto($id_cabecera)
             </tfoot>
         </table>
 
-            </div>
-
-
-            <!-- Totales -->
-
-            <?php if (!empty($cabecera['motivo'])): ?>
-            <hr>
-            <p>---------------------Recortar Aqui-------------------------</p>
-            <p><strong>Motivo de los Cambios:</strong> <?= nl2br(htmlspecialchars($cabecera['motivo'])) ?></p>
-            <p><strong>Cajero:</strong> <?= nl2br(htmlspecialchars($cajero_nombre)) ?></p>
-            <p><strong>Vendedor:</strong> <?= nl2br(htmlspecialchars($nombreVendedor)) ?></p>
-            <p><strong>Fecha y Hora:</strong> <?= date('d-m-Y H:i', strtotime($cabecera['fecha'] . ' ' . $cabecera['hora'])) ?></p>
-            <p><strong>Total Anterior: $ </strong> <?= number_format($cabecera['total_anterior'], 0, '.', '.') ?></p>
-            <p><strong>Total Actual: $ </strong> <?= number_format($cabecera['total_bonificado'], 0, '.', '.') ?></p>
-            <p><strong>Diferencia: $ </strong> <?= number_format($cabecera['total_bonificado'] - $cabecera['total_anterior'], 0, '.', '.') ?></p>
-            <p>Si la Diferencia es negativa, eso es saldo a favor para el Cliente.</p>
-            <?php endif; ?>
-
-
+            </div>          
             
         </div>
     </body>
@@ -1518,7 +1540,7 @@ public function generarPresupuesto($id_cabecera)
     $output = $dompdf->output();
     $tempFolder = 'path/to/temp/folder';  // Ruta de la carpeta temporal
     // Sanitizar nombre del cliente para usarlo como nombre de archivo
-    $nombreClienteSanitizado = preg_replace('/[^A-Za-z0-9_\-]/', '_', $cabecera['nombre_prov_client']);
+    $nombreClienteSanitizado = preg_replace('/[^A-Za-z0-9_\-]/', '_', $nomPresu);
     $nombreArchivo = 'presupuesto_' . $nombreClienteSanitizado . '.pdf';
     $tempFile = $tempFolder . '/' . $nombreArchivo;
 
@@ -1591,7 +1613,11 @@ public function generarTicket($id_cabecera)
 
     // Obtener la información del cliente
     $cliente = $clienteModel->find($cabecera['id_cliente']);
-
+    if($cabecera['id_cliente'] > 1){
+        $nomBoleta = $cliente['nombre'];
+    }else{
+        $nomBoleta = $cabecera['nombre_prov_client'];
+    }
     // Obtener el nombre del vendedor    
     $vendedor = $Us_Model->find($cabecera['id_usuario']);
     $nombreVendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
@@ -1705,12 +1731,12 @@ public function generarTicket($id_cabecera)
         
         <div style="text-align: left">
         <?php if ($cliente['id_cliente'] == 1): ?>
-            <div style="text-align: left; font-size: 12px;">
+            <div style="text-align: left; font-size: 15px;">
                 Cliente: <?= $cabecera['nombre_prov_client'] ?>
             </div>
         <?php else: ?>
-            <div style="text-align: left; font-size: 12px;">
-                Cliente: <?= $cliente['cuil'] > 0 ? $cliente['nombre'] . ' Cuil: ' . $cliente['cuil'] : $cliente['nombre'] ?>
+            <div style="text-align: left; font-size: 15px;">
+                Cliente: <?= $cliente['cuil'] > 0 ? $cliente['nombre'] . ' Dirección: ' . $cliente['direccion'] : $cliente['nombre'] ?>
             </div>
         <?php endif; ?>
         </div>
@@ -1791,7 +1817,7 @@ public function generarTicket($id_cabecera)
     $output = $dompdf->output();
     $tempFolder = 'path/to/temp/folder';  // Ruta de la carpeta temporal
     // Sanitizar nombre del cliente para usarlo como nombre de archivo
-    $nombreClienteSanitizado = preg_replace('/[^A-Za-z0-9_\-]/', '_', $cabecera['nombre_prov_client']);
+    $nombreClienteSanitizado = preg_replace('/[^A-Za-z0-9_\-]/', '_', $nomBoleta);
     $nombreArchivo = 'boleta_' . $nombreClienteSanitizado . '.pdf';
     $tempFile = $tempFolder . '/' . $nombreArchivo;
 
