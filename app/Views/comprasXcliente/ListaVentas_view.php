@@ -167,6 +167,11 @@
                         Imp.Boleta
                     </a>
                 </li>
+                <li>
+                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px;  padding:8px;" href="<?php echo base_url('DescargarBole/'.$vta['id']); ?>">
+                        Descargar
+                    </a>
+                </li>
                 <?php if($estado == '' && $perfil) {?>
                     <li>                
                     <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" 

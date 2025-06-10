@@ -1858,6 +1858,283 @@ public function generarTicket($id_cabecera)
 
 }
 
+//Esta funcion descarga la boleta sin imprimirla
+public function DescargarBole($id_cabecera)
+{
+    // Cargar los modelos necesarios
+    $Us_Model = new \App\Models\Usuarios_model();
+    $ventaModel = new \App\Models\Cabecera_model();
+    $detalleModel = new \App\Models\VentaDetalle_model();
+    $productoModel = new \App\Models\Productos_model();
+    $clienteModel = new \App\Models\Clientes_model();
+    
+    $session = session();
+    $cajero_nombre = $session->get('nombre');
+    $cd_efectivo =$session->get('cd_efectivo');
+    // Obtener los detalles de la venta
+    $cabecera = $ventaModel->find($id_cabecera);
+    
+    $CostoEnvio = $cabecera['costo_envio'];
+   
+    // Actualizar el campo costo_envio a 0 porque se muestra una sola vez.
+    $ventaModel->update($id_cabecera, ['costo_envio' => 0]);
+    
+    $detalles = $detalleModel->where('venta_id', $id_cabecera)->findAll();
+    //print_r($detalles);
+    //exit;
+    // Obtener los productos relacionados
+    $productos = [];
+    foreach ($detalles as $detalle) {
+        $productos[$detalle['producto_id']] = $productoModel->find($detalle['producto_id']);
+    }
+
+    // Obtener la información del cliente
+    $cliente = $clienteModel->find($cabecera['id_cliente']);
+    if($cabecera['id_cliente'] > 1){
+        $nomBoleta = $cliente['nombre'];
+    }else{
+        $nomBoleta = $cabecera['nombre_prov_client'];
+    }
+    // Obtener el nombre del vendedor    
+    $vendedor = $Us_Model->find($cabecera['id_usuario']);
+    $nombreVendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
+    
+    //Cambia el estado del Pedido
+    if($cabecera['tipo_compra'] == 'Pedido' && $cabecera['total_anterior'] == 0){
+
+        $ventaModel->cambiarEstado($id_cabecera, 'Sin_Facturar');
+    }
+    // Crear el HTML para la vista previa
+    ob_start();
+    ?>
+    <html>
+<head>
+    <style>
+        /* Estilos CSS para el ticket */
+        body {
+            font-family: Arial, sans-serif; /* Cambiar a una fuente más legible */
+            margin: 0;
+            padding: 0;
+            width: 100%; /* Ancho del ticket */
+        }
+        .ticket {
+            width: 100%;
+            font-size: 18px; /* Ajustar tamaño de fuente */
+            font-weight: bold;
+        }
+        h1 {
+            font-size: 18px;
+            text-align: center;
+            margin: 3px 0;
+            font-weight: bold;
+        }
+        h3 {
+            text-align: center;
+            margin: 3px 0;
+            font-weight: bold;
+        }
+        h4 {
+            text-align: center;
+            margin: 3px 0;
+            font-weight: bold;
+            font-size: 10px;
+        }
+        h5 {
+            text-align: center;
+            margin: 3px 0;
+            font-weight: bold;
+            font-size: 9px;
+        }
+        .ticket p {
+            margin: 2px 0;
+            font-size: 15px;
+            font-weight: bold;
+            text-align: justify; /* Justificar el texto */
+        }
+        .ticket hr {
+            border: 0.5px solid #000;
+            margin: 5px 0;
+        }
+        .ticket .header,
+        .ticket .footer {
+            text-align: center;
+            font-size: 10px;
+        }
+        .ticket .details {
+            margin-top: 3px;
+            font-size: 10px;
+        }
+        .ticket .details td {
+            padding: 0px;
+            font-size: 14px;
+        }
+        .ticket .details th {
+            text-align: left;
+            padding-right: 5px;
+        }
+    </style>
+</head>
+<body>    
+    <!-- Letra C grande en recuadro centrado -->
+    <div style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
+        <span style="
+            display: inline-block;
+            border: 2px solid black;
+            padding: 5px 12px;
+            font-size: 40px;
+            font-weight: bold;
+            line-height: 1;
+        ">
+            C
+        </span>
+    </div>
+
+    <div class="ticket">
+        <!-- Derecha: Fecha y hora -->
+        <div style="text-align: right; font-size: 12px;">
+            Fecha: <?= ($cabecera['tipo_compra'] == 'Pedido') 
+                        ? date('d-m-Y H:i') 
+                        : $cabecera['fecha'] . ' ' . $cabecera['hora']; ?>
+        </div>
+        <h4>Nro: <?= number_format($cabecera['id'],0,'.','.') ?></h4>    
+
+        <!-- Cabecera del ticket -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <!-- Izquierda: datos del cliente y vendedor -->
+            <div>
+                <div style="font-size: 18px; font-weight: bold;">AYALA ELECTRICIDAD</div>
+            </div>
+        </div>
+        
+        <div style="text-align: left">
+        <?php if ($cliente['id_cliente'] == 1): ?>
+            <div style="text-align: left; font-size: 15px;">
+                Cliente: <?= $cabecera['nombre_prov_client'] ?>
+            </div>
+        <?php else: ?>
+            <div style="text-align: left; font-size: 15px;">
+                Cliente: <?= $cliente['cuil'] > 0 ? $cliente['nombre'] . ' Dirección: ' . $cliente['direccion'] : $cliente['nombre'] ?>
+            </div>
+        <?php endif; ?>
+        </div>
+
+        <div style="text-align: left; font-size: 12px;">Atendido por: <?= $nombreVendedor ?></div>
+        <hr>
+
+        <!-- Detalle de la compra -->
+        <div class="details" style="width: 100%; font-size: 10px;">
+            <h3>Productos Adquiridos</h3>
+            <table style="width:100%; border-collapse: collapse; font-size: 10px;">
+                <thead>
+                    <tr>
+                        <th style="border-bottom: 2px solid #000; text-align: left;">CANT.</th>
+                        <th style="border-bottom: 2px solid #000; text-align: left;">NOMBRE / DESCRIPCION</th>
+                        <th style="border-bottom: 2px solid #000; text-align: right;">PRECIO</th>
+                        <th style="border-bottom: 2px solid #000; text-align: right;">SUBTOTAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($detalles as $detalle): ?>
+                        <?php 
+                            $precio_unitario = $detalle['precio'];
+                            $subtotal = $detalle['cantidad'] * $precio_unitario;
+                        ?>
+                    <tr>
+                        <td style="border-bottom: 2px solid #ccc;"><?= $detalle['cantidad'] ?></td>
+                        <td style="border-bottom: 2px solid #ccc;"><?= $productos[$detalle['producto_id']]['nombre'] ?></td>
+                        <td style="border-bottom: 2px solid #ccc; text-align: right;">$<?= number_format($detalle['precio'], 0, '.', '.') ?></td>
+                        <td style="border-bottom: 2px solid #ccc; text-align: right;">$<?= number_format($subtotal, 0, '.', '.') ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                    <!-- Espaciado antes del total -->
+                    <tr><td colspan="4" style="height: 10px;"></td></tr>
+                    <tr><td colspan="4" style="height: 10px;"></td></tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td style="text-align: right; font-weight: bold;">TOTAL</td>
+                        <td style="text-align: right; font-weight: bold;">
+                            $<?= number_format($cabecera['total_venta'], 0, '.', '.') ?>
+                        </td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Totales y motivo -->
+        <?php if (!empty($cabecera['motivo'])): ?>
+        <hr>
+        <p>---------------------Recortar Aqui-------------------------</p>
+        <p><strong>Motivo de los Cambios:</strong> <?= nl2br(htmlspecialchars($cabecera['motivo'])) ?></p>
+        <p><strong>Cajero:</strong> <?= nl2br(htmlspecialchars($cajero_nombre)) ?></p>
+        <p><strong>Vendedor:</strong> <?= nl2br(htmlspecialchars($nombreVendedor)) ?></p>
+        <p><strong>Fecha y Hora:</strong> <?= date('d-m-Y H:i', strtotime($cabecera['fecha'] . ' ' . $cabecera['hora'])) ?></p>
+        <p><strong>Total Anterior: $ </strong> <?= number_format($cabecera['total_anterior'], 0, '.', '.') ?></p>
+        <p><strong>Total Actual: $ </strong> <?= number_format($cabecera['total_bonificado'], 0, '.', '.') ?></p>
+        <p><strong>Diferencia: $ </strong> <?= number_format($cabecera['total_bonificado'] - $cabecera['total_anterior'], 0, '.', '.') ?></p>
+        <p>Si la Diferencia es negativa, eso es saldo a favor para el Cliente.</p>
+        <?php endif; ?>
+    </div>
+</body>
+</html>
+
+    <?php
+       
+    // Generar el PDF
+    $html = ob_get_clean();
+    $dompdf = new \Dompdf\Dompdf();
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'portrait'); // O 'landscape' si prefieres horizontal
+    $dompdf->render();
+    
+    // Guardar el archivo PDF en un archivo temporal
+    $output = $dompdf->output();
+    $tempFolder = 'path/to/temp/folder';  // Ruta de la carpeta temporal
+    // Sanitizar nombre del cliente para usarlo como nombre de archivo
+    $nombreClienteSanitizado = preg_replace('/[^A-Za-z0-9_\-]/', '_', $nomBoleta);
+    $nombreArchivo = 'boletaAE-' . $nombreClienteSanitizado . '.pdf';
+    $tempFile = $tempFolder . '/' . $nombreArchivo;
+
+    // Guardar el nombre del archivo en sesión para usarlo luego
+    session()->set('nombre_archivo_presupuesto', $nombreArchivo);
+
+    
+    // Crear la carpeta si no existe
+    if (!is_dir($tempFolder)) {
+        mkdir($tempFolder, 0777, true);  // Crea la carpeta con permisos 0777 (lectura, escritura y ejecución)
+    }
+    
+    // Guardar el archivo PDF en la carpeta temporal
+    file_put_contents($tempFile, $output);
+    session()->setFlashdata('msg', 'Imprimiendo Ticket.!');
+
+     // Obtener el perfil del usuario desde la sesión
+    $perfil = session()->get('perfil_id');
+    
+    // Redirigir a una página de confirmación con JavaScript
+        echo "<script type='text/javascript'>
+        // Descargar el archivo PDF
+        window.location.href = '" . base_url('descargar_ticket') . "';
+
+        // Pasar el valor de perfil desde PHP a JavaScript
+        var perfil = " . $perfil . "; // Asignar el perfil de PHP a la variable JS
+
+        // Redirigir a la página de referencia después de la descarga o a otra según perfil
+        window.setTimeout(function() {
+            if (perfil == 3) {
+                window.location.href = document.referrer; // Volver a la página anterior
+            } else if (document.referrer) {
+                window.location.href = document.referrer; // Volver a la página anterior
+            }
+        }, 500);  // 0.5 segundos de espera para asegurar que la descarga termine
+        </script>";
+        exit;
+
+}
+
 // En tu ruta 'descargar_ticket', puedes usar:
 public function descargar_ticket()
 {

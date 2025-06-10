@@ -189,6 +189,7 @@ $routes->get('descargar_ticket', 'Carrito_controller::descargar_ticket');
 
 $routes->get('verificarTA/(:num)','Carrito_controller::verificarTA/$1');
 $routes->get('generarTicket/(:num)', 'Carrito_controller::generarTicket/$1');
+$routes->get('DescargarBole/(:num)', 'Carrito_controller::DescargarBole/$1');
 $routes->get('generarTicketFacturaC/(:num)', 'Carrito_controller::generarTicketFacturaC/$1');
 $routes->get('generarPresupuesto/(:num)', 'Carrito_controller::generarPresupuesto/$1');
 
