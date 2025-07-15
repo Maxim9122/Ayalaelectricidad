@@ -1497,10 +1497,10 @@ public function generarPresupuesto($id_cabecera)
                         $subtotal = $detalle['cantidad'] * $precio_unitario;
                     ?>
                     <tr>
-                        <td style="border-bottom: 2px solid #7a7a7a;"><?= $detalle['cantidad'] ?></td>
-                        <td style="border-bottom: 2px solid #7a7a7a;"><?= $productos[$detalle['producto_id']]['nombre'] ?></td>
-                        <td style="border-bottom: 2px solid #7a7a7a; text-align: right;">$ <?= number_format($detalle['precio'], 0, '.', '.') ?></td>
-                        <td style="border-bottom: 2px solid #7a7a7a; text-align: right;">$ <?= number_format($subtotal, 0, '.', '.') ?></td>
+                        <td style="border-bottom: 2px solid #424242;"><?= $detalle['cantidad'] ?></td>
+                        <td style="border-bottom: 2px solid #424242;"><?= $productos[$detalle['producto_id']]['nombre'] ?></td>
+                        <td style="border-bottom: 2px solid #424242; text-align: right;">$ <?= number_format($detalle['precio'], 0, '.', '.') ?></td>
+                        <td style="border-bottom: 2px solid #424242; text-align: right;">$ <?= number_format($subtotal, 0, '.', '.') ?></td>
                     </tr>
                 <?php endforeach; ?>
                 
@@ -1528,7 +1528,7 @@ public function generarPresupuesto($id_cabecera)
     </body>
     </html>
     <?php
-       
+    /*   
     // Generar el PDF
     $html = ob_get_clean();
     $dompdf = new \Dompdf\Dompdf();
@@ -1577,7 +1577,7 @@ public function generarPresupuesto($id_cabecera)
         }, 500);  // 0.5 segundos de espera para asegurar que la descarga termine
         </script>";
         exit;
-
+        */
 }
 
 //Genera presupesto para DESCARGAR sin imprimir
@@ -1741,10 +1741,10 @@ public function DescargarPresupuesto($id_cabecera)
                         $subtotal = $detalle['cantidad'] * $precio_unitario;
                     ?>
                     <tr>
-                        <td style="border-bottom: 2px solid #7a7a7a;"><?= $detalle['cantidad'] ?></td>
-                        <td style="border-bottom: 2px solid #7a7a7a;"><?= $productos[$detalle['producto_id']]['nombre'] ?></td>
-                        <td style="border-bottom: 2px solid #7a7a7a; text-align: right;">$ <?= number_format($detalle['precio'], 0, '.', '.') ?></td>
-                        <td style="border-bottom: 2px solid #7a7a7a; text-align: right;">$ <?= number_format($subtotal, 0, '.', '.') ?></td>
+                        <td style="border-bottom: 2px solid #424242;"><?= $detalle['cantidad'] ?></td>
+                        <td style="border-bottom: 2px solid #424242;"><?= $productos[$detalle['producto_id']]['nombre'] ?></td>
+                        <td style="border-bottom: 2px solid #424242; text-align: right;">$ <?= number_format($detalle['precio'], 0, '.', '.') ?></td>
+                        <td style="border-bottom: 2px solid #424242; text-align: right;">$ <?= number_format($subtotal, 0, '.', '.') ?></td>
                     </tr>
                 <?php endforeach; ?>
                 
@@ -1772,7 +1772,7 @@ public function DescargarPresupuesto($id_cabecera)
     </body>
     </html>
     <?php
-       
+    /*  
     // Generar el PDF
     $html = ob_get_clean();
     $dompdf = new \Dompdf\Dompdf();
@@ -1821,7 +1821,7 @@ public function DescargarPresupuesto($id_cabecera)
         }, 500);  // 0.5 segundos de espera para asegurar que la descarga termine
         </script>";
         exit;
-
+    */
 }
 
 
@@ -2007,10 +2007,10 @@ public function generarTicket($id_cabecera)
                             $subtotal = $detalle['cantidad'] * $precio_unitario;
                         ?>
                     <tr>
-                        <td style="border-bottom: 2px solid #ccc;"><?= $detalle['cantidad'] ?></td>
-                        <td style="border-bottom: 2px solid #ccc;"><?= $productos[$detalle['producto_id']]['nombre'] ?></td>
-                        <td style="border-bottom: 2px solid #ccc; text-align: right;">$<?= number_format($detalle['precio'], 0, '.', '.') ?></td>
-                        <td style="border-bottom: 2px solid #ccc; text-align: right;">$<?= number_format($subtotal, 0, '.', '.') ?></td>
+                        <td style="border-bottom: 2px solid #424242;"><?= $detalle['cantidad'] ?></td>
+                        <td style="border-bottom: 2px solid #424242;"><?= $productos[$detalle['producto_id']]['nombre'] ?></td>
+                        <td style="border-bottom: 2px solid #424242; text-align: right;">$<?= number_format($detalle['precio'], 0, '.', '.') ?></td>
+                        <td style="border-bottom: 2px solid #424242; text-align: right;">$<?= number_format($subtotal, 0, '.', '.') ?></td>
                     </tr>
                     <?php endforeach; ?>
                     <!-- Espaciado antes del total -->
@@ -2049,7 +2049,7 @@ public function generarTicket($id_cabecera)
 </html>
 
     <?php
-       
+    /*   
     // Generar el PDF
     $html = ob_get_clean();
     $dompdf = new \Dompdf\Dompdf();
@@ -2099,7 +2099,7 @@ public function generarTicket($id_cabecera)
         }, 500);  // 0.5 segundos de espera para asegurar que la descarga termine
         </script>";
         exit;
-
+*/
 }
 
 //Esta funcion descarga la boleta sin imprimirla
@@ -2284,10 +2284,10 @@ public function DescargarBole($id_cabecera)
                             $subtotal = $detalle['cantidad'] * $precio_unitario;
                         ?>
                     <tr>
-                        <td style="border-bottom: 2px solid #ccc;"><?= $detalle['cantidad'] ?></td>
-                        <td style="border-bottom: 2px solid #ccc;"><?= $productos[$detalle['producto_id']]['nombre'] ?></td>
-                        <td style="border-bottom: 2px solid #ccc; text-align: right;">$<?= number_format($detalle['precio'], 0, '.', '.') ?></td>
-                        <td style="border-bottom: 2px solid #ccc; text-align: right;">$<?= number_format($subtotal, 0, '.', '.') ?></td>
+                        <td style="border-bottom: 2px solid #424242;"><?= $detalle['cantidad'] ?></td>
+                        <td style="border-bottom: 2px solid #424242;"><?= $productos[$detalle['producto_id']]['nombre'] ?></td>
+                        <td style="border-bottom: 2px solid #424242; text-align: right;">$<?= number_format($detalle['precio'], 0, '.', '.') ?></td>
+                        <td style="border-bottom: 2px solid #424242; text-align: right;">$<?= number_format($subtotal, 0, '.', '.') ?></td>
                     </tr>
                     <?php endforeach; ?>
                     <!-- Espaciado antes del total -->
