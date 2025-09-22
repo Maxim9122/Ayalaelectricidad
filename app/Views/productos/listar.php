@@ -292,8 +292,11 @@ function cerrarMensaje() {
     <form method="get" action="<?= base_url('catalogo') ?>" class="busqueda-form-derecha">
     <?php $request = \Config\Services::request(); ?>
     <input type="text" name="search" value="<?= esc($request->getGet('search')) ?>" placeholder="Buscar productos..." class="busqueda-input" autofocus>
-    <button type="submit" class="busqueda-btn">Buscar</button>
+    <button type="submit" class="busqueda-btn">Buscar</button>   
     </form>
+     <li class="nnavItem" style="text-align:end;">
+            <a class="btn signUp" href="<?php echo base_url('catalogo');?>">Limpiar Busqueda</a>
+     </li>
     <script>
     window.addEventListener('DOMContentLoaded', function() {
         const input = document.querySelector('.busqueda-input');
@@ -303,7 +306,6 @@ function cerrarMensaje() {
         }
     });
     </script>
-
 
     <!-- Tu contenido actual aquí
      <?php if($perfil == 1 || $perfil == 3){?>
@@ -369,7 +371,8 @@ function cerrarMensaje() {
                <?php echo form_hidden('nombre', $prod['nombre']); ?>
                <?php echo form_hidden('precio_vta', $prod['precio_vta']); ?>
                <?php echo form_hidden('page', $page ?? 1); ?>  <!-- Página actual enviada aquí -->
-               
+               <?php echo form_hidden('search', $request->getGet('search') ?? '') ?>
+
                <input type="hidden" name="cantidad" id="inputCantidad_<?php echo $prod['id']; ?>" value="1">
                <?php if($perfil || $estado == 'Modificando' || $estado == 'Modificando_SF') {?>
                <button type="submit" class="btn btn-agregar" data-id="<?php echo $prod['id']; ?>">Agregar</button>

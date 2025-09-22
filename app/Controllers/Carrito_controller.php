@@ -186,6 +186,7 @@ public function ListCompraDetalle($id)
     $precio = $_POST['precio_vta'];
     $cantidad = isset($_POST['cantidad']) ? (int)$_POST['cantidad'] : 1;
     $page = $this->request->getPost('page') ?? 1;
+    $search = $this->request->getPost('search') ?? '';
 
     $prodModel = new Productos_model();
     $producto = $prodModel->getProducto($producto_id);
@@ -251,7 +252,7 @@ public function ListCompraDetalle($id)
     }
 
     session()->setFlashdata('msg', 'Producto Agregado!');
-    return redirect()->to(base_url('catalogo?page=' . $page));    
+    return redirect()->to(base_url('catalogo?page=' . $page . '&search=' . urlencode($search)));  
     }
 
 

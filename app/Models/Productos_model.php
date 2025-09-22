@@ -10,17 +10,22 @@ class Productos_model extends Model
     // Agregamos método para paginar con condición
    public function getProductosPaginados($eliminado = 'NO', $busqueda = null, $page = 1)
     {
-    // Si no hay búsqueda, no devolver nada
+        // Si no hay búsqueda, no devolver nada
     if (empty($busqueda)) {
         return [];
     }
+    
+    $builder = $this->where('eliminado', $eliminado);
 
-    $builder = $this->where('eliminado', $eliminado)
-                    ->like('nombre', $busqueda);
+    if (!empty($busqueda)) {
+        $builder->groupStart()
+                ->like('nombre', $busqueda)
+                ->orLike('CAST(precio_vta AS CHAR)', $busqueda); // Búsqueda parcial por precio
+        $builder->groupEnd();
+    }
 
     return $builder->paginate(5, 'default', $page);
     }
-
 
     public function getPager()
     {
