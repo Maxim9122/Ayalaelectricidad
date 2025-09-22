@@ -123,7 +123,7 @@ class Cabecera_model extends Model
     }
     */
 
-    public function getVentasConClientes($filtros = [])
+  public function getVentasConClientes($filtros = [])
 {
     $db = db_connect();
 
@@ -141,7 +141,7 @@ class Cabecera_model extends Model
         u.hora_entrega AS hora_actual, 
         u.tipo_pago, 
         u.total_bonificado,
-        u.total_anterior,           
+        u.total_anterior           
     ");
     $builder->join('cliente c', 'u.id_cliente = c.id_cliente');
     $builder->join('usuarios v', 'u.id_usuario = v.id');
@@ -151,25 +151,30 @@ class Cabecera_model extends Model
         $builder->where('u.estado', $filtros['estado']);
     }
 
-    if (!empty($filtros['fecha_desde'])) {
+    // 📅 Si vienen fechas, usar el rango
+    if (!empty($filtros['fecha_desde']) && !empty($filtros['fecha_hasta'])) {
         $fechaDesde = date('Y-m-d', strtotime($filtros['fecha_desde']));
-        $builder->where("STR_TO_DATE(u.fecha_pedido, '%d-%m-%Y') >= ", $fechaDesde);
-    }
-
-    if (!empty($filtros['fecha_hasta'])) {
         $fechaHasta = date('Y-m-d', strtotime($filtros['fecha_hasta']));
-        $builder->where("STR_TO_DATE(u.fecha_pedido, '%d-%m-%Y') <= ", $fechaHasta);
+        $builder->where("STR_TO_DATE(u.fecha_pedido, '%d-%m-%Y') >=", $fechaDesde);
+        $builder->where("STR_TO_DATE(u.fecha_pedido, '%d-%m-%Y') <=", $fechaHasta);
+    } 
+    // 📌 Si no vienen fechas, filtrar solo por el día de hoy
+    else {
+        $hoy = date('Y-m-d');
+        $builder->where("STR_TO_DATE(u.fecha_pedido, '%d-%m-%Y') =", $hoy);
     }
 
     // 🔧 Ordenar por fecha_pedido y hora_entrega correctamente
     $builder->orderBy("STR_TO_DATE(u.fecha_pedido, '%d-%m-%Y')", 'DESC', false);
     $builder->orderBy("STR_TO_DATE(u.hora_entrega, '%H:%i')", 'DESC', false);
 
-    $builder->limit(300);
+    // ❌ Quitamos el limit de 300
+    // $builder->limit(300);
 
     $ventas = $builder->get();
     return $ventas->getResultArray();
 }
+
 
 
     public function getVentasPorClienteYFecha($idCliente, $fechaHoy)
