@@ -142,7 +142,7 @@ class Login_controller extends Controller
                 //print_r($id_sesion);
                 //print_r($data);
                // exit;
-            $registro_sesion->actualizar_sesion($id_sesion,$data);
+            //$registro_sesion->actualizar_sesion($id_sesion,$data);
             $session->destroy();
             return redirect()->to('/');
     }

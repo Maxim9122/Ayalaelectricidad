@@ -25,9 +25,9 @@ class Usuario_controller extends Controller{
         $input = $this->validate([
             'nombre'   => 'required|min_length[3]',
             'apellido' => 'required|min_length[3]|max_length[25]',
-            'email'    => 'required|min_length[4]|max_length[100]|valid_email|is_unique[usuarios.email]',
-            'telefono'  => 'required|min_length[10]|max_length[10]',
-            'direccion'  => 'required|max_length[100]',
+           // 'email'    => 'required|min_length[4]|max_length[100]|valid_email|is_unique[usuarios.email]',
+            //'telefono'  => 'required|min_length[10]|max_length[10]',
+            //'direccion'  => 'required|max_length[100]',
             'pass'     => 'required|min_length[3]|max_length[10]'
         ]);
         $formModel = new Usuarios_model();
@@ -75,7 +75,7 @@ class Usuario_controller extends Controller{
             'apellido' => 'required|min_length[3]|max_length[25]',
             'email'    => 'required|min_length[4]|max_length[100]|valid_email|is_unique[usuarios.email]',
             'telefono'  => 'min_length[10]|max_length[10]',
-            'direccion'  => 'max_length[100]',
+            //'direccion'  => 'max_length[100]',
             'pass'     => 'required|min_length[3]|max_length[20]',
             'perfil_id'=> 'required|max_length[1]'
             

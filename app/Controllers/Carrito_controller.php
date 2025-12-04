@@ -1337,7 +1337,7 @@ public function ListCompraDetalle($id)
 }
 
 
-//Genera presupesto para imprimir
+//Genera ticket venta normal
 public function generarPresupuesto($id_cabecera)
 {
     // Cargar los modelos necesarios
@@ -1529,7 +1529,7 @@ public function generarPresupuesto($id_cabecera)
     </body>
     </html>
     <?php
-    /*   
+       
     // Generar el PDF
     $html = ob_get_clean();
     $dompdf = new \Dompdf\Dompdf();
@@ -1578,7 +1578,7 @@ public function generarPresupuesto($id_cabecera)
         }, 500);  // 0.5 segundos de espera para asegurar que la descarga termine
         </script>";
         exit;
-        */
+
 }
 
 //Genera presupesto para DESCARGAR sin imprimir
@@ -1773,7 +1773,7 @@ public function DescargarPresupuesto($id_cabecera)
     </body>
     </html>
     <?php
-    /*  
+       
     // Generar el PDF
     $html = ob_get_clean();
     $dompdf = new \Dompdf\Dompdf();
@@ -1822,8 +1822,9 @@ public function DescargarPresupuesto($id_cabecera)
         }, 500);  // 0.5 segundos de espera para asegurar que la descarga termine
         </script>";
         exit;
-    */
+
 }
+
 
 
 //Genera ticket venta normal
@@ -2050,7 +2051,7 @@ public function generarTicket($id_cabecera)
 </html>
 
     <?php
-    /*   
+       
     // Generar el PDF
     $html = ob_get_clean();
     $dompdf = new \Dompdf\Dompdf();
@@ -2100,7 +2101,7 @@ public function generarTicket($id_cabecera)
         }, 500);  // 0.5 segundos de espera para asegurar que la descarga termine
         </script>";
         exit;
-*/
+
 }
 
 //Esta funcion descarga la boleta sin imprimirla

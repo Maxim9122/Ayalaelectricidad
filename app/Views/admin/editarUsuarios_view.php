@@ -100,6 +100,7 @@ $id=$session->get('id');?>
                         </div>
                     </div>
                 <?php } ?>
+
                     <div style="width: 50%; padding: 5px;">
                         <div style="margin-bottom: 10px;">
                             <label style="display: block;">Eliminado</label>

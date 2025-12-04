@@ -359,6 +359,7 @@
      <br>
   </div>
 </div>
+
 <div class="paginacion-productos">
     <?= $pager->links() ?>
 </div>

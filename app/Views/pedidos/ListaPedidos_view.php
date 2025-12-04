@@ -122,7 +122,7 @@
                 <a href="<?php echo base_url('cargar_pedido/'.$p['id']); ?>">
                     ✏️ Modificar
                 </a>
-            <li>
+                 <li>
                 <a href="<?php echo base_url('generarPresupuesto/'.$p['id']); ?>">
                     🖨️ Presupuesto
                 </a>

@@ -123,7 +123,7 @@ class Cabecera_model extends Model
     }
     */
 
-  public function getVentasConClientes($filtros = [])
+    public function getVentasConClientes($filtros = [])
 {
     $db = db_connect();
 
@@ -174,7 +174,6 @@ class Cabecera_model extends Model
     $ventas = $builder->get();
     return $ventas->getResultArray();
 }
-
 
 
     public function getVentasPorClienteYFecha($idCliente, $fechaHoy)

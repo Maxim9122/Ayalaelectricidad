@@ -11,7 +11,8 @@ class Producto_controller extends Controller{
 
 	}
 
-    //EDITO RAPIDO UN PRODUCTO
+   
+   //EDITO RAPIDO UN PRODUCTO
     public function EdicionRapidaProd()
     {
     $model = new Productos_model();
@@ -75,8 +76,7 @@ class Producto_controller extends Controller{
     return redirect()->to(base_url('Lista_Productos?page=' . $page . '&search=' . urlencode($search)));
     }
 
-
-
+   
 	public function nuevoProducto(){
         $session = session();
         // Verifica si el usuario está logueado
@@ -192,6 +192,7 @@ class Producto_controller extends Controller{
         }
     }
 
+    
     public function ListaProductos(){
         $session = session();
         // Verifica si el usuario está logueado
@@ -234,8 +235,8 @@ class Producto_controller extends Controller{
           echo view('footer/footer');
        
     } 
-
-
+    
+    
     // muestra las categorias 
     public function ListaCategorias(){
         $session = session();
