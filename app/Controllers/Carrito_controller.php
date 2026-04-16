@@ -939,20 +939,29 @@ function muestra_compra()
 
 
 //GUARDA LA COMPRA
-    public function guarda_compra()
+   public function guarda_compra()
 {    
+
     $cart = \Config\Services::cart();
     $session = session();
+
+    if (!$cart) {
+        return redirect()->to(base_url('catalogo'));
+    }
+
+    // ✅ NUEVO: Si el carrito está vacío, no procesar (evita duplicados por doble click)
+    if (empty($cart->contents())) {
+        session()->setFlashdata('msg', 'Operacion realizada, (Evitemos duplicar ventas al presionar muchas veces clic.)');
+        return redirect()->to(base_url('catalogo'));
+    }
     $perfil = $session->get('perfil_id');
     $estado = $session->get('estado');    
     $id_pedido = $this->request->getPost('id_pedido');
-    //print_r($estado);
-    //exit;
     
     if(!$cart){
-    return redirect()->to(base_url('catalogo'));
+        return redirect()->to(base_url('catalogo'));
     }
-    //id del vendedor
+
     $id_usuario = $session->get('id');
 
     $vendedor_id = $this->request->getPost('vendedor_id');    
@@ -960,62 +969,51 @@ function muestra_compra()
         session()->setFlashdata('msgEr', 'Seleccionar Vendedor es Obligatorio!');
         return redirect()->to('casiListo');
     }
-    //id del cliente seleccionado o se selecciona Consumidor final por defecto.
+
     $id_cliente = $this->request->getPost('cliente_id');    
 
     if(!$id_pedido){    
-    //Nombre provisorio del cliente para identificar venta
-    $bombre_provisorios_cliente = $this->request->getPost('nombre_prov');    
-    if (!$bombre_provisorios_cliente && $id_cliente == 'Anonimo') {
-        session()->setFlashdata('msgEr', 'El Campo nombre cliente es Obligatorio!');
-        return redirect()->to('casiListo');
-    }
+        $bombre_provisorios_cliente = $this->request->getPost('nombre_prov');    
+        if (!$bombre_provisorios_cliente && $id_cliente == 'Anonimo') {
+            session()->setFlashdata('msgEr', 'El Campo nombre cliente es Obligatorio!');
+            return redirect()->to('casiListo');
+        }
     }
 
     if ($id_cliente == 'Anonimo') {
-        $id_cliente = 1; // Valor por defecto si no se envía cliente_id
+        $id_cliente = 1;
     }
 
-    //print_r($id_cliente);exit;
-    
-    function convertirAFloat($numero) {
-    if (empty($numero)) {
-        return 0.0;
+    // ✅ CORREGIDO: función auxiliar unificada para limpiar montos con formato argentino
+    function limpiarMonto($valor) {
+        if (empty($valor)) {
+            return 0;
+        }
+        // Si contiene coma, asume formato europeo/argentino (ej: 40.000,00)
+        if (strpos($valor, ',') !== false) {
+            $valor = str_replace('.', '', $valor); // quita separador de miles
+            $valor = str_replace(',', '.', $valor); // convierte decimal
+            return floatval($valor);
+        }
+        // Si solo tiene puntos (ej: 146.000), los quita como separador de miles
+        return intval(str_replace('.', '', $valor));
     }
 
-    // Si contiene coma, asume formato europeo (ej: 40.000,00)
-    if (strpos($numero, ',') !== false) {
-        $numero = str_replace('.', '', $numero); // quita separador de miles
-        $numero = str_replace(',', '.', $numero); // reemplaza decimal
-    }
-
-    return floatval($numero);
-    }
-   
     $pagoTransferencia    = $this->request->getPost('pagoTransferencia');
     $pagoEfectivo         = $this->request->getPost('pagoEfectivo');
     $pagoTarjetaCredito   = $this->request->getPost('pagoTarjetaCredito');
 
-    $monto_transferencia = !empty($pagoTransferencia)
-        ? (int) str_replace('.', '', $pagoTransferencia)
-        : 0;
+    $monto_transferencia = limpiarMonto($pagoTransferencia);
+    $monto_en_Efectivo   = limpiarMonto($pagoEfectivo);
+    $monto_tarjetaC      = limpiarMonto($pagoTarjetaCredito);
 
-    $monto_en_Efectivo = !empty($pagoEfectivo)
-        ? (int) str_replace('.', '', $pagoEfectivo)
-        : 0;
-
-    $monto_tarjetaC = !empty($pagoTarjetaCredito)
-        ? (int) str_replace('.', '', $pagoTarjetaCredito)
-        : 0;
-
-
-    if($monto_tarjetaC){
-        $monto_tarjetaC = $monto_tarjetaC * 1.1;
+    // ✅ CORREGIDO: round() para evitar decimales flotantes al multiplicar
+    if ($monto_tarjetaC) {
+        $monto_tarjetaC = (int) round($monto_tarjetaC * 1.1);
     }
 
-    //Verificamos si se envio el costo de envio
-    $costo_envio =  convertirAFloat($this->request->getPost('costoEnvio'));    
-    if(!$costo_envio){
+    $costo_envio = limpiarMonto($this->request->getPost('costoEnvio'));
+    if (!$costo_envio) {
         $costo_envio = 0;
     }
     
@@ -1039,104 +1037,87 @@ function muestra_compra()
             $tipo_pago_cobro = 'Mixto';
             break;
     }
-       
-    //Total de la venta
-    $total = $this->request->getPost('total_venta');
-    //Total menos el descuento si se pago en efectivo.
+
+    // ✅ CORREGIDO: $total también pasa por limpiarMonto()
+    $total = limpiarMonto($this->request->getPost('total_venta'));
+
     $total_conDescuento = $monto_transferencia + $monto_en_Efectivo + $monto_tarjetaC;
     
-    //Si no trajo el descuento y esa variable quedo vacia se asigna el mismo valor de la venta total.
+    // Si no hay ningún monto de pago, se usa el total limpio
     if (!$total_conDescuento) {
         $total_conDescuento = $total;
     }
     
-    //print_r($total_conDescuento);exit;
-    // Establecer zona horaria y obtener fecha/hora en formato correcto
     date_default_timezone_set('America/Argentina/Buenos_Aires');
-    $hora = date('H:i:s'); // Formato TIME
-    $fecha = date('d-m-Y'); // Formato DATE
-    //Rescato el tipo de compra (Pedido o Compra_Normal)
+    $hora  = date('H:i:s');
+    $fecha = date('d-m-Y');
+
     $tipo_compra = $this->request->getVar('tipo_compra');
-    //$tipo_compra = $this->request->getPost('tipo_compra_input');
     
-    //Si no se selecciono una fecha se asigna la fecha de hoy por defecto para el pedido.
     $fecha_pedido = $this->request->getPost('fecha_pedido');
-    //print_r($fecha_pedido);
-    //exit;
     if (!$fecha_pedido){
         $fecha_pedido = date('d-m-Y');
     }
-    //print_r($tipo_compra);
-    //exit;
-    //Formateamos la fecha del pedido al formato dia-mes-año
+
     $fecha_pedido_formateada = date('d-m-Y', strtotime($fecha_pedido));   
     
     $id_pedido = $this->request->getPost('id_pedido');
     
-    $Producto_model = new Productos_model();    
+    $Producto_model     = new Productos_model();    
     $VentaDetalle_model = new VentaDetalle_model();
-    //Array para guardar todos los productos que tengan stock no disponible
-    $cart = \Config\Services::cart();
-    $cart_info = $cart->contents(); // Obtiene los productos del carrito almacenados en la sesión
+
+    $cart       = \Config\Services::cart();
+    $cart_info  = $cart->contents();
 
     $errores_stock = [];
     foreach ($cart_info as $id => $carrito) {   
-       $id_producto = $carrito['id'];
+        $id_producto = $carrito['id'];
 
-       // Obtener el stock actual desde la base de datos
-       $producto = $Producto_model->find($id_producto);
-       $stock_actual = $producto['stock'];
-       $nombre_producto = $producto['nombre']; // Obtener el nombre del producto
+        $producto        = $Producto_model->find($id_producto);
+        $stock_actual    = $producto['stock'];
+        $nombre_producto = $producto['nombre'];
 
-       // Obtener la cantidad que ya estaba reservada en la venta anterior
-       $cantidad_reservada = $VentaDetalle_model
-           ->where('venta_id', $id_pedido)
-           ->where('producto_id', $id_producto)
-           ->select('cantidad')
-           ->get()
-           ->getRowArray()['cantidad'] ?? 0;
+        $cantidad_reservada = $VentaDetalle_model
+            ->where('venta_id', $id_pedido)
+            ->where('producto_id', $id_producto)
+            ->select('cantidad')
+            ->get()
+            ->getRowArray()['cantidad'] ?? 0;
 
-       // Calcular el stock disponible para esta modificación
-       $stock_disponible = $stock_actual + $cantidad_reservada;
+        $stock_disponible = $stock_actual + $cantidad_reservada;
 
-       $rowid = $carrito['rowid'];
-       $price = $carrito['price'];
-       $amount = $price * $carrito['qty'];
-       $qty = $carrito['qty'];
+        $rowid  = $carrito['rowid'];
+        $price  = $carrito['price'];
+        $amount = $price * $carrito['qty'];
+        $qty    = $carrito['qty'];
 
-       // Validar contra el stock disponible, considerando lo ya reservado
-       if ($qty <= $stock_disponible && $qty >= 1) { 
-           $cart->update([
-               'rowid'   => $rowid,
-               'price'   => $price,
-               'amount'  => $amount,
-               'qty'     => $qty
-           ]);	    	
-       } else {
-           // Agregar el producto a la lista de errores
-           $errores_stock[] = "Producto: <strong>$nombre_producto</strong> - Cantidad solicitada: <strong>$qty</strong> - Stock disponible: $cantidad_reservada(reservados) mas $stock_actual <strong>($stock_disponible)</strong>";
-       }                
-       }
+        if ($qty <= $stock_disponible && $qty >= 1) { 
+            $cart->update([
+                'rowid'  => $rowid,
+                'price'  => $price,
+                'amount' => $amount,
+                'qty'    => $qty
+            ]);	    	
+        } else {
+            $errores_stock[] = "Producto: <strong>$nombre_producto</strong> - Cantidad solicitada: <strong>$qty</strong> - Stock disponible: $cantidad_reservada(reservados) mas $stock_actual <strong>($stock_disponible)</strong>";
+        }                
+    }
 
-       // Si hay errores de stock, mostrar mensaje y redirigir
-       if (!empty($errores_stock)) {
-           $mensaje_error = "Los siguientes productos no tienen suficiente Stock:<br>" . implode("<br>", $errores_stock);
-           session()->setFlashdata('msgEr', $mensaje_error);
-           return redirect()->to('CarritoList');
-       }
+    if (!empty($errores_stock)) {
+        $mensaje_error = "Los siguientes productos no tienen suficiente Stock:<br>" . implode("<br>", $errores_stock);
+        session()->setFlashdata('msgEr', $mensaje_error);
+        return redirect()->to('CarritoList');
+    }
     
     
-    // Si se encontró un id de pedido y estado modificando, actualizar el pedido existente con los nuevos datos
+    // Modificación de pedido existente
     if ($estado == 'Modificando' && $tipo_compra == 'Pedido') {
-        // Cargar modelos
         $VentaDetalle_model = new VentaDetalle_model();
-        $Producto_model = new Productos_model();
-        $Cabecera_model = new Cabecera_model();
+        $Producto_model     = new Productos_model();
+        $Cabecera_model     = new Cabecera_model();
     
-        // Obtener los productos del pedido anterior
         $productos_anteriores = $VentaDetalle_model->where('venta_id', $id_pedido)->findAll();
     
-        // 1️⃣ **Devolver stock del pedido anterior**
         foreach ($productos_anteriores as $detalle) {
             $producto = $Producto_model->find($detalle['producto_id']);
             if ($producto) {
@@ -1145,33 +1126,28 @@ function muestra_compra()
             }
         }
     
-        // 2️⃣ **Eliminar los detalles anteriores**
         $VentaDetalle_model->where('venta_id', $id_pedido)->delete();
     
-        // 3️⃣ **Actualizar la cabecera del pedido**
         $Cabecera_model->update($id_pedido, [
-            'fecha' => $fecha,
-            'hora' => $hora,            
-            'total_venta' => $total,
+            'fecha'            => $fecha,
+            'hora'             => $hora,            
+            'total_venta'      => $total,
             'total_bonificado' => $total_conDescuento,
-            'tipo_compra' => 'Pedido',
-            'estado' => 'Pendiente',
-            'fecha_pedido' => $fecha_pedido_formateada
+            'tipo_compra'      => 'Pedido',
+            'estado'           => 'Pendiente',
+            'fecha_pedido'     => $fecha_pedido_formateada
         ]);
     
-        // 4️⃣ **Reservar las nuevas cantidades y actualizar stock**
         if ($cart) {
             foreach ($cart->contents() as $item) {
-                // Guardar los nuevos detalles de la venta
                 $VentaDetalle_model->save([
-                    'venta_id' => $id_pedido,
-                    'producto_id' => $item['id'],
-                    'cantidad' => $item['qty'],
-                    'precio' => $item['price'],
-                    'total' => $item['subtotal'],
+                    'venta_id'   => $id_pedido,
+                    'producto_id'=> $item['id'],
+                    'cantidad'   => $item['qty'],
+                    'precio'     => $item['price'],
+                    'total'      => $item['subtotal'],
                 ]);
     
-                // Restar la nueva cantidad del stock
                 $producto = $Producto_model->find($item['id']);
                 if ($producto) {
                     $nuevo_stock = $producto['stock'] - $item['qty'];
@@ -1180,131 +1156,89 @@ function muestra_compra()
             }
         }
     
-        // Limpiar sesión y carrito
         $session->remove(['nombre_cli','estado', 'id_vendedor', 'nombre_vendedor', 'id_cliente_pedido', 'id_pedido', 'fecha_pedido', 'tipo_compra', 'tipo_pago']);
         $cart->destroy();
     
         session()->setFlashdata('msg', 'Pedido actualizado con éxito!');
         return redirect()->to('pedidos');
     }
-    
 
-    
-
-    //Identifico si es una compra para facturar si este campo viene con el dato "Factura"
     $proceso = $this->request->getPost('tipo_proceso');
-    //print_r($proceso);exit;
-    
-    //Si el tipo de proceso es para facturar y el estado es Cobrando se manda a facturar.
-   /* if($estado == 'Cobrando' && $facturacion == "factura"){
-                
-            $Cabecera_model = new Cabecera_model();
-            $Cabecera_model->update($id_pedido, [
-                'estado'            => 'Facturada',
-                'total_venta'       => $total,
-                'tipo_pago'         => $tipo_pago_cobro,
-                'total_bonificado'  => $total_conDescuento,               
-                'fecha'        => $fecha,
-                'hora'         => $hora,
-                'fecha_pedido'      => $fecha_pedido_formateada,
-                'hora_entrega' => $hora,
-                'id_cliente'   => $id_cliente, 
-                'costo_envio' => $costo_envio,
-                'monto_efectivo'    => $monto_en_Efectivo,
-                'monto_transferencia' => $monto_transferencia,
-                'monto_tarjetaC' => $monto_tarjetaC              
-            ]);           
-            $session->remove(['estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
-        
-        $cart->destroy(); 
-        //Una vez guardada la compra manda a verificar la factura en ARCA.
-        return redirect()->to('Carrito_controller/verificarTA/' . $id_pedido);
-    } */
 
-
-    // Guardar la nueva cabecera del Pedido (Nuevo) utiliza el mismo carrito.
+    // Guardar nuevo Pedido
     if ($tipo_compra == 'Pedido' && $estado == '') { 
-        // Guardar cabecera de la venta tipo pedido
         $cabecera_model = new Cabecera_model();
         $ventas_id = $cabecera_model->save([
-            'fecha'        => $fecha,
-            'hora'         => $hora,
-            'id_cliente'   => $id_cliente,
+            'fecha'              => $fecha,
+            'hora'               => $hora,
+            'id_cliente'         => $id_cliente,
             'nombre_prov_client' => $bombre_provisorios_cliente,
-            'id_usuario'   => $vendedor_id,
-            'total_venta'  => $total,            
-            'total_bonificado' => $total_conDescuento,
-            'tipo_compra' => $tipo_compra,
-            'fecha_pedido' => $fecha_pedido_formateada,
-            'estado' => 'Pendiente'
+            'id_usuario'         => $vendedor_id,
+            'total_venta'        => $total,            
+            'total_bonificado'   => $total_conDescuento,
+            'tipo_compra'        => $tipo_compra,
+            'fecha_pedido'       => $fecha_pedido_formateada,
+            'estado'             => 'Pendiente'
         ]);
         
     } else {
-        //Si el perfil es vendedor guarda la compra con el estado Pendiente
-        
-        if($perfil && $estado == ''){ 
-        // Guardar cabecera de la venta tipo compra normal
-        $cabecera_model = new Cabecera_model();
-        $ventas_id = $cabecera_model->save([
-            'estado'            => 'Sin_Facturar',
-            'total_venta'       => $total,
-            'tipo_pago'         => $tipo_pago_cobro,
-            'total_bonificado'  => $total_conDescuento,                  
-            'fecha_pedido'      => $fecha_pedido_formateada,
-            'fecha'        => $fecha,
-            'hora'         => $hora,
-            'hora_entrega'      => $hora,
-            'id_cliente'   => $id_cliente,
-            'nombre_prov_client' => $bombre_provisorios_cliente,
-            'id_usuario'   => $vendedor_id,            
-            'tipo_compra' => $tipo_compra,
-            'costo_envio'       => $costo_envio,
-            'monto_efectivo'    => $monto_en_Efectivo,
-            'monto_transferencia' => $monto_transferencia,
-            'monto_tarjetaC' => $monto_tarjetaC
-            
-        ]);
+
+        if ($perfil && $estado == '') { 
+            $cabecera_model = new Cabecera_model();
+            $ventas_id = $cabecera_model->save([
+                'estado'              => 'Sin_Facturar',
+                'total_venta'         => $total,
+                'tipo_pago'           => $tipo_pago_cobro,
+                'total_bonificado'    => $total_conDescuento,                  
+                'fecha_pedido'        => $fecha_pedido_formateada,
+                'fecha'               => $fecha,
+                'hora'                => $hora,
+                'hora_entrega'        => $hora,
+                'id_cliente'          => $id_cliente,
+                'nombre_prov_client'  => $bombre_provisorios_cliente,
+                'id_usuario'          => $vendedor_id,            
+                'tipo_compra'         => $tipo_compra,
+                'costo_envio'         => $costo_envio,
+                'monto_efectivo'      => $monto_en_Efectivo,
+                'monto_transferencia' => $monto_transferencia,
+                'monto_tarjetaC'      => $monto_tarjetaC
+            ]);
         }
         
-        if($perfil && $estado == 'Cobrando'){ 
-            // Se está cobrando una venta
-            if($estado == 'Cobrando'){
+        if ($perfil && $estado == 'Cobrando') { 
+            if ($estado == 'Cobrando') {
                 $Cabecera_model = new Cabecera_model();                
         
-                // Actualizar la cabecera de la venta
                 $Cabecera_model->update($id_pedido, [
-                    'estado'            => 'Sin_Facturar',
-                    'total_venta'       => $total,
-                    'tipo_pago'         => $tipo_pago_cobro,
-                    'total_bonificado'  => $total_conDescuento,                  
-                    'fecha_pedido'      => $fecha_pedido_formateada,
-                    'fecha'             => $fecha,                                      
-                    'hora'              => $hora,
-                    'hora_entrega'      => $hora,                    
-                    'costo_envio'       => $costo_envio,
-                    'monto_efectivo'    => $monto_en_Efectivo,
+                    'estado'              => 'Sin_Facturar',
+                    'total_venta'         => $total,
+                    'tipo_pago'           => $tipo_pago_cobro,
+                    'total_bonificado'    => $total_conDescuento,                  
+                    'fecha_pedido'        => $fecha_pedido_formateada,
+                    'fecha'               => $fecha,                                      
+                    'hora'                => $hora,
+                    'hora_entrega'        => $hora,                    
+                    'costo_envio'         => $costo_envio,
+                    'monto_efectivo'      => $monto_en_Efectivo,
                     'monto_transferencia' => $monto_transferencia,
-                    'monto_tarjetaC' => $monto_tarjetaC
+                    'monto_tarjetaC'      => $monto_tarjetaC
                 ]);           
                 
                 $session->remove(['nombre_cli','estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
             }
             
             $cart->destroy(); 
-            if($proceso == 'boleta'){            
+            if ($proceso == 'boleta') {            
                 return redirect()->to('Carrito_controller/generarTicket/' . $id_pedido);
             } else {
                 session()->setFlashdata('msg', 'Compra Registrada con Exito!');
                 return redirect()->to('catalogo');
             }
         }
-        
-
     }
 
-    // Guardar detalles de la venta si el carrito no está vacío
+    // Guardar detalles de la venta
     if ($cart):
-        // Obtener ID de la nueva cabecera guardada
         $id_cabecera = $cabecera_model->getInsertID();
         foreach ($cart->contents() as $item):
             $VentaDetalle_model = new VentaDetalle_model();
@@ -1316,9 +1250,8 @@ function muestra_compra()
                 'total'       => $item['subtotal'],
             ]);
 
-            // Actualizar stock del producto
             $Producto_model = new Productos_model();
-            $producto = $Producto_model->find($item['id']); // Asegúrate de usar el método correcto para obtener datos
+            $producto = $Producto_model->find($item['id']);
 
             if ($producto && isset($producto['stock'])) {
                 $stock_edit = $producto['stock'] - $item['qty'];
@@ -1327,24 +1260,23 @@ function muestra_compra()
         endforeach;
     endif;
     
-    // Limpiar el carrito y redirigir con mensaje
     $cart->destroy();
+
     if ($tipo_compra == 'Pedido') {
         session()->setFlashdata('msg', 'Pedido Guardado con Éxito!');
         return redirect()->to('catalogo');
     }
-    if($perfil == 0){
+    if ($perfil == 0) {
         session()->setFlashdata('msg', 'Compra Registrada con Exito!');
         return redirect()->to('catalogo');
     }
     
-    if($proceso == 'boleta'){            
+    if ($proceso == 'boleta') {            
         return redirect()->to('Carrito_controller/generarTicket/' . $id_cabecera);
     } else {
         session()->setFlashdata('msg', 'Compra Registrada con Exito!');
         return redirect()->to('catalogo');
     }
-
 }
 
 
