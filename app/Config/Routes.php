@@ -195,6 +195,16 @@ $routes->get('generarTicketFacturaC/(:num)', 'Carrito_controller::generarTicketF
 $routes->get('generarPresupuesto/(:num)', 'Carrito_controller::generarPresupuesto/$1');
 
 
+//VENDEDORES
+$routes->get('vendedores', 'Vendedores_controller::listar_vendedores');
+$routes->get('nuevoVend', 'Vendedores_controller::vendedor_nuevo');
+$routes->post('crearVend', 'Vendedores_controller::crearVend');
+$routes->get('editarVend/(:num)', 'Vendedores_controller::editarVend/$1');
+$routes->post('actualizarVend/(:num)', 'Vendedores_controller::actualizarVend/$1');
+$routes->get('eliminarVend/(:num)', 'Vendedores_controller::eliminarVend/$1');
+
+
+
 
 /*
 	

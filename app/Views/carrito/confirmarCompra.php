@@ -265,13 +265,29 @@ endif;
             </td>
             </tr>
             <tr>
-            <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Vendedor:</strong></td>
-            <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;">
-                <?php echo (!empty($nombre_vendedor) ? $nombre_vendedor : $nombre); ?>
+                <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff, 
+                        -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Vendedor:</strong></td>
 
-            </td>                      
+                <td>
+                    <?php if ($vendedores): ?>
+                        <select name="vendedor_id" class="selector">
+
+                            <option value="">Seleccione un vendedor</option>
+
+                            <?php foreach ($vendedores as $v): ?>
+                                <option 
+                                    value="<?php echo $v['id_vendedor']; ?>"
+                                    <?php echo ($id_vendedor == $v['id_vendedor']) ? 'selected' : ''; ?>
+                                >
+                                    <?php echo $v['nombre'] . " " . $v['apellido']; ?>
+                                </option>
+                            <?php endforeach; ?>
+
+                        </select>
+                    <?php else: ?>
+                        <span>No hay vendedores disponibles</span>
+                    <?php endif; ?>
+                </td>
             </tr>
             <?php if ($nombre_cli != ''): ?><!-- Filtro cajero-->
             <tr>
@@ -313,7 +329,7 @@ endif;
                         <?php endif; ?>
                     </td>
                 </tr>
-
+                            
                 <!-- Campo para nombre manual -->
                 <?php if ($perfil && $estado == ''): ?>
                 <tr id="fila_nombre_manual">
@@ -323,6 +339,7 @@ endif;
                         <input class="selector" type="text" name="nombre_prov" placeholder="Ingrese nombre cliente" maxlength="20">
                     </td>
                 </tr>
+                
                 <?php endif; ?>
 
                  <?php endif; ?><!-- Fin del if filtro vendedor-->

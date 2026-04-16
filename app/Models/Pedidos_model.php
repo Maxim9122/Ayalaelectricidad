@@ -32,12 +32,12 @@ class Pedidos_model extends Model
              t.id_servi,
              c.nombre AS cliente_nombre, 
              c.telefono AS cliente_telefono,
-             u.nombre AS usuario_nombre,
+             v.nombre AS usuario_nombre,
              s.descripcion,
              s.precio
          ');
          $builder->join('cliente c', 'c.id_cliente = t.id_cliente');
-         $builder->join('usuarios u', 'u.id = t.id_usuario');
+         $builder->join('vendedores v', 'v.id_vendedor = t.id_usuario');
          $builder->join('servicios s', 's.id_servi = t.id_servi');
  
          // Aplicar filtros si existen
@@ -84,12 +84,12 @@ class Pedidos_model extends Model
                 pedidos.id_servi,
                 cliente.nombre AS cliente_nombre, 
                 cliente.telefono AS cliente_telefono,
-                usuarios.nombre AS usuario_nombre,
+                vendedores.nombre AS usuario_nombre,
                 servicios.descripcion,
                 servicios.precio
             ')
             ->join('cliente', 'cliente.id_cliente = pedidos.id_cliente')
-            ->join('usuarios', 'usuarios.id = pedidos.id_usuario')
+            ->join('vendedores', 'vendedores.id_vendedor = pedidos.id_usuario')
             ->join('servicios', 'servicios.id_servi = pedidos.id_servi')
             ->where('pedidos.estado', 'Listo')
             ->orderBy('pedidos.fecha_turno', 'DESC')

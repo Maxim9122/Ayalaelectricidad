@@ -144,7 +144,7 @@ class Cabecera_model extends Model
         u.total_anterior           
     ");
     $builder->join('cliente c', 'u.id_cliente = c.id_cliente');
-    $builder->join('usuarios v', 'u.id_usuario = v.id');
+    $builder->join('vendedores v', 'u.id_usuario = v.id_vendedor');
     $builder->whereNotIn('u.estado', ['Pendiente']);
 
     if (!empty($filtros['estado'])) {
@@ -252,9 +252,9 @@ class Cabecera_model extends Model
          u.estado,
          u.fecha_pedido, 
          u.hora_entrega, 
-         usuarios.nombre AS nombre_usuario');
+         v.nombre AS nombre_usuario');
          $builder->join('cliente c', 'u.id_cliente = c.id_cliente'); // Relación con cliente
-         $builder->join('usuarios usuarios', 'u.id_usuario = usuarios.id'); // Relación con usuario
+         $builder->join('vendedores v', 'u.id_usuario = v.id_vendedor'); // Relación con usuario
          $builder->where('u.tipo_compra', 'Pedido');
          if($filtros['estado']){
             $builder->where('u.estado', $filtros['estado']);

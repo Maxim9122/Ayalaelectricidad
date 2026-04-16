@@ -8,6 +8,7 @@ Use App\Models\VentaDetalle_model;
 Use App\Models\Clientes_model;
 use App\Models\Usuarios_model;
 use App\Models\Cae_model;
+use App\Models\Vendedores_model;
 
 class Caja_controller extends Controller{
 
@@ -77,7 +78,7 @@ class Caja_controller extends Controller{
     $detalle_model = new VentaDetalle_model();
     $producto_model = new Productos_model();
     $cabecera_model = new Cabecera_model();
-    $US_model = new Usuarios_model();
+    $vendedoresmodel = new Vendedores_model();
     $model_clientes = new Clientes_model();
     // Obtener los datos de la cabecera de la venta para obtener el id_cliente
     $cabecera = $cabecera_model->find($id_vta);
@@ -86,7 +87,7 @@ class Caja_controller extends Controller{
     $cabecera_model->update($id_vta, ['estado' => 'Cobrando']);
 
     $id_vendedor = $cabecera ? $cabecera['id_usuario'] : null;
-    $vendedor = $US_model->find($id_vendedor);
+    $vendedor = $vendedoresmodel->find($id_vendedor);
     $nombre_vendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
 
     $id_cliente = $cabecera ? $cabecera['id_cliente'] : null;

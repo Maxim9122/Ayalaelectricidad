@@ -907,24 +907,30 @@ public function ListCompraDetalle($id)
 
 
     //Muestra los detalles de la venta y confirma(función guarda_compra())
-	function muestra_compra()
+function muestra_compra()
 {
     $session = session();
-    // Verifica si el usuario está logueado
-    if (!$session->has('id')) { 
-        return redirect()->to(base_url('login')); // Redirige al login si no hay sesión
+
+    if (!$session->has('id')) {
+        return redirect()->to(base_url('login'));
     }
-    
+
     $id_pedido = $session->get('id_pedido');
     $cabeceraModel = new Cabecera_model();
 
-    // Obtener los detalles de la venta
+    // DETALLES DE LA VENTA
     $data['ventas'] = $cabeceraModel->getDetallesVenta($id_pedido);
 
+    // CLIENTES
     $ClientesModel = new Clientes_model();
     $data['clientes'] = $ClientesModel->getClientes();
+
+    // VENDEDORES
+    $VendedoresModel = new \App\Models\Vendedores_model();
+    $data['vendedores'] = $VendedoresModel->findAll();
+
     $data['titulo'] = 'Confirmar compra';
-    
+
     echo view('navbar/navbar');
     echo view('header/header', $data);        
     echo view('carrito/confirmarCompra', $data);
@@ -949,6 +955,11 @@ public function ListCompraDetalle($id)
     //id del vendedor
     $id_usuario = $session->get('id');
 
+    $vendedor_id = $this->request->getPost('vendedor_id');    
+    if ($vendedor_id == '') {
+        session()->setFlashdata('msgEr', 'Seleccionar Vendedor es Obligatorio!');
+        return redirect()->to('casiListo');
+    }
     //id del cliente seleccionado o se selecciona Consumidor final por defecto.
     $id_cliente = $this->request->getPost('cliente_id');    
 
@@ -960,7 +971,7 @@ public function ListCompraDetalle($id)
         return redirect()->to('casiListo');
     }
     }
-    
+
     if ($id_cliente == 'Anonimo') {
         $id_cliente = 1; // Valor por defecto si no se envía cliente_id
     }
@@ -1220,7 +1231,7 @@ public function ListCompraDetalle($id)
             'hora'         => $hora,
             'id_cliente'   => $id_cliente,
             'nombre_prov_client' => $bombre_provisorios_cliente,
-            'id_usuario'   => $id_usuario,
+            'id_usuario'   => $vendedor_id,
             'total_venta'  => $total,            
             'total_bonificado' => $total_conDescuento,
             'tipo_compra' => $tipo_compra,
@@ -1245,7 +1256,7 @@ public function ListCompraDetalle($id)
             'hora_entrega'      => $hora,
             'id_cliente'   => $id_cliente,
             'nombre_prov_client' => $bombre_provisorios_cliente,
-            'id_usuario'   => $id_usuario,            
+            'id_usuario'   => $vendedor_id,            
             'tipo_compra' => $tipo_compra,
             'costo_envio'       => $costo_envio,
             'monto_efectivo'    => $monto_en_Efectivo,
@@ -1341,12 +1352,12 @@ public function ListCompraDetalle($id)
 public function generarPresupuesto($id_cabecera)
 {
     // Cargar los modelos necesarios
-    $Us_Model = new \App\Models\Usuarios_model();
     $ventaModel = new \App\Models\Cabecera_model();
     $detalleModel = new \App\Models\VentaDetalle_model();
     $productoModel = new \App\Models\Productos_model();
     $clienteModel = new \App\Models\Clientes_model();
-    
+    $vendedoresModel = new \App\Models\Vendedores_model();
+
     $session = session();
     $cajero_nombre = $session->get('nombre');
     $cd_efectivo =$session->get('cd_efectivo');
@@ -1375,7 +1386,7 @@ public function generarPresupuesto($id_cabecera)
         $nomPresu = $cabecera['nombre_prov_client'];
     }
     // Obtener el nombre del vendedor    
-    $vendedor = $Us_Model->find($cabecera['id_usuario']);
+    $vendedor = $vendedoresModel->find($cabecera['id_usuario']);
     $nombreVendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
     // Crear el HTML para la vista previa
     ob_start();
@@ -1585,7 +1596,7 @@ public function generarPresupuesto($id_cabecera)
 public function DescargarPresupuesto($id_cabecera)
 {
     // Cargar los modelos necesarios
-    $Us_Model = new \App\Models\Usuarios_model();
+    $vendedoresModel = new \App\Models\Vendedores_model();
     $ventaModel = new \App\Models\Cabecera_model();
     $detalleModel = new \App\Models\VentaDetalle_model();
     $productoModel = new \App\Models\Productos_model();
@@ -1619,7 +1630,7 @@ public function DescargarPresupuesto($id_cabecera)
         $nomPresu = $cabecera['nombre_prov_client'];
     }
     // Obtener el nombre del vendedor    
-    $vendedor = $Us_Model->find($cabecera['id_usuario']);
+    $vendedor = $vendedoresModel->find($cabecera['id_usuario']);
     $nombreVendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
     // Crear el HTML para la vista previa
     ob_start();
@@ -1831,7 +1842,7 @@ public function DescargarPresupuesto($id_cabecera)
 public function generarTicket($id_cabecera)
 {
     // Cargar los modelos necesarios
-    $Us_Model = new \App\Models\Usuarios_model();
+    $vendedoresModel = new \App\Models\Vendedores_model();
     $ventaModel = new \App\Models\Cabecera_model();
     $detalleModel = new \App\Models\VentaDetalle_model();
     $productoModel = new \App\Models\Productos_model();
@@ -1865,7 +1876,7 @@ public function generarTicket($id_cabecera)
         $nomBoleta = $cabecera['nombre_prov_client'];
     }
     // Obtener el nombre del vendedor    
-    $vendedor = $Us_Model->find($cabecera['id_usuario']);
+    $vendedor = $vendedoresModel->find($cabecera['id_usuario']);
     $nombreVendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
     
     //Cambia el estado del Pedido
@@ -2108,7 +2119,7 @@ public function generarTicket($id_cabecera)
 public function DescargarBole($id_cabecera)
 {
     // Cargar los modelos necesarios
-    $Us_Model = new \App\Models\Usuarios_model();
+    $vendedoresModel = new \App\Models\Vendedores_model();
     $ventaModel = new \App\Models\Cabecera_model();
     $detalleModel = new \App\Models\VentaDetalle_model();
     $productoModel = new \App\Models\Productos_model();
@@ -2142,7 +2153,7 @@ public function DescargarBole($id_cabecera)
         $nomBoleta = $cabecera['nombre_prov_client'];
     }
     // Obtener el nombre del vendedor    
-    $vendedor = $Us_Model->find($cabecera['id_usuario']);
+    $vendedor = $vendedoresModel->find($cabecera['id_usuario']);
     $nombreVendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
     
     //Cambia el estado del Pedido
