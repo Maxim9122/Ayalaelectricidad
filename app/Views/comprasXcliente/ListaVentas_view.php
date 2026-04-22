@@ -93,6 +93,8 @@
   
   <br><br>
   <?php $Recaudacion = 0; ?>
+  <?php $RecaudadoEfectivo = 0; ?>
+  <?php $RecaudadoTransfer = 0; ?>
   <table class="table table-responsive table-hover" id="users-list" style="text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, 
                  -1px 1px 0 #000, 1px 1px 0 #000;">
        <thead>
@@ -214,6 +216,20 @@
                     } 
                 } 
                 ?>
+                
+                <?php 
+                    //Canculo de monto EFECTIVO
+                    if ($vta['estado'] != 'Error_factura' && $vta['estado'] != 'Cancelado') { 
+                        $RecaudadoEfectivo += $vta['monto_efectivo']; 
+                    }          
+                ?>
+
+                <?php 
+                    //Canculo de monto ETRANSFERENCIA
+                    if ($vta['estado'] != 'Error_factura' && $vta['estado'] != 'Cancelado') { 
+                        $RecaudadoTransfer += $vta['monto_transferencia']; 
+                    }
+                ?>
 
             </tr>
          <?php endforeach; ?>
@@ -223,6 +239,13 @@
      <!-- Recaudacion de Ventas (Todas o por filtro)-->    
      <?php if ($perfil == 1) { ?>
      <h2 class="estiloTurno textColor">Total Recaudado: $ <?php echo $TotalRecaudado ?></h2>
+     <h2 class="estiloTurno textColor">
+      Total Recaudado en Efectivo: $ <?php echo $RecaudadoEfectivo ?> 💵
+     </h2>
+
+     <h2 class="estiloTurno textColor">
+      Total Recaudado en Transferencia: $ <?php echo $RecaudadoTransfer ?> 📱
+     </h2>
      <section class="estiloTurno textColor">
      <h2>(No suman las Canceladas ni las que dieron Error_Factura)</h2>
      <h2>Importante.! Si el estado es Modificada_SF y la venta original fue una fecha pasada, solo se suma la Diferencia entre Total Original menos el Total Modificado (Ver Detalles)</h2>

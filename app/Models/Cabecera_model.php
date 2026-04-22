@@ -141,7 +141,9 @@ class Cabecera_model extends Model
         u.hora_entrega AS hora_actual, 
         u.tipo_pago, 
         u.total_bonificado,
-        u.total_anterior           
+        u.total_anterior,
+        u.monto_efectivo,
+        u.monto_transferencia           
     ");
     $builder->join('cliente c', 'u.id_cliente = c.id_cliente');
     $builder->join('vendedores v', 'u.id_usuario = v.id_vendedor');
