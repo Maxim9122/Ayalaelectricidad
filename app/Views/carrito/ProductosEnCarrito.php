@@ -531,6 +531,10 @@ $resto_desc_pago_efec = 0;
                                 <a style="color:black" href="<?php echo base_url('cancelar_edicion_Venta/'.$id_pedido);?>" class="danger" onclick="return confirmarAccionVenta();">
                                 Cancelar Modificación Venta
                                 </a>
+                            <?php } else if ($perfil && $tipo_compra == 'Compra_Normal' && $estado == 'Modificando_Cta_Cte'){?>
+                                <a style="color:black" href="<?php echo base_url('cancelar_Modif_cta_cte/'.$id_pedido);?>" class="danger" onclick="return confirmarAccionVentaCtaCte();">
+                                Cancelar Modificación Venta
+                                </a>
                             <?php  } else if ($perfil && $estado == 'Modificando_SF'){?>
                                 <a style="color:black" href="<?php echo base_url('cancelar_edicion_Venta_SF/'.$id_pedido);?>" class="danger" onclick="return confirmarAccionVenta_SF();">
                                 Cancelar Cambios en Venta
@@ -553,10 +557,10 @@ $resto_desc_pago_efec = 0;
                         <!-- " Confirmar orden envia a carrito_controller/muestra_compra  -->
                         <a style="color:black" href="javascript:void(0);" class="success" onclick="setAccion('confirmar')">Continuar Compra</a>
                                 
-                        <?php }else if ($perfil && $tipo_compra == 'Compra_Normal' && $estado == 'Modificando'){ ?>            
+                        <?php }else if ($perfil && $tipo_compra == 'Compra_Normal' && ($estado == 'Modificando' || $estado == 'Modificando_Cta_Cte')){ ?>            
                         <!-- Envia los cambios y Modifica e impacta los cambios de la venta modificada -->
                         <a style="color:black" href="javascript:void(0);" class="success" onclick="setAccion('modificar')">Modificar Venta</a>
-
+                         
                         <?php } else if($perfil && $estado == 'Modificando_SF') {?>
                         <!-- Envia los cambios y Modifica e impacta los cambios de la venta modificada -->
                         <a style="color:" href="javascript:void(0);" class="success" onclick="confirmarGuardarCambios()">Guardar Cambios</a>    
@@ -658,6 +662,22 @@ $resto_desc_pago_efec = 0;
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = "<?php echo base_url('cancelar_edicion_Venta/'.$id_pedido); ?>";
+            }
+        });
+        return false; // Evita que el enlace siga su curso normal
+    }
+
+     function confirmarAccionVentaCtaCte() {
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "Se cancelara la modificacion de la Venta y quedara como estaba.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, Cancelar Edicion",
+            cancelButtonText: "Volver"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "<?php echo base_url('cancelar_Modif_cta_cte/'.$id_pedido); ?>";
             }
         });
         return false; // Evita que el enlace siga su curso normal

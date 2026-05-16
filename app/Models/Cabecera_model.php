@@ -147,7 +147,7 @@ class Cabecera_model extends Model
     ");
     $builder->join('cliente c', 'u.id_cliente = c.id_cliente');
     $builder->join('vendedores v', 'u.id_usuario = v.id_vendedor');
-    $builder->whereNotIn('u.estado', ['Pendiente']);
+    $builder->whereNotIn('u.estado', ['Pendiente','Cta_Cte']);
 
     if (!empty($filtros['estado'])) {
         $builder->where('u.estado', $filtros['estado']);
@@ -172,6 +172,68 @@ class Cabecera_model extends Model
 
     // ❌ Quitamos el limit de 300
     // $builder->limit(300);
+
+    $ventas = $builder->get();
+    return $ventas->getResultArray();
+}
+
+//VENTAS AL FIADO O CTA CTE
+
+// ============================================================
+// MODELO: Cabecera_model.php
+// Reemplaza el método getVentasCta_Cte() existente
+// ============================================================
+
+public function getVentasCta_Cte($filtros = [])
+{
+    $db = db_connect();
+
+    $builder = $db->table($this->table . ' u');
+    $builder->select("
+        u.id, 
+        IF(u.nombre_prov_client != '', u.nombre_prov_client, c.nombre) AS nombre_cliente,
+        v.nombre AS nombre_vendedor, 
+        u.estado, 
+        u.total_venta,
+        u.tipo_compra,
+        u.fecha AS fecha_original,
+        u.hora AS hora_original,
+        u.fecha_pedido AS fecha_actual,
+        u.hora_entrega AS hora_actual, 
+        u.tipo_pago, 
+        u.total_bonificado,
+        u.total_anterior,
+        u.monto_efectivo,
+        u.monto_transferencia           
+    ");
+    $builder->join('cliente c', 'u.id_cliente = c.id_cliente');
+    $builder->join('vendedores v', 'u.id_usuario = v.id_vendedor');
+
+    // Siempre solo Cta_Cte
+    $builder->where('u.estado', 'Cta_Cte');
+
+    // Filtro por cliente (opcional)
+    if (!empty($filtros['cliente_id'])) {
+        $builder->where('u.id_cliente', $filtros['cliente_id']);
+    }
+
+    // 📅 Si vienen fechas, usar el rango
+    if (!empty($filtros['fecha_desde']) && !empty($filtros['fecha_hasta'])) {
+        $fechaDesde = date('Y-m-d', strtotime($filtros['fecha_desde']));
+        $fechaHasta = date('Y-m-d', strtotime($filtros['fecha_hasta']));
+        $builder->where("STR_TO_DATE(u.fecha_pedido, '%d-%m-%Y') >=", $fechaDesde);
+        $builder->where("STR_TO_DATE(u.fecha_pedido, '%d-%m-%Y') <=", $fechaHasta);
+    }
+    // 📌 Si viene cliente sin fechas → mostrar todo el historial de ese cliente
+    // 📌 Si no viene nada → mostrar solo el día de hoy
+    elseif (empty($filtros['cliente_id'])) {
+        $hoy = date('Y-m-d');
+        $builder->where("STR_TO_DATE(u.fecha_pedido, '%d-%m-%Y') =", $hoy);
+    }
+
+    // 🔧 Ordenar por fecha_pedido y hora_entrega correctamente
+    $builder->orderBy("STR_TO_DATE(u.fecha_pedido, '%d-%m-%Y')", 'DESC', false);
+    $builder->orderBy("STR_TO_DATE(u.hora_entrega, '%H:%i')", 'DESC', false);
 
     $ventas = $builder->get();
     return $ventas->getResultArray();

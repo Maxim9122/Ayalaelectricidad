@@ -48,6 +48,85 @@ class Carrito_controller extends Controller{
     echo view('footer/footer');
 }
 
+// ============================================================
+// CONTROLADOR: Carrito_controller.php
+// Agregar este método junto a ListVentasCta_Cte()
+// ============================================================
+
+public function filtrarVentasCtaCte()
+{
+    $session = session();
+
+    if (!$session->has('id')) {
+        return redirect()->to(base_url('login'));
+    }
+
+    $perfil = $session->get('perfil_id');
+    if ($perfil == 2) {
+        return redirect()->to(base_url('catalogo'));
+    }
+
+    // Recoger filtros del GET
+    $filtros = [
+        'cliente_id'  => $this->request->getGet('cliente_id'),
+        'fecha_desde' => $this->request->getGet('fecha_desde'),
+        'fecha_hasta' => $this->request->getGet('fecha_hasta'),
+    ];
+
+    $cabeceraModel  = new Cabecera_model();
+    $USmodel        = new Usuarios_model();
+    $ClientesModel  = new Clientes_model();
+
+    $datos['ventas']    = $cabeceraModel->getVentasCta_Cte($filtros);
+    $datos['clientes']  = $ClientesModel->getClientes();
+    $datos['filtros']   = $filtros;
+    $datos2['usuarios'] = $USmodel->getUsBaja('NO');
+
+    $data['titulo'] = 'Listado Cta Corriente - Filtrado';
+
+    echo view('navbar/navbar');
+    echo view('header/header', $data);
+    echo view('comprasXcliente/ListaVentasCta_Cte_view', $datos + $datos2 + $data);
+    echo view('footer/footer');
+}
+
+
+// ============================================================
+// También actualizar ListVentasCta_Cte() para pasar $clientes
+// y $filtros vacíos (para que el formulario funcione en la
+// carga inicial sin filtro aplicado)
+// ============================================================
+
+public function ListVentasCta_Cte()
+{
+    $session = session();
+
+    if (!$session->has('id')) {
+        return redirect()->to(base_url('login'));
+    }
+
+    $perfil = $session->get('perfil_id');
+    if ($perfil == 2) {
+        return redirect()->to(base_url('catalogo'));
+    }
+
+    $USmodel       = new Usuarios_model();
+    $cabeceraModel = new Cabecera_model();
+    $ClientesModel = new Clientes_model();
+
+    $datos['ventas']    = $cabeceraModel->getVentasCta_Cte();
+    $datos['clientes']  = $ClientesModel->getClientes();
+    $datos['filtros']   = [];  // sin filtros aplicados
+    $datos2['usuarios'] = $USmodel->getUsBaja('NO');
+
+    $data['titulo'] = 'Listado de Compras Cta Corriente';
+
+    echo view('navbar/navbar');
+    echo view('header/header', $data);
+    echo view('comprasXcliente/ListaVentasCta_Cte_view', $datos + $datos2 + $data);
+    echo view('footer/footer');
+}
+
 //Filtrado de ventas por fechas y vendedor.
 public function filtrarVentas()
 {
@@ -535,12 +614,11 @@ public function ListCompraDetalle($id)
             $cabecera_model->update($id_pedido, [
         'fecha' => $fecha, // Actualizamos la fecha
         'hora' => $hora, // Actualizamos la hora
-        'id_cliente' => $id_cliente, // Actualizamos el id del cliente
         'id_usuario' => $id_vendedor, // Actualizamos el id del usuario (vendedor)
         'total_venta' => $total_venta, // Actualizamos el total de la venta
         'total_bonificado' => $total_venta, // Actualizamos el total con descuento (si aplica)
         'tipo_compra' => 'Compra_Normal', // Actualizamos el tipo de compra (Pedido o Compra_Normal)
-        'estado' => 'Pendiente', // Mantenemos el estado como "Pendiente" (puede cambiar según el flujo)
+        'estado' => 'Cta_Cte', // Mantenemos el estado como "Pendiente" (puede cambiar según el flujo)
         ]);
 
         // Obtener los productos del pedido anterior
@@ -586,7 +664,7 @@ public function ListCompraDetalle($id)
 
         // Redirigir al usuario con un mensaje de éxito según el tipo de compra
         session()->setFlashdata('msg', 'Venta Actualizada con Éxito!');
-        return redirect()->to('caja');
+        return redirect()->to('comprasCta_Cte');
         }
 
 //Modifica y guarda los cambios de la venta realizada Sin Facturar
@@ -909,8 +987,7 @@ public function ListCompraDetalle($id)
     //Muestra los detalles de la venta y confirma(función guarda_compra())
 function muestra_compra()
 {
-    $session = session();
-
+    $session = session();   
     if (!$session->has('id')) {
         return redirect()->to(base_url('login'));
     }
@@ -939,7 +1016,7 @@ function muestra_compra()
 
 
 //GUARDA LA COMPRA
-   public function guarda_compra()
+public function guarda_compra()
 {    
 
     $cart = \Config\Services::cart();
@@ -949,7 +1026,7 @@ function muestra_compra()
         return redirect()->to(base_url('catalogo'));
     }
 
-    // ✅ NUEVO: Si el carrito está vacío, no procesar (evita duplicados por doble click)
+    // ✅ Si el carrito está vacío, no procesar (evita duplicados por doble click)
     if (empty($cart->contents())) {
         session()->setFlashdata('msg', 'Operacion realizada, (Evitemos duplicar ventas al presionar muchas veces clic.)');
         return redirect()->to(base_url('catalogo'));
@@ -970,7 +1047,14 @@ function muestra_compra()
         return redirect()->to('casiListo');
     }
 
-    $id_cliente = $this->request->getPost('cliente_id');    
+    $id_cliente = $this->request->getPost('cliente_id');
+    $proceso    = $this->request->getPost('tipo_proceso');
+
+    // ✅ NUEVO: Cta Corriente requiere cliente registrado (no Anónimo)
+    if ($proceso == 'cta_cte' && ($id_cliente == 'Anonimo' || empty($id_cliente))) {
+        session()->setFlashdata('msgEr', 'Debe seleccionar un cliente registrado para Cta Corriente!');
+        return redirect()->to('casiListo');
+    }
 
     if(!$id_pedido){    
         $bombre_provisorios_cliente = $this->request->getPost('nombre_prov');    
@@ -984,7 +1068,7 @@ function muestra_compra()
         $id_cliente = 1;
     }
 
-    // ✅ CORREGIDO: función auxiliar unificada para limpiar montos con formato argentino
+    // ✅ Función auxiliar unificada para limpiar montos con formato argentino
     function limpiarMonto($valor) {
         if (empty($valor)) {
             return 0;
@@ -1007,7 +1091,7 @@ function muestra_compra()
     $monto_en_Efectivo   = limpiarMonto($pagoEfectivo);
     $monto_tarjetaC      = limpiarMonto($pagoTarjetaCredito);
 
-    // ✅ CORREGIDO: round() para evitar decimales flotantes al multiplicar
+    // ✅ round() para evitar decimales flotantes al multiplicar
     if ($monto_tarjetaC) {
         $monto_tarjetaC = (int) round($monto_tarjetaC * 1.1);
     }
@@ -1038,7 +1122,7 @@ function muestra_compra()
             break;
     }
 
-    // ✅ CORREGIDO: $total también pasa por limpiarMonto()
+    // ✅ $total también pasa por limpiarMonto()
     $total = limpiarMonto($this->request->getPost('total_venta'));
 
     $total_conDescuento = $monto_transferencia + $monto_en_Efectivo + $monto_tarjetaC;
@@ -1156,14 +1240,12 @@ function muestra_compra()
             }
         }
     
-        $session->remove(['nombre_cli','estado', 'id_vendedor', 'nombre_vendedor', 'id_cliente_pedido', 'id_pedido', 'fecha_pedido', 'tipo_compra', 'tipo_pago']);
+        $session->remove(['nombre_cli_regis','nombre_cli','estado', 'id_vendedor', 'nombre_vendedor', 'id_cliente_pedido', 'id_pedido', 'fecha_pedido', 'tipo_compra', 'tipo_pago']);
         $cart->destroy();
     
         session()->setFlashdata('msg', 'Pedido actualizado con éxito!');
         return redirect()->to('pedidos');
     }
-
-    $proceso = $this->request->getPost('tipo_proceso');
 
     // Guardar nuevo Pedido
     if ($tipo_compra == 'Pedido' && $estado == '') { 
@@ -1183,7 +1265,8 @@ function muestra_compra()
         
     } else {
 
-        if ($perfil && $estado == '') { 
+        // Venta normal (Efectivo / Transferencia / Tarjeta / Mixto)
+        if ($perfil && $estado == '' && $proceso != 'cta_cte') { 
             $cabecera_model = new Cabecera_model();
             $ventas_id = $cabecera_model->save([
                 'estado'              => 'Sin_Facturar',
@@ -1202,6 +1285,26 @@ function muestra_compra()
                 'monto_efectivo'      => $monto_en_Efectivo,
                 'monto_transferencia' => $monto_transferencia,
                 'monto_tarjetaC'      => $monto_tarjetaC
+            ]);
+        }
+
+        // ✅ NUEVO: Venta en Cuenta Corriente (sin montos de pago)
+        if ($perfil && $estado == '' && $proceso == 'cta_cte') {
+            $cabecera_model = new Cabecera_model();
+            $ventas_id = $cabecera_model->save([
+                'estado'              => 'Cta_Cte',
+                'total_venta'         => $total,
+                'tipo_pago'           => 'Cta_Cte',
+                'total_bonificado'    => $total_conDescuento,
+                'fecha_pedido'        => $fecha_pedido_formateada,
+                'fecha'               => $fecha,
+                'hora'                => $hora,
+                'hora_entrega'        => $hora,
+                'id_cliente'          => $id_cliente,
+                'nombre_prov_client'  => $bombre_provisorios_cliente,
+                'id_usuario'          => $vendedor_id,
+                'tipo_compra'         => $tipo_compra,
+                'costo_envio'         => $costo_envio,
             ]);
         }
         
@@ -1224,7 +1327,7 @@ function muestra_compra()
                     'monto_tarjetaC'      => $monto_tarjetaC
                 ]);           
                 
-                $session->remove(['nombre_cli','estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
+                $session->remove(['id_cliente_pedido','nombre_cli_regis','nombre_cli','estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
             }
             
             $cart->destroy(); 
@@ -1259,7 +1362,7 @@ function muestra_compra()
             }
         endforeach;
     endif;
-    
+     $session->remove(['nombre_cli_regis','nombre_cli','estado', 'id_vendedor', 'nombre_vendedor', 'id_cliente_pedido', 'id_pedido', 'fecha_pedido', 'tipo_compra', 'tipo_pago']);
     $cart->destroy();
 
     if ($tipo_compra == 'Pedido') {
@@ -1271,6 +1374,10 @@ function muestra_compra()
         return redirect()->to('catalogo');
     }
     
+    if ($proceso == 'cta_cte') {            
+        return redirect()->to('Carrito_controller/impCta_Cte/' . $id_cabecera);
+    }
+
     if ($proceso == 'boleta') {            
         return redirect()->to('Carrito_controller/generarTicket/' . $id_cabecera);
     } else {
@@ -1279,6 +1386,249 @@ function muestra_compra()
     }
 }
 
+public function impCta_Cte($id_cabecera)
+{
+    // Cargar los modelos necesarios
+    $ventaModel = new \App\Models\Cabecera_model();
+    $detalleModel = new \App\Models\VentaDetalle_model();
+    $productoModel = new \App\Models\Productos_model();
+    $clienteModel = new \App\Models\Clientes_model();
+    $vendedoresModel = new \App\Models\Vendedores_model();
+
+    $session = session();
+    $cajero_nombre = $session->get('nombre');
+    $cd_efectivo =$session->get('cd_efectivo');
+    // Obtener los detalles de la venta
+    $cabecera = $ventaModel->find($id_cabecera);
+    
+    $CostoEnvio = $cabecera['costo_envio'];
+   
+    // Actualizar el campo costo_envio a 0 porque se muestra una sola vez.
+    $ventaModel->update($id_cabecera, ['costo_envio' => 0]);
+    
+    $detalles = $detalleModel->where('venta_id', $id_cabecera)->findAll();
+    //print_r($detalles);
+    //exit;
+    // Obtener los productos relacionados
+    $productos = [];
+    foreach ($detalles as $detalle) {
+        $productos[$detalle['producto_id']] = $productoModel->find($detalle['producto_id']);
+    }
+
+    // Obtener la información del cliente
+    $cliente = $clienteModel->find($cabecera['id_cliente']);
+    if($cabecera['id_cliente'] > 1){
+        $nomPresu = $cliente['nombre'];
+    }else{
+        $nomPresu = $cabecera['nombre_prov_client'];
+    }
+    // Obtener el nombre del vendedor    
+    $vendedor = $vendedoresModel->find($cabecera['id_usuario']);
+    $nombreVendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
+    // Crear el HTML para la vista previa
+    ob_start();
+    ?>
+    <html>
+    <head>
+        <style>
+            /* Estilos CSS para el ticket */
+            body {
+                font-family: Arial, sans-serif; /* Cambiar a una fuente más legible */
+                margin: 0;
+                padding: 0;
+                width: 100%; /* Ancho del ticket */
+            }
+            .ticket {
+                width: 100%;
+                font-size: 18px; /* Ajustar tamaño de fuente */
+                font-weight:bold;
+            }
+            h1 {
+                font-size: 18px;
+                text-align: center;
+                margin: 3px 0;
+                font-weight: bold;
+            }
+            h3 {
+                text-align: center;
+                margin: 3px 0;
+                font-weight: bold;
+            }
+            h4 {
+                text-align: center;
+                margin: 3px 0;
+                font-weight: bold;
+                font-size: 10px;
+            }
+            h5 {
+                text-align: center;
+                margin: 3px 0;
+                font-weight: bold;
+                font-size: 9px;
+            }
+            .ticket p {
+                margin: 2px 0;
+                font-size: 15px;
+                font-weight: bold;
+                text-align: justify; /* Justificar el texto */
+            }
+            .ticket hr {
+                border: 0.5px solid #000;
+                margin: 5px 0;
+            }
+            .ticket .header,
+            .ticket .footer {
+                text-align: center;
+                font-size: 10px;
+            }
+            .ticket .details {
+                margin-top: 3px;
+                font-size: 10px;
+            }
+            .ticket .details td {
+                padding: 0px;
+                font-size: 14px;
+            }
+            .ticket .details th {
+                text-align: left;
+                padding-right: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="ticket">
+             <!-- Derecha: Fecha y hora -->
+                        <div style="text-align: right; font-size: 12px;">
+                            Fecha: <?= ($cabecera['tipo_compra'] == 'Pedido') 
+                                        ? date('d-m-Y H:i') 
+                                        : $cabecera['fecha'] . ' ' . $cabecera['hora']; ?>
+                        </div>
+            <h4>Comprobante Cuenta Corriente Nro: <?= number_format($cabecera['id'],0,'.','.') ?></h4>
+            <h5>No valido como factura</5>
+            <!-- Cabecera del ticket -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <!-- Izquierda: datos del cliente y vendedor -->
+                        <div>
+                            <div style="font-size: 18px; font-weight: bold;">AYALA ELECTRICIDAD</div>
+                            <div style="font-size: 12px; font-weight: bold;">Corrientes Capital (3400)</div>
+                        </div>
+                    </div>
+                    <?php if ($cliente['id_cliente'] == 1): ?>
+                        <div style="text-align: left; font-size: 15px;">
+                            Cliente: <?= $cabecera['nombre_prov_client'] ?>
+                        </div>
+                    <?php else: ?>
+                        <div style="text-align: left font-size: 15px;">
+                            Cliente: <?= $cliente['cuil'] > 0 ? $cliente['nombre'] . ' Dirección: ' . $cliente['direccion'] : $cliente['nombre'] ?>
+                        </div>
+                    <?php endif; ?>
+                            <div style="text-align: left; font-size: 12px;">Atendido por: <?= $nombreVendedor ?></div>
+                            <!-- <div style="text-align: left">Cajero: <?= $cajero_nombre ?></div> -->
+                    <hr>
+
+            <!-- Detalle de la compra -->
+            <div class="details" style="width: 100%; font-size: 10px;">
+                <h3>Productos Adquiridos</h3>
+                
+
+                <table style="width:100%; border-collapse: collapse; font-size: 10px;">
+            <thead>
+                <tr style="font-weight:900;">
+                    <th style="border-bottom: 2px solid #000; text-align: left;">CANT.</th>
+                    <th style="border-bottom: 2px solid #000; text-align: left;">NOMBRE / DESCRIPCION</th>
+                    <th style="border-bottom: 2px solid #000; text-align: right;">PRECIO</th>
+                    <th style="border-bottom: 2px solid #000; text-align: right;">SUBTOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($detalles as $detalle): ?>
+                    <?php 
+                        $precio_unitario = $detalle['precio'];
+                        $subtotal = $detalle['cantidad'] * $precio_unitario;
+                    ?>
+                    <tr>
+                        <td style="border-bottom: 2px solid #424242;"><?= $detalle['cantidad'] ?></td>
+                        <td style="border-bottom: 2px solid #424242;"><?= $productos[$detalle['producto_id']]['nombre'] ?></td>
+                        <td style="border-bottom: 2px solid #424242; text-align: right;">$ <?= number_format($detalle['precio'], 0, '.', '.') ?></td>
+                        <td style="border-bottom: 2px solid #424242; text-align: right;">$ <?= number_format($subtotal, 0, '.', '.') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                
+                <!-- Dos saltos de línea (espaciado visual antes del total) -->
+                <tr><td colspan="4" style="height: 10px;"></td></tr>
+                <tr><td colspan="4" style="height: 10px;"></td></tr>
+            </tbody>
+
+            <tfoot>                        
+                <tr>
+                    <td></td>
+                    <td></td>                            
+                    <td style="text-align: right; font-weight: bold;">TOTAL:</td>
+                    <td style="text-align: right; font-weight: bold;">
+                        $ <?= number_format($cabecera['total_venta'], 0, '.', '.') ?>
+                    </td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+
+            </div>          
+            
+        </div>
+    </body>
+    </html>
+    <?php
+       
+    // Generar el PDF
+    $html = ob_get_clean();
+    $dompdf = new \Dompdf\Dompdf();
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'portrait'); // O 'landscape' si prefieres horizontal
+    $dompdf->render();
+    
+    // Guardar el archivo PDF en un archivo temporal
+    $output = $dompdf->output();
+    $tempFolder = 'path/to/temp/folder';  // Ruta de la carpeta temporal
+    // Sanitizar nombre del cliente para usarlo como nombre de archivo
+    $nombreClienteSanitizado = preg_replace('/[^A-Za-z0-9_\-]/', '_', $nomPresu);
+    $nombreArchivo = 'Cta_Corriente_' . $nombreClienteSanitizado . '.pdf';
+    $tempFile = $tempFolder . '/' . $nombreArchivo;
+
+    // Guardar el nombre del archivo en sesión para usarlo luego
+    session()->set('nombre_archivo_presupuesto', $nombreArchivo);
+    
+    // Crear la carpeta si no existe
+    if (!is_dir($tempFolder)) {
+        mkdir($tempFolder, 0777, true);  // Crea la carpeta con permisos 0777 (lectura, escritura y ejecución)
+    }
+    
+    // Guardar el archivo PDF en la carpeta temporal
+    file_put_contents($tempFile, $output);
+    session()->setFlashdata('msg', 'Imprimiendo Ticket.!');
+
+     // Obtener el perfil del usuario desde la sesión
+    $perfil = session()->get('perfil_id');
+    
+    // Redirigir a una página de confirmación con JavaScript
+        echo "<script type='text/javascript'>
+        // Descargar el archivo PDF
+        window.location.href = '" . base_url('descargar_ticket') . "';
+
+        // Pasar el valor de perfil desde PHP a JavaScript
+        var perfil = " . $perfil . "; // Asignar el perfil de PHP a la variable JS
+
+        // Redirigir a la página de referencia después de la descarga o a otra según perfil
+        window.setTimeout(function() {
+            if (perfil == 3) {
+                window.location.href = document.referrer; // Volver a la página anterior
+            } else if (document.referrer) {
+                window.location.href = document.referrer; // Volver a la página anterior
+            }
+        }, 500);  // 0.5 segundos de espera para asegurar que la descarga termine
+        </script>";
+        exit;
+
+}
 
 //Genera ticket venta normal
 public function generarPresupuesto($id_cabecera)
@@ -1405,6 +1755,7 @@ public function generarPresupuesto($id_cabecera)
                         <!-- Izquierda: datos del cliente y vendedor -->
                         <div>
                             <div style="font-size: 18px; font-weight: bold;">AYALA ELECTRICIDAD</div>
+                            <div style="font-size: 12px; font-weight: bold;">Corrientes Capital (3400)</div>
                         </div>
                     </div>
                     <?php if ($cliente['id_cliente'] == 1): ?>
@@ -1649,6 +2000,7 @@ public function DescargarPresupuesto($id_cabecera)
                         <!-- Izquierda: datos del cliente y vendedor -->
                         <div>
                             <div style="font-size: 18px; font-weight: bold;">AYALA ELECTRICIDAD</div>
+                            <div style="font-size: 12px; font-weight: bold;">Corrientes Capital (3400)</div>
                         </div>
                     </div>
                     <?php if ($cliente['id_cliente'] == 1): ?>
@@ -1915,6 +2267,7 @@ public function generarTicket($id_cabecera)
             <!-- Izquierda: datos del cliente y vendedor -->
             <div>
                 <div style="font-size: 18px; font-weight: bold;">AYALA ELECTRICIDAD</div>
+                <div style="font-size: 12px; font-weight: bold;">Corrientes Capital (3400)</div>
             </div>
         </div>
         
@@ -2192,6 +2545,7 @@ public function DescargarBole($id_cabecera)
             <!-- Izquierda: datos del cliente y vendedor -->
             <div>
                 <div style="font-size: 18px; font-weight: bold;">AYALA ELECTRICIDAD</div>
+                <div style="font-size: 12px; font-weight: bold;">Corrientes Capital (3400)</div>
             </div>
         </div>
         

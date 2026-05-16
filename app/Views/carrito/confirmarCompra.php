@@ -783,6 +783,9 @@ $totalVenta = ($gran_total > 0) ? $gran_total : $total_venta;
 <div id="modalConfirmacion" class="modal-contenedor">
     <p class="modal-texto">¿QUÉ DESEA HACER.?</p>
     <div class="modal-botones">
+        <?php  if($estado == ''){ ?>
+        <button type="button" class="btn-modal" onclick="seleccionarProceso('cta_cte')">CUENTA CORRIENTE</button>
+        <?php } ?>
         <button type="button" class="btn-modal" onclick="seleccionarProceso('boleta')">BOLETA REMITO</button>
         <button type="button" class="btn-modal" onclick="seleccionarProceso('guardar')">GUARDAR COMPRA</button>
         <button type="button" class="btn-cancelar" onclick="cerrarModalP()">VOLVER</button>

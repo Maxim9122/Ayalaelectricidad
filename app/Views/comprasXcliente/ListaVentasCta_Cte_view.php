@@ -52,44 +52,38 @@
 <section class="Fondo">
 <div class="" style="width: 100%;" align="center">
 <section class="contenedor-titulo">
-  <strong class="titulo-vidrio">Ventas Normales y Pedidos (Facturada o No)</strong>
+  <strong class="titulo-vidrio">Ventas Cuenta Corriente Sin Cobrar</strong>
   </section>
 <!-- Variable para la recaudacion -->
 <?php $TotalRecaudado = 0;?>
 
-  <div class="estiloTurno" style="width: 70%;">
-      <form method="GET" action="<?= base_url('Carrito_controller/filtrarVentas') ?>">
-        <label for="fecha_desde" style="color:#ffff;">Desde:</label>
-        <input type="date" name="fecha_desde" id="fecha_desde" value="<?= esc($filtros['fecha_desde'] ?? '') ?>">
+<div class="estiloTurno" style="width: 70%;">
+    <form method="GET" action="<?= base_url('Carrito_controller/filtrarVentasCtaCte') ?>">
 
-        <label for="fecha_hasta" style="color:#ffff;">Hasta:</label>
-        <input type="date" name="fecha_hasta" id="fecha_hasta" value="<?= esc($filtros['fecha_hasta'] ?? '') ?>">
-
-        <label for="estado" style="color:#ffff;">Estado:</label>
-        <select name="estado" id="estado">
-            <option value="">Todos</option>
-            <option value="Facturada" <?= ($filtros['estado'] ?? '') == 'Facturada' ? 'selected' : '' ?>>Facturada</option>
-            <option value="Sin_Facturar" <?= ($filtros['estado'] ?? '') == 'Sin_Facturar' ? 'selected' : '' ?>>Sin_Facturar</option>
-            <option value="Modificada_SF" <?= ($filtros['estado'] ?? '') == 'Modificada_SF' ? 'selected' : '' ?>>Modificada_SF</option>
-            <option value="Error_factura" <?= ($filtros['estado'] ?? '') == 'Error_factura' ? 'selected' : '' ?>>Error_factura</option>
-            <option value="Cancelado" <?= ($filtros['estado'] ?? '') == 'Cancelado' ? 'selected' : '' ?>>Cancelada</option>
+        <label for="cliente_id" style="color:#ffff;">Cliente:</label>
+        <select name="cliente_id" id="cliente_id" class="selector">
+            <option value="">-- Todos los clientes --</option>
+            <?php foreach ($clientes as $cl): ?>
+                <option value="<?= $cl['id_cliente'] ?>" 
+                    <?= ($filtros['cliente_id'] ?? '') == $cl['id_cliente'] ? 'selected' : '' ?>>
+                    <?= esc($cl['nombre']) ?> -- DIR: <?= esc($cl['direccion']) ?>
+                </option>
+            <?php endforeach; ?>
         </select>
 
-          <button type="submit" class="btn">Filtrar</button>
-       </form>
-        <a class="button" href="<?php echo base_url('compras');?>">
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-card-checklist" viewBox="0 0 16 16">
-                <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
-                <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
-        </svg> De Hoy</a>
-        </div>
-<br>
-  <div style="text-align: end;">
-    <a class="button" href="<?php echo base_url('comprasCta_Cte');?>">
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-card-checklist" viewBox="0 0 16 16">
-                <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
-                <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
-        </svg> Cuenta Corriente</a>
+        <label for="fecha_desde" style="color:#ffff;">Desde:</label>
+        <input type="date" name="fecha_desde" id="fecha_desde" 
+               value="<?= esc($filtros['fecha_desde'] ?? '') ?>">
+
+        <label for="fecha_hasta" style="color:#ffff;">Hasta:</label>
+        <input type="date" name="fecha_hasta" id="fecha_hasta" 
+               value="<?= esc($filtros['fecha_hasta'] ?? '') ?>">
+
+        <button type="submit" class="btn">Filtrar</button>
+        <a href="<?= base_url('Carrito_controller/ListVentasCta_Cte') ?>" class="btn">Ver Todas</a>
+    </form> 
+</div>
+
 <!-- Recaudacion de Ventas (Todas o por filtro)-->
   
   <br><br>
@@ -105,11 +99,8 @@
              <th>Vendedor</th>
              <th>Tipo Compra</th>
              <th>ESTADO</th>             
-             <th class="espaciado">Fecha Cobro/Original</th>           
-            <th class="espaciado" style="color:orange;">Fecha Cobro/Modif</th>
-            <th class="espaciado" style="color:orange;">Hora Cobro/Modif</th>
-            <th>Total Venta</th>
-             <th>Tipo Pago</th>
+             <th class="espaciado">Fecha</th>           
+             <th>Total Venta</th>   
              <th>Acciones</th>
           </tr>
        </thead>
@@ -132,9 +123,7 @@
                     echo 'transparent'; // Fondo transparente si no coincide con ninguna condición
                 }
             ?>; color: #ffff;"><?php echo $vta['estado']; ?></td>
-            <td><?php echo $vta['fecha_original']; ?></td>            
-            <td style="color:orange;"><?php echo $vta['fecha_actual']; ?></td>
-            <td style="color:orange;"><?php echo $vta['hora_actual']; ?></td>
+            <td><?php echo $vta['fecha_original']; ?></td>        
             <td style="background-color: <?php
                 if ($vta['estado'] == 'Cancelado') {
                     echo 'red';
@@ -146,59 +135,46 @@
                     echo 'transparent'; // Fondo transparente si no coincide con ninguna condición
                 }
             ?>; color: #ffff;">$<?php echo number_format($vta['total_bonificado'], 0, '.', '.'); ?></td>
-            <td><?php echo $vta['tipo_pago']; ?></td>
                         
              <td class="row">               
 
              <div class="dropdown">
               <span class="dropdown-toggle btn">Acciones▼</span>
                <ul class="dropdown-menu">
-               <li>
-                <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px;" href="<?php echo base_url('DetalleVta/'.$vta['id']);?>">
-                    Ver Detalle
+            <li>
+                <a  style="color: #ffff;" href="<?php echo base_url('DetalleVta/'.$vta['id']); ?>">
+                    📄 Ver Detalle
                 </a>
             </li>
+            <?php if($perfil == 1 && $estado == ''){?>
             <li>
-                <?php if($vta['estado'] == 'Facturada'){?>
-                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" href="<?php echo base_url('generarTicketFacturaC/'.$vta['id']); ?>">
-                        Imp.Factura
-                    </a>
+                <a style="color: #ffff;" 
+                href="<?php echo base_url('cancelar/'.$vta['id']); ?>" 
+                class="text-danger"
+                onclick="mostrarConfirmacionCancelar(event, this.href, '<?php echo $vta['id']; ?>');">
+                    ❌ Cancelar
+                </a>
             </li>
-            <li>      
-                <?php  } if($vta['estado'] == 'Sin_Facturar' || $vta['estado'] == 'Modificada_SF'){  ?>
-                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px;  padding:8px;" href="<?php echo base_url('generarTicket/'.$vta['id']); ?>">
-                        Imp.Boleta
-                    </a>
-                </li>
-                <li>
-                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px;  padding:8px;" href="<?php echo base_url('DescargarBole/'.$vta['id']); ?>">
-                        Descargar
-                    </a>
-                </li>
-                <?php if($estado == '' && $perfil) {?>
-                    <li>                
-                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" 
-                    href="#" onclick="abrirModal('<?php echo base_url('modificarVenta_SF/'.$vta['id']); ?>'); return false;">
-                        Modificar
-                    </a>                
-                    </li>
-
-                    <li>                
-                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" 
-                    href="#" onclick="abrirModalCancelar('<?php echo base_url('cancelarVenta/'.$vta['id']); ?>'); return false;">
-                        CancelarVta
-                    </a>                
-                    </li>
-
-                <?php  } ?>
-            <li>      
-                <?php } if($vta['estado'] == 'Error_factura') { ?>
-                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" href="<?php echo base_url('verificarTA/'.$vta['id']); ?>">
-                        Re.Facturar
-                    </a>
-                <?php } ?> 
-            </li>                                  
-                    </ul>
+             <li>                
+                <a  style="color: #ffff;" href="<?php echo base_url('cargar_cta_cte/'.$vta['id']); ?>">
+                    ✏️ Modificar
+                </a>
+            </li>
+                <?php } ?>          
+            <li>
+                <a  style="color: #ffff;" href="<?php echo base_url('impCta_Cte/'.$vta['id']); ?>">
+                    ⬇️ Descargar
+                </a>
+            </li>
+            </li> 
+            <li>
+                <?php if($perfil && $estado == '') { ?>
+                <a  style="color: #ffff;" class="text-success btn" href="<?php echo base_url('cobrarPedido/'.$vta['id']);?>">
+                    ✅ Cobrar
+                </a>
+                <?php } ?>
+            </li>
+                </ul>
                 </div>
 
               </td>
@@ -238,15 +214,8 @@
        
      </table>
      <!-- Recaudacion de Ventas (Todas o por filtro)-->    
-     <?php if ($perfil == 1) { ?>
-     <h2 class="estiloTurno textColor">Total Recaudado: $ <?php echo $TotalRecaudado ?></h2>
-     <h2 class="estiloTurno textColor">
-      Total Recaudado en Efectivo: $ <?php echo $RecaudadoEfectivo ?> 💵
-     </h2>
-
-     <h2 class="estiloTurno textColor">
-      Total Recaudado en Transferencia: $ <?php echo $RecaudadoTransfer ?> 📱
-     </h2>
+     <?php if ($perfil) { ?>
+     <h2 class="estiloTurno textColor">Suma Total: $ <?php echo $TotalRecaudado ?></h2>
      <section class="estiloTurno textColor">
      <h2>(No suman las Canceladas ni las que dieron Error_Factura)</h2>
      <h2>Importante.! Si el estado es Modificada_SF y la venta original fue una fecha pasada, solo se suma la Diferencia entre Total Original menos el Total Modificado (Ver Detalles)</h2>
@@ -619,5 +588,26 @@ window.onclick = function(event) {
   const formattedDate = formatter.format(today).split('/').reverse().join('-'); // Formato YYYY-MM-DD
 </script>
 
+<script>
+function mostrarConfirmacionCancelar(event, url, numeroVenta) {
+    event.preventDefault();
 
+    Swal.fire({
+        title: '¿Cancelar Cuenta Corriente #' + numeroVenta + '?',
+        text: 'Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, cancelar',
+        cancelButtonText: 'No',
+        background: '#1e1e2f',
+        color: '#fff'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = url;
+        }
+    });
+}
+</script>
 <br><br>

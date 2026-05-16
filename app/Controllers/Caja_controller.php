@@ -82,7 +82,7 @@ class Caja_controller extends Controller{
     $model_clientes = new Clientes_model();
     // Obtener los datos de la cabecera de la venta para obtener el id_cliente
     $cabecera = $cabecera_model->find($id_vta);
-    if($cabecera['estado'] == 'Pendiente'){
+    if($cabecera['estado'] == 'Pendiente' || $cabecera['estado'] == 'Cta_Cte'){
     // Actualizar el estado del pedido a "Cobrando"
     $cabecera_model->update($id_vta, ['estado' => 'Cobrando']);
 
@@ -141,21 +141,26 @@ class Caja_controller extends Controller{
     }
     
     session()->setFlashdata('msg', 'Otro cajero esta con esta Venta!');
-    return redirect()->to('caja');
+    return redirect()->to('comprasCta_Cte');
     }
 
     //Cancelar Cobro de la venta
     public function CancelarCobro($id_pedido){
         $session = session();
         $tipo_compra = $session->get('tipo_compra');
+        $Cta_Cte = $session->get('tipo_pago');
         $cart = \Config\Services::cart();
         $cart->destroy();
         $Cabecera_model = new Cabecera_model();
-        $Cabecera_model->update($id_pedido, ['estado' => 'Pendiente']);           
+        if ($Cta_Cte == 'Cta_Cte'){ 
+            $Cabecera_model->update($id_pedido, ['estado' => 'Cta_Cte']); 
+        }else{ 
+            $Cabecera_model->update($id_pedido, ['estado' => 'Pendiente']); 
+        }          
         $session->remove(['nombre_cli_regis','estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'nombre_cli' , 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
         if($tipo_compra == 'Compra_Normal'){ 
             session()->setFlashdata('msg', 'Se Cancelo el cobro de la Venta!');
-        return redirect()->to('caja');
+        return redirect()->to('comprasCta_Cte');
         } else {
             session()->setFlashdata('msg', 'Se Cancelo el cobro del Pedido!');
         return redirect()->to('pedidos');

@@ -163,6 +163,8 @@ $routes->post('filtrarVentas', 'Carrito_controller::filtrarVentas');
 $routes->get('filtrarPedidos', 'Carrito_controller::filtrarPedidos');
 $routes->get('CarritoList', 'Carrito_controller::productosAgregados');
 $routes->get('cargar_pedido/(:num)', 'Pedidos_controller::cargar_pedido_en_carrito/$1');
+$routes->get('cargar_cta_cte/(:num)', 'Cta_Cte_controller::cargar_cta_cte_en_carrito/$1'); //Cta Cte
+$routes->get('cancelar_Modif_cta_cte/(:num)', 'Cta_Cte_controller::cancelar_edicion/$1'); //Cta Cte
 $routes->post('Carrito_agrega', 'Carrito_controller::add');
 $routes->post('Agregamos', 'Carrito_controller::agregarDesdeListaProd');
 $routes->post('Otros_gastos', 'Carrito_controller::agregar');
@@ -173,6 +175,8 @@ $routes->post('carrito/procesarCarrito', 'Carrito_controller::procesarCarrito');
 $routes->get('casiListo', 'Carrito_controller::muestra_compra');
 $routes->post('confirma_compra', 'Carrito_controller::guarda_compra');
 $routes->get('compras', 'Carrito_controller::ListVentasCabecera');
+$routes->get('comprasCta_Cte', 'Carrito_controller::ListVentasCta_Cte');
+$routes->get('filtrarVentasCtaCte', 'Carrito_controller::filtrarVentasCtaCte');
 $routes->get('DetalleVta/(:num)', 'Carrito_controller::ListCompraDetalle/$1');
 $routes->get('Gracias', 'Carrito_controller::GraciasPorSuCompra');
 
@@ -193,6 +197,7 @@ $routes->get('DescargarBole/(:num)', 'Carrito_controller::DescargarBole/$1');
 $routes->get('DescargarPresupuesto/(:num)', 'Carrito_controller::DescargarPresupuesto/$1');
 $routes->get('generarTicketFacturaC/(:num)', 'Carrito_controller::generarTicketFacturaC/$1');
 $routes->get('generarPresupuesto/(:num)', 'Carrito_controller::generarPresupuesto/$1');
+$routes->get('impCta_Cte/(:num)', 'Carrito_controller::impCta_Cte/$1');
 
 
 //VENDEDORES
