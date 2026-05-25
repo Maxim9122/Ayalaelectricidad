@@ -31,7 +31,7 @@
             
             <div class="desarrollador">
                 <span>
-                    Desarrollado por <span>Maximiliano Luna / Luis Nuñez</span>
+                    Desarrollado por <span>Maximiliano Luna</span>
                     <br>
                     <span>Tel: 3841-670079</span>
                 </span>                
