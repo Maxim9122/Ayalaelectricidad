@@ -62,7 +62,7 @@ $id=$session->get('id');?>
                     <div style="width: 50%; padding: 5px;">
                         <div style="margin-bottom: 10px;">
                             <label style="display: block;">Dirección</label>
-                            <input name="direccion" type="text" style="width: 95%; padding: 5px; border: 1px solid #ccc;" placeholder="Dirección"
+                            <input name="direccion" autocomplete="off" type="text" style="width: 95%; padding: 5px; border: 1px solid #ccc;" placeholder="Dirección"
                                    value="<?php echo $data['direccion']?>">
                         </div>
                     </div>

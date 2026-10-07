@@ -40,7 +40,7 @@
 
         <div class="input-group">
           <label>Dirección</label>
-          <input type="text" name="direccion" class="form-control" placeholder="Dirección" maxlength="100">
+          <input type="text" name="direccion" autocomplete="off" class="form-control" placeholder="Dirección" maxlength="100">
         </div>
 
         <div class="input-group">

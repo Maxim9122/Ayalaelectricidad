@@ -147,6 +147,66 @@ class Facturacion_controller extends BaseController
         return redirect()->to($url);
     }
 
+    /** Consulta /ping con la API Key guardada: confirma que la conexión y la key funcionan. */
+    public function probarConexion()
+    {
+        if ($redireccion = $this->exigirPerfil([self::PERFIL_ADMIN])) {
+            return $redireccion;
+        }
+
+        $credencial = (new CredencialFacturacion_model())->obtener();
+        if (!CredencialFacturacion_model::estaActiva($credencial)) {
+            return redirect()->to(base_url('facturacion'))->with('msgEr', 'Todavía no hay una API Key activa: primero completá la carga del certificado.');
+        }
+
+        try {
+            $respuesta = (new FacturacionApiClient())->ping($credencial['api_key']);
+        } catch (\Throwable $e) {
+            log_message('error', 'Ping a la API de facturación falló: ' . $e->getMessage());
+            return redirect()->to(base_url('facturacion'))->with('msgEr', 'No se pudo conectar con el servicio de facturación. ¿Está levantado?');
+        }
+
+        if ($respuesta->status !== 200) {
+            return redirect()->to(base_url('facturacion'))->with('msgEr', "El servicio de facturación rechazó la API Key (HTTP {$respuesta->status}): " . esc($respuesta->mensaje('sin detalle')));
+        }
+
+        $j = $respuesta->json;
+
+        return redirect()->to(base_url('facturacion'))->with('msg', 'Conexión OK — empresa: ' . esc($j['empresa'] ?? '?') . ', ambiente: ' . esc($j['ambiente'] ?? '?') . '.');
+    }
+
+    /**
+     * Da de alta un punto de venta en la API (sin repetir el onboarding) y pasa a facturar con él.
+     * Es un solo negocio con una sola caja: el punto de venta nuevo reemplaza al que se usaba.
+     */
+    public function agregarPuntoVenta()
+    {
+        if ($redireccion = $this->exigirPerfil([self::PERFIL_ADMIN])) {
+            return $redireccion;
+        }
+
+        $credencial = (new CredencialFacturacion_model())->obtener();
+        if (!CredencialFacturacion_model::estaActiva($credencial) || empty($credencial['empresa_externa_id'])) {
+            return redirect()->to(base_url('facturacion'))->with('msgEr', 'Primero completá la carga del certificado.');
+        }
+
+        $numero = (int) $this->request->getPost('punto_venta');
+        if ($numero < 1 || $numero > 99998) {
+            return redirect()->to(base_url('facturacion'))->with('msgEr', 'Punto de venta inválido (debe ser un número entre 1 y 99998).');
+        }
+
+        try {
+            (new FacturacionApiClient())->agregarPuntoVenta($credencial['empresa_externa_id'], $credencial['ambiente'], $numero);
+        } catch (\Throwable $e) {
+            log_message('error', 'No se pudo agregar el punto de venta: ' . $e->getMessage());
+            return redirect()->to(base_url('facturacion'))->with('msgEr', 'No se pudo agregar el punto de venta: ' . esc($e->getMessage()));
+        }
+
+        (new CredencialFacturacion_model())->guardar(['punto_venta' => $numero]);
+
+        return redirect()->to(base_url('facturacion'))->with('msg', "Punto de venta {$numero} habilitado. Las próximas facturas salen con ese punto de venta.");
+    }
+
     // ---------------------------------------------------------
     // ACCIONES SOBRE UNA VENTA (admin y cajero)
     // ---------------------------------------------------------

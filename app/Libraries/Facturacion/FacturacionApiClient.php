@@ -65,6 +65,38 @@ class FacturacionApiClient
         return $respuesta->json;
     }
 
+    /**
+     * Paso 2.5: sumar un punto de venta a una empresa que ya tiene certificado validado.
+     * No repite el onboarding ni toca la API Key. 201 nuevo / 200 ya existía (idempotente).
+     */
+    public function agregarPuntoVenta($empresaExternaId, string $ambiente, int $numero): array
+    {
+        $respuesta = $this->enviar('POST', '/api/platform/v1/empresas/' . rawurlencode((string) $empresaExternaId) . '/puntos-venta', $this->config->platformKey, [
+            'ambiente' => $ambiente,
+            'numero'   => $numero,
+        ]);
+
+        if ($respuesta->status === 409) {
+            throw new \RuntimeException($respuesta->mensaje('La empresa todavía no tiene un certificado validado para ese ambiente: primero hay que completar el alta.'));
+        }
+        if ($respuesta->status === 404) {
+            throw new \RuntimeException('No se encontró esta empresa en el servicio de facturación.');
+        }
+        if ($respuesta->status === 422) {
+            throw new \RuntimeException($respuesta->mensaje('Datos inválidos.'));
+        }
+
+        $this->exigirExito($respuesta);
+
+        return $respuesta->json;
+    }
+
+    /** Verifica la API Key: devuelve {empresa, ambiente, api_key} o el error de la API. */
+    public function ping(string $apiKey): RespuestaApi
+    {
+        return $this->enviar('GET', '/api/v1/ping', $apiKey);
+    }
+
     /** Paso 3: emitir. NO tira excepción por 4xx/5xx — el que llama mapea el status. */
     public function emitirComprobante(string $apiKey, string $idempotencyKey, array $body): RespuestaApi
     {

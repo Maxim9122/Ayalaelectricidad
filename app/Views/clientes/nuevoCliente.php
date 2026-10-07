@@ -46,7 +46,7 @@
 
  <div>
   <label for="exampleFormControlInput1" class="form-label">Dirección</label>
-  <input name="direc" type="text" placeholder="Dirección" required
+  <input name="direc" autocomplete="off" type="text" placeholder="Dirección" required
         minlength="1" maxlength="50">
    <!-- Error -->
    <?php if(session()->getFlashdata('msgEr')) { ?>

@@ -189,6 +189,8 @@ $routes->get('factura/(:num)', 'Carrito_controller::FacturaCliente/$1');
 $routes->get('facturacion', 'Facturacion_controller::configuracion');
 $routes->post('facturacion', 'Facturacion_controller::guardarConfiguracion');
 $routes->post('facturacion/onboarding', 'Facturacion_controller::iniciarOnboarding');
+$routes->post('facturacion/probar-conexion', 'Facturacion_controller::probarConexion');
+$routes->post('facturacion/punto-venta', 'Facturacion_controller::agregarPuntoVenta');
 $routes->get('facturacion/reintentar/(:num)', 'Facturacion_controller::reintentarFactura/$1');
 $routes->post('facturacion/anular/(:num)', 'Facturacion_controller::anularFactura/$1');
 $routes->get('facturacion/nota-credito/reintentar/(:num)', 'Facturacion_controller::reintentarNotaCredito/$1');

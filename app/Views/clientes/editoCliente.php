@@ -44,7 +44,7 @@
 
   <div>
        <label for="exampleFormControlInput1" style="color:black;">Dirección</label>
-   <input name="direc"  type="text"  placeholder="Dirección"
+   <input name="direc" autocomplete="off"  type="text"  placeholder="Dirección"
    minlength="1" maxlength="50" value="<?php echo $data['direccion']?>" >
     <!-- Error -->
         <?php if($validation->getError('direc')) {?>

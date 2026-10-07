@@ -51,7 +51,7 @@ $activa = CredencialFacturacion_model::estaActiva($credencial);
             <div class="fact-fila"><label>Razón social</label><input type="text" name="razon_social" maxlength="150" value="<?= $valor('razon_social') ?>"></div>
             <div class="fact-fila"><label>CUIT (11 dígitos)</label><input type="text" name="cuit" maxlength="13" value="<?= $valor('cuit') ?>"></div>
             <div class="fact-fila"><label>Email de contacto</label><input type="email" name="email_contacto" maxlength="150" value="<?= $valor('email_contacto') ?>"></div>
-            <div class="fact-fila"><label>Domicilio comercial</label><input type="text" name="domicilio" maxlength="200" value="<?= $valor('domicilio') ?>"></div>
+            <div class="fact-fila"><label>Domicilio comercial</label><input type="text" name="domicilio" autocomplete="off" maxlength="200" value="<?= $valor('domicilio') ?>"></div>
             <div class="fact-fila"><label>Ingresos Brutos</label><input type="text" name="ingresos_brutos" maxlength="50" value="<?= $valor('ingresos_brutos') ?>"></div>
             <div class="fact-fila"><label>Inicio de actividades</label><input type="date" name="inicio_actividades" value="<?= $valor('inicio_actividades') ?>"></div>
             <p class="fact-ayuda">Estos datos se imprimen en la factura. Razón social, CUIT y email se envían al servicio de facturación.</p>
@@ -123,6 +123,22 @@ $activa = CredencialFacturacion_model::estaActiva($credencial);
                 <div class="fact-estado fact-ok">
                     Configurada — ambiente <strong><?= esc($credencial['ambiente']) ?></strong>, punto de venta <strong><?= esc($credencial['punto_venta']) ?></strong>.
                 </div>
+                <?php if ($apiConfigurada): ?>
+                    <form method="POST" action="<?= base_url('facturacion/probar-conexion') ?>" style="margin-bottom: 10px;">
+                        <button type="submit" class="btn">Probar conexión</button>
+                        <span class="fact-ayuda">Verifica que el servicio de facturación responde y acepta la API Key.</span>
+                    </form>
+                <?php endif; ?>
+                <?php if ($onboardingConfigurado): ?>
+                    <form method="POST" action="<?= base_url('facturacion/punto-venta') ?>" onsubmit="return confirm('Las próximas facturas van a salir con este punto de venta. Tiene que estar habilitado para Web Services en ARCA. ¿Continuar?');">
+                        <div class="fact-fila">
+                            <label>Cambiar punto de venta</label>
+                            <input type="text" name="punto_venta" maxlength="5" inputmode="numeric" placeholder="Ej: 5" style="max-width: 120px; padding: 6px; border-radius: 5px;">
+                            <button type="submit" class="btn">Habilitar y usar</button>
+                        </div>
+                        <p class="fact-ayuda">Para pasar a otro punto de venta (por ejemplo, uno nuevo dado de alta en ARCA) sin volver a subir el certificado. Las notas de crédito de facturas anteriores salen con el punto de venta de la factura original.</p>
+                    </form>
+                <?php endif; ?>
                 <p>¿Cambió el dueño, venció el certificado o se comprometió la clave? Podés renovarlo acá abajo. La configuración actual sigue funcionando hasta que termines la renovación.</p>
             <?php elseif ($credencial && $credencial['estado'] === CredencialFacturacion_model::ESTADO_PENDIENTE_ONBOARDING): ?>
                 <div class="fact-estado fact-pend">Se inició la configuración pero todavía no se completó. Si el link venció, volvé a iniciarla.</div>

@@ -70,7 +70,7 @@
 
   <div class="mb-3">
        <label for="exampleFormControlInput1" class="form-label">Direccion</label>
-   <input name="direccion"  type="text" class="form-control"  placeholder="Direccion" value="<?php echo $data['direccion']?>" >
+   <input name="direccion" autocomplete="off"  type="text" class="form-control"  placeholder="Direccion" value="<?php echo $data['direccion']?>" >
     <!-- Error -->
         <?php if($validation->getError('direccion')) {?>
             <div class='alert alert-danger mt-2'>

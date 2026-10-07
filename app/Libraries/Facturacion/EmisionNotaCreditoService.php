@@ -87,8 +87,13 @@ class EmisionNotaCreditoService
         // Mismo receptor que la factura original (80 CUIT, 96 DNI, 99 Consumidor Final).
         [$docTipo, $docNro] = Factura_model::documentoReceptor($factura);
 
+        // Mismo punto de venta que la factura que se acredita ("PPPP-NNNNNNNN"), aunque
+        // después se haya cambiado el punto de venta con el que factura el negocio.
+        $partes = explode('-', (string) $factura['numero_comprobante']);
+        $puntoVenta = count($partes) === 2 && (int) $partes[0] > 0 ? (int) $partes[0] : (int) $credencial['punto_venta'];
+
         $body = [
-            'punto_venta'      => (int) $credencial['punto_venta'],
+            'punto_venta'      => $puntoVenta,
             'tipo_comprobante' => $tipoComprobante,
             'concepto'         => 1,
             'cliente_doc_tipo' => $docTipo,
@@ -109,7 +114,7 @@ class EmisionNotaCreditoService
             return;
         }
 
-        $this->aplicarRespuestaComun($this->notas, $notaCreditoId, $respuesta, (int) $credencial['punto_venta']);
+        $this->aplicarRespuestaComun($this->notas, $notaCreditoId, $respuesta, $puntoVenta);
     }
 
     public function aplicarResultadoWebhook(array $nota, array $payload): void
