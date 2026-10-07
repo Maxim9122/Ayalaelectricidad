@@ -6,3 +6,27 @@ app/Libraries/afip/
 
 
 
+
+# Configuración local / credenciales
+.env
+!.env.example
+
+# Herramientas que no son parte de la app
+*.jar
+
+# PDFs generados (boletas, presupuestos, tickets con datos de clientes)
+*.pdf
+
+# Archivos generados en tiempo de ejecución
+/path/to/temp/folder/*
+!/path/to/temp/folder/.gitkeep
+/writable/temp/*
+!/writable/temp/.gitkeep
+/writable/uploads/*
+!/writable/uploads/index.html
+/writable/cache/*
+!/writable/cache/index.html
+
+# Ticket de acceso AFIP/ARCA (token y firma)
+/writable/facturacionARCA/*
+!/writable/facturacionARCA/.gitkeep
