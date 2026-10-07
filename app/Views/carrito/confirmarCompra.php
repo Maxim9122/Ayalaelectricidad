@@ -319,7 +319,8 @@ endif;
                             <select name="cliente_id" class="selector">
                                 <option value="Anonimo">Consumidor Final</option>
                                 <?php foreach ($clientes as $cl): ?>
-                                    <option value="<?php echo $cl['id_cliente']; ?>" <?php echo $cl['id_cliente'] == $id_cliente ? 'selected' : ''; ?>>
+                                    <?php $cuit_cl = preg_replace('/\D/', '', (string) ($cl['cuil'] ?? '')); ?>
+                                    <option value="<?php echo $cl['id_cliente']; ?>" data-cuit="<?= strlen($cuit_cl) === 11 ? $cuit_cl : '' ?>" <?php echo $cl['id_cliente'] == $id_cliente ? 'selected' : ''; ?>>
                                         <?php echo $cl['nombre']; ?> <?php echo "-- DIR:" . $cl['direccion']; ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -375,50 +376,6 @@ endif;
                     </td>
                 </tr>
 
-                <?php
-                // Comprobante fiscal: solo aparece si la facturación electrónica está habilitada.
-                $config_fact = (new \App\Models\ConfiguracionFacturacion_model())->obtener();
-                $letras_fact = \App\Models\ConfiguracionFacturacion_model::letrasPermitidas($config_fact);
-                $predeterminado_fact = \App\Models\ConfiguracionFacturacion_model::comprobantePredeterminadoEfectivo($config_fact);
-                ?>
-                <?php if ($letras_fact): ?>
-                <tr id="comprobanteRow">
-                    <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff,
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Comprobante:</strong></td>
-                    <td>
-                        <select name="tipo_comprobante" class="selector">
-                            <option value="remito" <?= $predeterminado_fact == 'remito' ? 'selected' : '' ?>>Remito</option>
-                            <?php foreach ($letras_fact as $letra_fact): ?>
-                                <option value="<?= $letra_fact ?>" <?= $predeterminado_fact == $letra_fact ? 'selected' : '' ?>>Factura <?= $letra_fact ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <br><small style="color:black;">La Cuenta Corriente se registra siempre con Remito.<?= in_array('A', $letras_fact) ? ' Factura A requiere cliente registrado con CUIT.' : '' ?></small>
-                    </td>
-                </tr>
-                <?php $tope_dni_fact = (float) ($config_fact['monto_identificar_consumidor'] ?? 0); ?>
-                <tr id="dniCompradorRow">
-                    <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff,
-                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>DNI del comprador:</strong></td>
-                    <td>
-                        <input class="selector" type="text" name="dni_comprador" id="dniComprador" maxlength="10" inputmode="numeric" placeholder="Solo números">
-                        <br><small style="color:black;">Obligatorio para facturar a consumidor final desde $ <?= number_format($tope_dni_fact, 0, ',', '.') ?> (ARCA).</small>
-                    </td>
-                </tr>
-                <script>
-                // Aviso rápido: el bloqueo real lo hace el servidor al guardar.
-                function faltaDniComprador(proceso) {
-                    const comprobante = document.querySelector('select[name="tipo_comprobante"]');
-                    const total = parseFloat(document.querySelector('input[name="total_venta"]').value) || 0;
-                    const tipoCliente = document.getElementById("tipo_cliente");
-                    const clienteSel = document.querySelector('select[name="cliente_id"]');
-                    const consumidorFinal = (tipoCliente && tipoCliente.value === "no_registrado") || (clienteSel && clienteSel.value === "Anonimo");
-                    const dni = (document.getElementById("dniComprador").value || "").replace(/\D/g, "");
-                    return proceso !== "cta_cte" && comprobante && comprobante.value !== "remito"
-                        && <?= json_encode($tope_dni_fact) ?> > 0 && total >= <?= json_encode($tope_dni_fact) ?>
-                        && consumidorFinal && !/^\d{7,8}$/.test(dni);
-                }
-                </script>
-                <?php endif; ?>
                 <?php endif; ?>
 
                 <tr id="fechaPedidoFila" style="display: <?php echo !empty($fecha_pedido) ? 'table-row' : 'none'; ?>;">
@@ -480,6 +437,9 @@ endif;
             
             <?php echo form_hidden('id_pedido', $id_pedido); ?>
             <?php echo form_hidden('tipo_proceso', ''); ?>
+            <!-- Los completa el modal de FACTURAR; por defecto todo sale con Remito -->
+            <input type="hidden" name="tipo_comprobante" id="tipoComprobante" value="remito">
+            <input type="hidden" name="dni_comprador" id="dniCompradorHidden" value="">
                 
             <?php if ($gran_total > 0 || $total_venta > 0) { ?>
     
@@ -527,7 +487,6 @@ endif;
     const tipoCompra = document.getElementById("tipoCompra").value;
     const transferenciaRow = document.getElementById("transferenciaRow");
     const efectivoRow = document.getElementById("efectivoRow");
-    const comprobanteRow = document.getElementById("comprobanteRow");
     const fechaPedidoFila = document.getElementById("fechaPedidoFila");
     const registrarPedidoBtn = document.getElementById("registrarPedidoBtn");
     const registrarCompraBtn = document.getElementById("registrarCompraBtn");
@@ -536,16 +495,12 @@ endif;
     if (tipoCompra === "Pedido" || estadoModificando) {
         if (transferenciaRow) transferenciaRow.style.display = "none";
         if (efectivoRow) efectivoRow.style.display = "none";
-        if (comprobanteRow) comprobanteRow.style.display = "none";
-        if (document.getElementById("dniCompradorRow")) document.getElementById("dniCompradorRow").style.display = "none";
         fechaPedidoFila.style.display = "table-row";
         registrarPedidoBtn.style.display = "inline-block";
         registrarCompraBtn.style.display = "none";
     } else {
         if (transferenciaRow) transferenciaRow.style.display = "table-row";
         if (efectivoRow) efectivoRow.style.display = "table-row";
-        if (comprobanteRow) comprobanteRow.style.display = "table-row";
-        if (document.getElementById("dniCompradorRow")) document.getElementById("dniCompradorRow").style.display = "table-row";
         fechaPedidoFila.style.display = "none";
         registrarPedidoBtn.style.display = "none";
         registrarCompraBtn.style.display = "inline-block";
@@ -826,6 +781,26 @@ $totalVenta = ($gran_total > 0) ? $gran_total : $total_venta;
     });
 </script>
 
+<?php
+// FACTURAR solo aparece si la facturación está habilitada, el certificado ya está cargado
+// (API Key activa) y es una venta que se cobra ahora (nueva o pedido en cobro).
+$config_fact = (new \App\Models\ConfiguracionFacturacion_model())->obtener();
+$letras_fact = \App\Models\ConfiguracionFacturacion_model::letrasPermitidas($config_fact);
+$predeterminado_fact = \App\Models\ConfiguracionFacturacion_model::comprobantePredeterminadoEfectivo($config_fact);
+$credencial_activa = \App\Models\CredencialFacturacion_model::estaActiva((new \App\Models\CredencialFacturacion_model())->obtener());
+$puede_facturar = $perfil && $letras_fact && $credencial_activa && ($estado == '' || $estado == 'Cobrando');
+$tope_dni_fact = (float) ($config_fact['monto_identificar_consumidor'] ?? 0);
+
+// Al cobrar un pedido, el cliente es el de la venta guardada (no el del selector).
+$cliente_cobro = null;
+if ($puede_facturar && $estado == 'Cobrando' && $id_pedido) {
+    $venta_cobro = (new \App\Models\Cabecera_model())->find($id_pedido);
+    $cliente_cobro = [
+        'nombre' => $nombre_cli ?: 'Consumidor Final',
+        'cuit'   => (new \App\Libraries\Facturacion\FacturaVentaService())->cuitDelCliente($venta_cobro['id_cliente'] ?? 1) ?? '',
+    ];
+}
+?>
 <!-- Fondo oscuro -->
 <div id="modalFondo" class="modal-fondo"></div>
 
@@ -838,9 +813,55 @@ $totalVenta = ($gran_total > 0) ? $gran_total : $total_venta;
         <?php } ?>
         <button type="button" class="btn-modal" onclick="seleccionarProceso('boleta')">BOLETA REMITO</button>
         <button type="button" class="btn-modal" onclick="seleccionarProceso('guardar')">GUARDAR COMPRA</button>
+        <?php if ($puede_facturar): ?>
+        <button type="button" class="btn-modal btn-facturar" onclick="abrirFacturar()">FACTURAR</button>
+        <?php endif; ?>
         <button type="button" class="btn-cancelar" onclick="cerrarModalP()">VOLVER</button>
     </div>
 </div>
+
+<?php if ($puede_facturar): ?>
+<!-- FACTURAR - paso 1: tipo de factura (y DNI si ARCA lo exige) -->
+<div id="modalFacturaTipo" class="modal-contenedor modal-factura">
+    <p class="modal-texto">¿QUÉ FACTURA EMITIR?</p>
+    <div class="factura-opciones">
+        <?php foreach ($letras_fact as $letra_fact): ?>
+            <label class="factura-opcion">
+                <input type="radio" name="letra_factura" value="<?= $letra_fact ?>" onchange="actualizarPasoTipo()">
+                <strong>Factura <?= $letra_fact ?></strong>
+                <small><?= ['A' => 'Cliente Responsable Inscripto (requiere CUIT)', 'B' => 'Consumidor Final, Monotributista o Exento', 'C' => 'Comprobante de Monotributista'][$letra_fact] ?></small>
+            </label>
+        <?php endforeach; ?>
+    </div>
+    <p class="factura-cliente">Cliente: <strong id="facturaClienteNombre"></strong><br><span id="facturaClienteDoc"></span></p>
+    <div id="facturaDniFila" style="display: none;">
+        <label for="facturaDni" class="factura-label">DNI del comprador (obligatorio desde $ <?= number_format($tope_dni_fact, 0, ',', '.') ?>)</label>
+        <input type="text" id="facturaDni" maxlength="10" inputmode="numeric" placeholder="Solo números" oninput="actualizarPasoTipo()">
+    </div>
+    <p id="facturaTipoError" class="factura-error"></p>
+    <div class="modal-botones">
+        <button type="button" class="btn-modal" id="facturaContinuarBtn" onclick="mostrarResumenFactura()">CONTINUAR</button>
+        <button type="button" class="btn-cancelar" onclick="volverAlMenu()">VOLVER</button>
+    </div>
+</div>
+
+<!-- FACTURAR - paso 2: resumen y confirmación (botón de un solo uso) -->
+<div id="modalFacturaResumen" class="modal-contenedor modal-factura">
+    <p class="modal-texto">CONFIRMAR FACTURA</p>
+    <table class="factura-resumen">
+        <tr><td>Comprobante</td><td id="resumenComprobante"></td></tr>
+        <tr><td>Cliente</td><td id="resumenCliente"></td></tr>
+        <tr><td>Documento</td><td id="resumenDocumento"></td></tr>
+        <tr><td>Forma de pago</td><td id="resumenPago"></td></tr>
+        <tr class="factura-total"><td>Total a facturar</td><td id="resumenTotal"></td></tr>
+    </table>
+    <p class="factura-aviso">Se envía a ARCA y no se puede deshacer: para anularla después hay que emitir una Nota de Crédito.</p>
+    <div class="modal-botones">
+        <button type="button" class="btn-modal btn-facturar" id="confirmarFacturaBtn" onclick="confirmarFactura()">CONFIRMAR Y FACTURAR</button>
+        <button type="button" class="btn-cancelar" id="resumenVolverBtn" onclick="volverAlTipo()">VOLVER</button>
+    </div>
+</div>
+<?php endif; ?>
 <style>
     .modal-fondo {
     display: none;
@@ -914,6 +935,108 @@ $totalVenta = ($gran_total > 0) ? $gran_total : $total_venta;
     background-color: #888;
 }
 
+/* FACTURAR */
+.btn-facturar {
+    background-color: #2e7d32;
+}
+.btn-facturar:hover {
+    background-color: #1b5e20;
+}
+.btn-modal:disabled {
+    background-color: #9e9e9e;
+    cursor: not-allowed;
+}
+.modal-factura {
+    max-width: 360px;
+    width: calc(100% - 32px);
+    box-sizing: border-box;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    text-align: left;
+    color: #333;
+}
+.modal-factura .modal-texto {
+    text-align: center;
+}
+.factura-opciones {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.factura-opcion {
+    display: block;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    padding: 8px 10px;
+    cursor: pointer;
+}
+.factura-opcion small {
+    display: block;
+    color: #666;
+    margin-left: 22px;
+}
+.factura-opcion:has(input:checked) {
+    border-color: #2e7d32;
+    background: #e8f5e9;
+}
+.factura-cliente {
+    margin: 12px 0 6px;
+    font-size: 14px;
+}
+.factura-label {
+    display: block;
+    font-weight: bold;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+#facturaDni {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+.factura-error {
+    color: #c62828;
+    font-weight: bold;
+    font-size: 13px;
+    min-height: 1em;
+    margin: 8px 0 0;
+}
+.factura-resumen {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+.factura-resumen td {
+    padding: 5px 4px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+}
+.factura-resumen td:first-child {
+    color: #666;
+    white-space: nowrap;
+    padding-right: 10px;
+}
+.factura-resumen td:last-child {
+    font-weight: bold;
+    text-align: right;
+}
+.factura-total td {
+    font-size: 17px;
+    border-bottom: none;
+}
+.factura-aviso {
+    font-size: 12px;
+    color: #8d6e00;
+    background: #fff8e1;
+    border-radius: 6px;
+    padding: 8px;
+    margin: 10px 0 0;
+}
+
 </style>
 
 
@@ -924,16 +1047,23 @@ document.getElementById('registrarCompraBtn').addEventListener('click', function
     document.getElementById('modalFondo').style.display = 'block';
 });
 
-function seleccionarProceso(valor) {
-    if (typeof faltaDniComprador === "function" && faltaDniComprador(valor)) {
-        alert("Para este importe ARCA exige el DNI del comprador (7 u 8 dígitos).");
-        cerrarModalP();
-        document.getElementById("dniComprador").focus();
-        return;
+// El formulario de la venta es el que contiene los campos ocultos del comprobante.
+let ventaEnviada = false;
+function enviarVenta(proceso, comprobante, dni) {
+    if (ventaEnviada) {
+        return; // evita mandar dos veces la misma venta
     }
-    document.querySelector('input[name="tipo_proceso"]').value = valor;
+    ventaEnviada = true;
+    document.getElementById("tipoComprobante").value = comprobante;
+    document.getElementById("dniCompradorHidden").value = dni;
+    document.querySelector('input[name="tipo_proceso"]').value = proceso;
     cerrarModal();
-    document.querySelector('form').submit();
+    document.getElementById("tipoComprobante").form.submit();
+}
+
+// CUENTA CORRIENTE / BOLETA REMITO / GUARDAR COMPRA: siempre con Remito.
+function seleccionarProceso(valor) {
+    enviarVenta(valor, "remito", "");
 }
 
 function cerrarModalP() {
@@ -941,6 +1071,151 @@ function cerrarModalP() {
     document.getElementById('modalFondo').style.display = 'none';
 }
 </script>
+
+<?php if ($puede_facturar): ?>
+<script>
+// ---------------- FACTURAR (paso 1: tipo, paso 2: resumen) ----------------
+// Todo esto es ayuda para el cajero: el servidor vuelve a validar letra, CUIT y DNI al guardar.
+const facturaConfig = {
+    predeterminada: <?= json_encode($predeterminado_fact) ?>,
+    tope: <?= json_encode($tope_dni_fact) ?>,
+    clienteCobro: <?= json_encode($cliente_cobro) ?>
+};
+
+function mostrarModal(id) {
+    ["modalConfirmacion", "modalFacturaTipo", "modalFacturaResumen"].forEach(function (m) {
+        document.getElementById(m).style.display = (m === id) ? "block" : "none";
+    });
+    document.getElementById("modalFondo").style.display = "block";
+}
+
+// Mismo criterio que limpiarMonto() del servidor: "40.000,50" -> 40000.5 / "146.000" -> 146000
+function montoNumero(valor) {
+    valor = (valor || "").toString().trim();
+    if (valor === "") return 0;
+    if (valor.indexOf(",") !== -1) {
+        return parseFloat(valor.replace(/\./g, "").replace(",", ".")) || 0;
+    }
+    return parseFloat(valor.replace(/\./g, "")) || 0;
+}
+
+function formatoPesos(valor) {
+    return "$ " + valor.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// Lo que se va a facturar = lo que paga el cliente (la tarjeta lleva +10%, igual que al guardar).
+function pagosVenta() {
+    const efectivo = montoNumero(document.getElementById("pagoEfectivo").value);
+    const transferencia = montoNumero(document.getElementById("pagoTransferencia").value);
+    const tarjeta = Math.round(montoNumero(document.getElementById("pagoTarjetaCredito").value) * 1.1);
+    let total = efectivo + transferencia + tarjeta;
+    if (!total) total = parseFloat(granTotal) || 0;
+    return { efectivo: efectivo, transferencia: transferencia, tarjeta: tarjeta, total: total };
+}
+
+function clienteVenta() {
+    if (facturaConfig.clienteCobro) {
+        return facturaConfig.clienteCobro;
+    }
+    const tipo = document.getElementById("tipo_cliente");
+    const select = document.querySelector('select[name="cliente_id"]');
+    if (tipo && tipo.value === "registrado" && select && select.value !== "Anonimo") {
+        const opcion = select.options[select.selectedIndex];
+        return { nombre: opcion.text.split("-- DIR:")[0].trim(), cuit: opcion.dataset.cuit || "" };
+    }
+    const nombre = (document.querySelector('input[name="nombre_prov"]') || {}).value || "";
+    return { nombre: nombre.trim() || "Consumidor Final", cuit: "" };
+}
+
+function letraElegida() {
+    const marcada = document.querySelector('input[name="letra_factura"]:checked');
+    return marcada ? marcada.value : "";
+}
+
+function exigeDni(cliente, total) {
+    return !cliente.cuit && facturaConfig.tope > 0 && total >= facturaConfig.tope;
+}
+
+function abrirFacturar() {
+    const radios = document.querySelectorAll('input[name="letra_factura"]');
+    let marcada = false;
+    radios.forEach(function (r) {
+        r.checked = (r.value === facturaConfig.predeterminada);
+        if (r.checked) marcada = true;
+    });
+    if (!marcada && radios.length) radios[0].checked = true;
+    document.getElementById("facturaDni").value = "";
+    mostrarModal("modalFacturaTipo");
+    actualizarPasoTipo();
+}
+
+function actualizarPasoTipo() {
+    const cliente = clienteVenta();
+    const pagos = pagosVenta();
+    const letra = letraElegida();
+    const pideDni = exigeDni(cliente, pagos.total);
+    let error = "";
+
+    document.getElementById("facturaClienteNombre").textContent = cliente.nombre;
+    document.getElementById("facturaClienteDoc").textContent = cliente.cuit ? "CUIT " + cliente.cuit : "Consumidor Final (sin CUIT)";
+    document.getElementById("facturaDniFila").style.display = (pideDni && letra !== "A") ? "block" : "none";
+
+    if (!letra) {
+        error = "Elegí el tipo de factura.";
+    } else if (letra === "A" && !cliente.cuit) {
+        error = "La Factura A requiere un cliente registrado con CUIT. Elegí el cliente en el formulario o emití otra factura.";
+    } else if (pideDni && !/^\d{7,8}$/.test(document.getElementById("facturaDni").value.replace(/\D/g, ""))) {
+        error = "Para este importe ARCA exige el DNI del comprador (7 u 8 dígitos).";
+    }
+
+    document.getElementById("facturaTipoError").textContent = error;
+    document.getElementById("facturaContinuarBtn").disabled = error !== "";
+}
+
+function mostrarResumenFactura() {
+    actualizarPasoTipo();
+    if (document.getElementById("facturaContinuarBtn").disabled) return;
+
+    const cliente = clienteVenta();
+    const pagos = pagosVenta();
+    const letra = letraElegida();
+    const dni = document.getElementById("facturaDni").value.replace(/\D/g, "");
+    const formas = [];
+    if (pagos.efectivo) formas.push("Efectivo " + formatoPesos(pagos.efectivo));
+    if (pagos.transferencia) formas.push("Transferencia " + formatoPesos(pagos.transferencia));
+    if (pagos.tarjeta) formas.push("Tarjeta " + formatoPesos(pagos.tarjeta));
+
+    document.getElementById("resumenComprobante").textContent = "Factura " + letra;
+    document.getElementById("resumenCliente").textContent = cliente.nombre;
+    document.getElementById("resumenDocumento").textContent = cliente.cuit ? "CUIT " + cliente.cuit
+        : (exigeDni(cliente, pagos.total) && dni ? "DNI " + dni : "Consumidor Final");
+    document.getElementById("resumenPago").innerHTML = formas.length ? formas.join("<br>") : "Efectivo";
+    document.getElementById("resumenTotal").textContent = formatoPesos(pagos.total);
+    mostrarModal("modalFacturaResumen");
+}
+
+// Botón de un solo uso: se desactiva al primer clic y no se puede volver a disparar.
+function confirmarFactura() {
+    const boton = document.getElementById("confirmarFacturaBtn");
+    if (boton.disabled) return;
+    boton.disabled = true;
+    boton.textContent = "FACTURANDO, ESPERÁ...";
+    document.getElementById("resumenVolverBtn").disabled = true;
+
+    const cliente = clienteVenta();
+    const dni = exigeDni(cliente, pagosVenta().total) ? document.getElementById("facturaDni").value.replace(/\D/g, "") : "";
+    enviarVenta("boleta", letraElegida(), dni);
+}
+
+function volverAlMenu() {
+    mostrarModal("modalConfirmacion");
+}
+
+function volverAlTipo() {
+    mostrarModal("modalFacturaTipo");
+}
+</script>
+<?php endif; ?>
 
 <script>
 function cambiarTipoCliente() {
