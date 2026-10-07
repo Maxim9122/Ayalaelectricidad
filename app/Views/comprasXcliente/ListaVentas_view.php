@@ -131,8 +131,16 @@
                 } else {
                     echo 'transparent'; // Fondo transparente si no coincide con ninguna condición
                 }
-            ?>; color: #ffff;"><?php echo $vta['estado']; ?></td>
-            <td><?php echo $vta['fecha_original']; ?></td>            
+            ?>; color: #ffff;"><?php echo $vta['estado']; ?>
+                <?php if (!empty($vta['factura_id'])): ?>
+                    <?php $etiquetas_fact = ['aprobada' => '', 'pendiente' => ' (pendiente)', 'pendiente_afip' => ' (pendiente AFIP)', 'rechazada' => ' (RECHAZADA)', 'error' => ' (ERROR)']; ?>
+                    <br><small title="<?php echo esc($vta['factura_error'] ?? ''); ?>">Fact. <?php echo $vta['tipo_factura'] . ' ' . ($vta['factura_numero'] ?? '') . ($etiquetas_fact[$vta['factura_estado']] ?? ''); ?></small>
+                    <?php if (!empty($vta['nc_estado'])): ?>
+                        <br><small title="<?php echo esc($vta['nc_error'] ?? ''); ?>">NC <?php echo ($vta['nc_numero'] ?? '') . ($etiquetas_fact[$vta['nc_estado']] ?? ''); ?></small>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </td>
+            <td><?php echo $vta['fecha_original']; ?></td>          
             <td style="color:orange;"><?php echo $vta['fecha_actual']; ?></td>
             <td style="color:orange;"><?php echo $vta['hora_actual']; ?></td>
             <td style="background-color: <?php
@@ -158,14 +166,44 @@
                     Ver Detalle
                 </a>
             </li>
+            <?php if (!empty($vta['factura_id'])): ?>
+                <?php if ($vta['factura_estado'] == 'aprobada'): ?>
+                    <li>
+                        <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" href="<?php echo base_url('facturacion/factura/'.$vta['id'].'/pdf'); ?>">
+                            Imp.Factura <?php echo $vta['tipo_factura']; ?>
+                        </a>
+                    </li>
+                    <?php if (empty($vta['nc_estado']) && $vta['estado'] != 'Cancelado' && $perfil): ?>
+                    <li>
+                        <a class="btnDesplegable" style="color:#ffff; background-color:#d52c0b; border-radius:10px; padding:8px;"
+                        href="#" onclick="abrirModalAnular('<?php echo base_url('facturacion/anular/'.$vta['id']); ?>'); return false;">
+                            Anular (Nota Crédito)
+                        </a>
+                    </li>
+                    <?php endif; ?>
+                <?php elseif ($vta['estado'] != 'Cancelado'): ?>
+                    <li>
+                        <a class="btnDesplegable" style="color:#ffff; background:#b8860b; border-radius:10px; padding:8px;" title="<?php echo esc($vta['factura_error'] ?? ''); ?>" href="<?php echo base_url('facturacion/reintentar/'.$vta['id']); ?>">
+                            <?php echo $vta['factura_estado'] == 'pendiente_afip' ? 'Consultar Factura' : 'Reintentar Factura'; ?>
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <?php if ($vta['nc_estado'] == 'aprobada'): ?>
+                    <li>
+                        <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" href="<?php echo base_url('facturacion/nota-credito/'.$vta['id'].'/pdf'); ?>">
+                            Imp.Nota Crédito
+                        </a>
+                    </li>
+                <?php elseif (!empty($vta['nc_estado'])): ?>
+                    <li>
+                        <a class="btnDesplegable" style="color:#ffff; background:#b8860b; border-radius:10px; padding:8px;" title="<?php echo esc($vta['nc_error'] ?? ''); ?>" href="<?php echo base_url('facturacion/nota-credito/reintentar/'.$vta['id']); ?>">
+                            Reintentar Nota Crédito
+                        </a>
+                    </li>
+                <?php endif; ?>
+            <?php endif; ?>
             <li>
-                <?php if($vta['estado'] == 'Facturada'){?>
-                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" href="<?php echo base_url('generarTicketFacturaC/'.$vta['id']); ?>">
-                        Imp.Factura
-                    </a>
-            </li>
-            <li>      
-                <?php  } if($vta['estado'] == 'Sin_Facturar' || $vta['estado'] == 'Modificada_SF'){  ?>
+                <?php if($vta['estado'] == 'Sin_Facturar' || $vta['estado'] == 'Modificada_SF'){  ?>
                     <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px;  padding:8px;" href="<?php echo base_url('generarTicket/'.$vta['id']); ?>">
                         Imp.Boleta
                     </a>
@@ -176,28 +214,27 @@
                     </a>
                 </li>
                 <?php if($estado == '' && $perfil) {?>
-                    <li>                
-                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" 
+                    <?php if (empty($vta['factura_id'])) { // con factura electrónica no se modifica ?>
+                    <li>
+                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;"
                     href="#" onclick="abrirModal('<?php echo base_url('modificarVenta_SF/'.$vta['id']); ?>'); return false;">
                         Modificar
-                    </a>                
+                    </a>
                     </li>
+                    <?php } ?>
 
-                    <li>                
-                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" 
+                    <?php if (empty($vta['factura_id']) || in_array($vta['factura_estado'], ['rechazada', 'error'])) { // si no, se anula con NC ?>
+                    <li>
+                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;"
                     href="#" onclick="abrirModalCancelar('<?php echo base_url('cancelarVenta/'.$vta['id']); ?>'); return false;">
                         CancelarVta
-                    </a>                
+                    </a>
                     </li>
+                    <?php } ?>
 
                 <?php  } ?>
-            <li>      
-                <?php } if($vta['estado'] == 'Error_factura') { ?>
-                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" href="<?php echo base_url('verificarTA/'.$vta['id']); ?>">
-                        Re.Facturar
-                    </a>
-                <?php } ?> 
-            </li>                                  
+                <?php } ?>
+            </li>
                     </ul>
                 </div>
 
@@ -267,6 +304,71 @@
         <button class="btn-confirmar" onclick="verificarCodigoCancelar()">Confirmar</button>
     </div>
 </div>
+<!-- Modal para Anular factura con Nota de Crédito -->
+<div id="modalAnular" class="modal">
+    <div class="modal-contenido">
+        <span class="cerrar" onclick="cerrarModalAnular()">&times;</span>
+        <h2 style="color: white;">Anular Factura (Nota de Crédito)</h2>
+        <h2 style="color: orange;">Se emite una Nota de Crédito por el 100% de la factura, los productos vuelven al Stock y la venta queda Cancelada.</h2>
+        <form id="formAnular" method="POST" action="">
+            <input type="hidden" name="codigo" id="codigoAnularHidden">
+            <textarea name="motivo" id="motivoAnular" maxlength="1000" rows="3" placeholder="Motivo de la anulación (obligatorio)" style="width: 100%;"></textarea>
+        </form>
+        <input type="password" id="codigoInputAnular" placeholder="Ingrese el código">
+        <button class="btn-confirmar" onclick="verificarCodigoAnular()">Confirmar</button>
+    </div>
+</div>
+<script>
+// Envía la acción por POST con el código: el servidor lo vuelve a validar (no alcanza con el chequeo de JS).
+function enviarConCodigo(url, codigo) {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = url;
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "codigo";
+    input.value = codigo;
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function abrirModalAnular(url) {
+    document.getElementById("formAnular").action = url;
+    document.getElementById("motivoAnular").value = "";
+    document.getElementById("codigoInputAnular").value = "";
+    document.getElementById("modalAnular").style.display = "block";
+    document.getElementById("motivoAnular").focus();
+}
+
+function cerrarModalAnular() {
+    document.getElementById("modalAnular").style.display = "none";
+}
+
+function verificarCodigoAnular() {
+    if (document.getElementById("motivoAnular").value.trim() === "") {
+        alert("El motivo es obligatorio.");
+        return;
+    }
+    const codigoIngresado = document.getElementById("codigoInputAnular").value.trim();
+
+    fetch("<?= base_url('verificar-codigo') ?>", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "codigo=" + encodeURIComponent(codigoIngresado)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById("codigoAnularHidden").value = codigoIngresado;
+            document.getElementById("formAnular").submit();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => console.error("Error en la verificación:", error));
+}
+</script>
 <script>
     let urlRedireccion = ""; // Para almacenar la URL de redirección
 let urlRedireccionCancelar = ""; // Para almacenar la URL de redirección de CancelarVta
@@ -289,12 +391,12 @@ function verificarCodigo() {
     fetch("<?= base_url('verificar-codigo') ?>", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `codigo=${codigoIngresado}`
+        body: "codigo=" + encodeURIComponent(codigoIngresado)
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.location.href = urlRedireccion; // Redirige si el código es correcto
+            enviarConCodigo(urlRedireccion, codigoIngresado); // El servidor vuelve a validar el código
         } else {
             alert(data.message); // Mensaje desde el backend
         }
@@ -320,12 +422,12 @@ function verificarCodigoCancelar() {
     fetch("<?= base_url('verificar-codigo') ?>", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `codigo=${codigoIngresado}`
+        body: "codigo=" + encodeURIComponent(codigoIngresado)
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.location.href = urlRedireccionCancelar; // Redirige si el código es correcto
+            enviarConCodigo(urlRedireccionCancelar, codigoIngresado); // El servidor vuelve a validar el código
         } else {
             alert(data.message); // Mensaje desde el backend
         }
@@ -333,28 +435,33 @@ function verificarCodigoCancelar() {
     .catch(error => console.error("Error en la verificación:", error));
 }
 
-// Permitir que presionar "Enter" envíe el código automáticamente
-document.getElementById("codigoInput").addEventListener("keyup", function(event) {
-    if (event.key === "Enter") { 
-        verificarCodigo();
-    }
-});
+// El modal de Modificar (#modalCodigo) está más abajo en la página: los listeners se
+// registran cuando el HTML ya terminó de cargar.
+document.addEventListener("DOMContentLoaded", function () {
+    // Permitir que presionar "Enter" envíe el código automáticamente
+    document.getElementById("codigoInput").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+            verificarCodigo();
+        }
+    });
 
-document.getElementById("codigoInputCancelar").addEventListener("keyup", function(event) {
-    if (event.key === "Enter") { 
-        verificarCodigoCancelar();
-    }
+    document.getElementById("codigoInputCancelar").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+            verificarCodigoCancelar();
+        }
+    });
 });
 
 // Cerrar modales al hacer clic fuera del contenido
 window.onclick = function(event) {
-    const modal = document.getElementById("modalCodigo");
-    const modalCancelar = document.getElementById("modalCancelar");
-    if (event.target === modal) {
+    if (event.target === document.getElementById("modalCodigo")) {
         cerrarModal();
     }
-    if (event.target === modalCancelar) {
+    if (event.target === document.getElementById("modalCancelar")) {
         cerrarModalCancelar();
+    }
+    if (event.target === document.getElementById("modalAnular")) {
+        cerrarModalAnular();
     }
 };
 </script>
@@ -508,54 +615,6 @@ window.onclick = function(event) {
 </style>
 
 
-<script>
-let urlRedireccion = ""; // Para almacenar la URL de redirección
-
-function abrirModal(url) {
-    urlRedireccion = url; // Guarda la URL a la que se redirigirá después
-    document.getElementById("modalCodigo").style.display = "block";
-    document.getElementById("codigoInput").value = ""; // Limpia el input
-    document.getElementById("codigoInput").focus(); // Enfoca el campo de entrada
-}
-
-function cerrarModal() {
-    document.getElementById("modalCodigo").style.display = "none";
-}
-
-function verificarCodigo() {
-    const codigoIngresado = document.getElementById("codigoInput").value.trim();
-
-    fetch("<?= base_url('verificar-codigo') ?>", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `codigo=${codigoIngresado}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.href = urlRedireccion; // Redirige si el código es correcto
-        } else {
-            alert(data.message); // Mensaje desde el backend
-        }
-    })
-    .catch(error => console.error("Error en la verificación:", error));
-}
-
-// Permitir que presionar "Enter" envíe el código automáticamente
-document.getElementById("codigoInput").addEventListener("keyup", function(event) {
-    if (event.key === "Enter") { 
-        verificarCodigo();
-    }
-});
-
-// Cerrar modal al hacer clic fuera del contenido
-window.onclick = function(event) {
-    const modal = document.getElementById("modalCodigo");
-    if (event.target === modal) {
-        cerrarModal();
-    }
-};
-</script>
 
 
 

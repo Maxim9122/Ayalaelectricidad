@@ -165,6 +165,9 @@
           <li class="nnavItem">
             <a href="<?= base_url('Lista_Productos')?>" class="btn">ABM_PRODUCTOS</a>
           </li>
+          <li class="nnavItem">
+            <a href="<?= base_url('facturacion')?>" class="btn">FACTURACIÓN</a>
+          </li>
           <!--
           <li class="nnavItem">
             <a href="<?= base_url('ListaCategorias')?>" class="btn">P_Categorias</a>

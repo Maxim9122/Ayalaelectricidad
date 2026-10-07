@@ -30,3 +30,6 @@ app/Libraries/afip/
 # Ticket de acceso AFIP/ARCA (token y firma)
 /writable/facturacionARCA/*
 !/writable/facturacionARCA/.gitkeep
+
+# Cache de metricas de fuentes que genera dompdf
+*.ufm.json

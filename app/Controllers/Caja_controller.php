@@ -9,6 +9,8 @@ Use App\Models\Clientes_model;
 use App\Models\Usuarios_model;
 use App\Models\Cae_model;
 use App\Models\Vendedores_model;
+use App\Models\Factura_model;
+use App\Models\ConfiguracionFacturacion_model;
 
 class Caja_controller extends Controller{
 
@@ -16,12 +18,16 @@ class Caja_controller extends Controller{
            helper(['form', 'url']);
 	}
 //verificacion de codigo de acceso
+    // Solo da feedback rápido al navegador: cada acción protegida vuelve a validar el código en el servidor.
     public function verificarCodigo()
     {
-        $codigoCorrecto = "7559"; // Código estático en el backend
-        $codigoIngresado = $this->request->getPost('codigo');
+        if (!session()->has('id')) {
+            return $this->response->setStatusCode(401)->setJSON(['success' => false, 'message' => 'Sesión vencida. Volvé a ingresar.']);
+        }
 
-        if ($codigoIngresado === $codigoCorrecto) {
+        $codigoIngresado = (string) $this->request->getPost('codigo');
+
+        if ((new ConfiguracionFacturacion_model())->verificarCodigoAutorizacion($codigoIngresado)) {
             return $this->response->setJSON(['success' => true]);
         } else {
             return $this->response->setJSON(['success' => false, 'message' => 'Código incorrecto. Intente de nuevo.']);
@@ -282,6 +288,22 @@ public function Venta_cancelar($id_pedido)
     $detalle_model = new VentaDetalle_model();
     $producto_model = new Productos_model();
 
+    $venta = $cabecera_model->find($id_pedido);
+
+    // Cancelar una venta ya cobrada exige el código de autorización (un Pedido Pendiente no).
+    if ($venta && $venta['estado'] != 'Pendiente'
+        && !(new ConfiguracionFacturacion_model())->verificarCodigoAutorizacion((string) $this->request->getPost('codigo'))) {
+        session()->setFlashdata('msgEr', 'Código de autorización incorrecto. La venta no se canceló.');
+        return redirect()->to($this->request->getHeaderLine('referer') ?: base_url('compras'));
+    }
+
+    // Con factura aprobada o pendiente de AFIP, la única forma de cancelar es la Nota de Crédito.
+    $factura = $venta && $venta['factura_id'] ? (new Factura_model())->find($venta['factura_id']) : null;
+    if ($factura && !Factura_model::fallo($factura)) {
+        session()->setFlashdata('msgEr', 'Esta venta tiene factura electrónica. Para cancelarla usá "Anular (Nota de Crédito)".');
+        return redirect()->to($this->request->getHeaderLine('referer') ?: base_url('compras'));
+    }
+
     // Obtener los detalles de la Venta
     $detalles = $detalle_model->where('venta_id', $id_pedido)->findAll();
 
@@ -322,8 +344,25 @@ public function cargar_Venta_Sin_Facturar($id_pedido)
     $cabecera_model = new Cabecera_model(); // Asegúrate de tener este modelo
     $producto_model = new Productos_model();
 
+    if (!$session->has('id')) {
+        return redirect()->to(base_url('login'));
+    }
+
+    // Modificar una venta ya cobrada exige el código de autorización.
+    if (!(new ConfiguracionFacturacion_model())->verificarCodigoAutorizacion((string) $this->request->getPost('codigo'))) {
+        session()->setFlashdata('msgEr', 'Código de autorización incorrecto.');
+        return redirect()->to($this->request->getHeaderLine('referer') ?: base_url('compras'));
+    }
+
     // Obtener los datos de la cabecera de la venta para obtener el id_cliente
     $cabecera = $cabecera_model->find($id_pedido);
+
+    // Una venta con factura electrónica no se modifica: el importe ya se informó a AFIP.
+    if ($cabecera && $cabecera['factura_id']) {
+        session()->setFlashdata('msgEr', 'Esta venta tiene factura electrónica y no se puede modificar. Si hace falta, anulala con Nota de Crédito.');
+        return redirect()->to($this->request->getHeaderLine('referer') ?: base_url('compras'));
+    }
+
     if($cabecera['estado'] == 'Sin_Facturar' || $cabecera['estado'] == 'Modificada_SF'){
     $id_vendedor = $cabecera ? $cabecera['id_usuario'] : null;
     $vendedor = $US_model->find($id_vendedor);

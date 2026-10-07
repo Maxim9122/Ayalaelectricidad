@@ -40,10 +40,10 @@ $routes->get('cancelarCobro/(:num)', 'Caja_controller::CancelarCobro/$1');
 $routes->get('modificarVenta/(:num)', 'Caja_controller::cargar_Venta_en_Carrito/$1');
 $routes->get('cancelar_edicion_Venta/(:num)', 'Caja_controller::cancelar_edicion_Venta/$1');
 $routes->post('ventaModificada', 'Caja_controller::ModificarVenta');
-$routes->get('cancelarVenta/(:num)', 'Caja_controller::Venta_cancelar/$1');
+$routes->match(['get', 'post'], 'cancelarVenta/(:num)', 'Caja_controller::Venta_cancelar/$1'); // POST con codigo para ventas cobradas
 $routes->get('cobrarPedido/(:num)', 'Caja_controller::CargarVenta/$1');
 //Venta Sin Facturar
-$routes->get('modificarVenta_SF/(:num)', 'Caja_controller::cargar_Venta_Sin_Facturar/$1');
+$routes->post('modificarVenta_SF/(:num)', 'Caja_controller::cargar_Venta_Sin_Facturar/$1'); // exige codigo de autorizacion
 $routes->get('cancelar_edicion_Venta_SF/(:num)', 'Caja_controller::cancelar_edicion_Venta_SF/$1');
 //Verificacion de codigo de acceso
 $routes->post('verificar-codigo', 'Caja_controller::verificarCodigo');
@@ -185,17 +185,28 @@ $routes->get('PDF/(:num)', 'Carrito_controller::FacturaAdmin/$1');
 $routes->get('turnos/(:num)', 'Carrito_controller::ListaTurnosCabeceraCliente/$1');
 $routes->get('factura/(:num)', 'Carrito_controller::FacturaCliente/$1');
 
-//AFIP
-$routes->get('verificarTA','Carrito_controller::verificarTA');
-$routes->get('generarTicket', 'Carrito_controller::facturar');
+//Facturacion electronica (API externa AFIP/ARCA)
+$routes->get('facturacion', 'Facturacion_controller::configuracion');
+$routes->post('facturacion', 'Facturacion_controller::guardarConfiguracion');
+$routes->post('facturacion/onboarding', 'Facturacion_controller::iniciarOnboarding');
+$routes->get('facturacion/reintentar/(:num)', 'Facturacion_controller::reintentarFactura/$1');
+$routes->post('facturacion/anular/(:num)', 'Facturacion_controller::anularFactura/$1');
+$routes->get('facturacion/nota-credito/reintentar/(:num)', 'Facturacion_controller::reintentarNotaCredito/$1');
+$routes->get('facturacion/factura/(:num)/pdf', 'Facturacion_controller::pdfFactura/$1');
+$routes->get('facturacion/nota-credito/(:num)/pdf', 'Facturacion_controller::pdfNotaCredito/$1');
+$routes->get('facturacion/imprimir/(:num)', 'Facturacion_controller::imprimirFactura/$1');
+
+//Webhooks de la API de facturacion: publicos, autenticados por firma HMAC (X-Signature)
+$routes->post('api/webhooks/facturacion/onboarding', 'FacturacionWebhook_controller::onboarding');
+$routes->post('api/webhooks/facturacion/comprobantes', 'FacturacionWebhook_controller::comprobantes');
+$routes->post('webhooks/facturacion/onboarding', 'FacturacionWebhook_controller::onboarding');
+$routes->post('webhooks/facturacion/comprobantes', 'FacturacionWebhook_controller::comprobantes');
 
 $routes->get('descargar_ticket', 'Carrito_controller::descargar_ticket');
 
-$routes->get('verificarTA/(:num)','Carrito_controller::verificarTA/$1');
 $routes->get('generarTicket/(:num)', 'Carrito_controller::generarTicket/$1');
 $routes->get('DescargarBole/(:num)', 'Carrito_controller::DescargarBole/$1');
 $routes->get('DescargarPresupuesto/(:num)', 'Carrito_controller::DescargarPresupuesto/$1');
-$routes->get('generarTicketFacturaC/(:num)', 'Carrito_controller::generarTicketFacturaC/$1');
 $routes->get('generarPresupuesto/(:num)', 'Carrito_controller::generarPresupuesto/$1');
 $routes->get('impCta_Cte/(:num)', 'Carrito_controller::impCta_Cte/$1');
 

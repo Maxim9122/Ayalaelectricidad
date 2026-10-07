@@ -5,7 +5,7 @@ class Cabecera_model extends Model
 {
 	protected $table = 'ventas_cabecera';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['id_cae','monto_tarjetaC','monto_transferencia','monto_efectivo', 'costo_envio' ,'id_usuario','fecha', 'hora_registro', 'hora' ,'id_cliente', 'nombre_prov_client' , 'total_venta', 'tipo_pago' , 'total_bonificado', 'tipo_compra', 'fecha_pedido','hora_entrega' , 'estado', 'total_anterior', 'motivo'];
+    protected $allowedFields = ['tipo_comprobante','factura_id','id_cae','monto_tarjetaC','monto_transferencia','monto_efectivo', 'costo_envio' ,'id_usuario','fecha', 'hora_registro', 'hora' ,'id_cliente', 'nombre_prov_client' , 'total_venta', 'tipo_pago' , 'total_bonificado', 'tipo_compra', 'fecha_pedido','hora_entrega' , 'estado', 'total_anterior', 'motivo'];
 
     public function getVentasCabecera(){
       $db = db_connect();
@@ -143,10 +143,20 @@ class Cabecera_model extends Model
         u.total_bonificado,
         u.total_anterior,
         u.monto_efectivo,
-        u.monto_transferencia           
+        u.monto_transferencia,
+        u.factura_id,
+        f.tipo_factura,
+        f.estado AS factura_estado,
+        f.numero_comprobante AS factura_numero,
+        f.error_mensaje AS factura_error,
+        nc.estado AS nc_estado,
+        nc.numero_comprobante AS nc_numero,
+        nc.error_mensaje AS nc_error
     ");
     $builder->join('cliente c', 'u.id_cliente = c.id_cliente');
     $builder->join('vendedores v', 'u.id_usuario = v.id_vendedor');
+    $builder->join('facturas f', 'f.id = u.factura_id', 'left');
+    $builder->join('notas_credito nc', 'nc.factura_id = f.id', 'left');
     $builder->whereNotIn('u.estado', ['Pendiente','Cta_Cte']);
 
     if (!empty($filtros['estado'])) {

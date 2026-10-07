@@ -44,6 +44,9 @@ class Autoload extends AutoloadConfig
         'CodeIgniterCart' => ROOTPATH . 'vendor/jason-napolitano/codeigniter4-cart-module/src',
         'APP_NAMESPACE' => APPPATH, // For custom app namespace
         'Config'      => APPPATH . 'Config',
+        // QR oficial de AFIP en los comprobantes con CAE (RG 4892)
+        'chillerlan\QRCode'   => APPPATH . 'ThirdParty/chillerlan/php-qrcode/src',
+        'chillerlan\Settings' => APPPATH . 'ThirdParty/chillerlan/php-settings-container/src',
     ];
 
     /**

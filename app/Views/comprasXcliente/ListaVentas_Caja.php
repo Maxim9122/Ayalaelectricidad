@@ -12,7 +12,11 @@
         <div id="flash-message" class="flash-message success">
             <?= session()->getFlashdata('msg') ?>
         </div>
-    <?php endif; ?>   
+    <?php elseif (session()->getFlashdata('msgEr')): ?>
+        <div id="flash-message" class="flash-message danger">
+            <?= session()->getFlashdata('msgEr') ?>
+        </div>
+    <?php endif; ?>
     <script>
         setTimeout(function() {
             document.getElementById('flash-message').style.display = 'none';
@@ -126,7 +130,7 @@
                     <a href="#" 
                     style="color:#ffff; background-color:#d52c0b;" 
                     class="danger" 
-                    onclick="return confirmarAccionCancelar('<?php echo $vta['id']; ?>');">
+                    onclick="return confirmarAccionCancelar('<?php echo $vta['id']; ?>', '<?php echo $vta['estado']; ?>');">
                         Cancelar
                     </a>                
                     
@@ -228,18 +232,37 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function confirmarAccionCancelar(idVenta) {
+    // Un Pedido Pendiente se cancela solo con confirmar; una venta ya cobrada exige el código (lo valida el servidor).
+    function confirmarAccionCancelar(idVenta, estado) {
+        const pideCodigo = estado !== "Pendiente";
         Swal.fire({
             title: "¿Estás seguro?",
             text: "Esto eliminará la Venta y devolverá los productos.",
             icon: "warning",
+            input: pideCodigo ? "password" : undefined,
+            inputPlaceholder: "Código de autorización",
             showCancelButton: true,
             confirmButtonText: "Sí, Cancelar Venta",
             cancelButtonText: "No, Volver"
         }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "<?php echo base_url('cancelarVenta'); ?>/" + idVenta;
+            if (!result.isConfirmed) {
+                return;
             }
+            const url = "<?php echo base_url('cancelarVenta'); ?>/" + idVenta;
+            if (!pideCodigo) {
+                window.location.href = url;
+                return;
+            }
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = url;
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "codigo";
+            input.value = result.value || "";
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
         });
 
         return false; // Evita que el enlace siga su curso normal

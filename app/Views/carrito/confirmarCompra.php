@@ -374,6 +374,51 @@ endif;
                         <input class="selector" type="text" id="pagoEfectivo" name="pagoEfectivo" placeholder="Monto en $" maxlength="15" readonly>
                     </td>
                 </tr>
+
+                <?php
+                // Comprobante fiscal: solo aparece si la facturación electrónica está habilitada.
+                $config_fact = (new \App\Models\ConfiguracionFacturacion_model())->obtener();
+                $letras_fact = \App\Models\ConfiguracionFacturacion_model::letrasPermitidas($config_fact);
+                $predeterminado_fact = \App\Models\ConfiguracionFacturacion_model::comprobantePredeterminadoEfectivo($config_fact);
+                ?>
+                <?php if ($letras_fact): ?>
+                <tr id="comprobanteRow">
+                    <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff,
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>Comprobante:</strong></td>
+                    <td>
+                        <select name="tipo_comprobante" class="selector">
+                            <option value="remito" <?= $predeterminado_fact == 'remito' ? 'selected' : '' ?>>Remito</option>
+                            <?php foreach ($letras_fact as $letra_fact): ?>
+                                <option value="<?= $letra_fact ?>" <?= $predeterminado_fact == $letra_fact ? 'selected' : '' ?>>Factura <?= $letra_fact ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <br><small style="color:black;">La Cuenta Corriente se registra siempre con Remito.<?= in_array('A', $letras_fact) ? ' Factura A requiere cliente registrado con CUIT.' : '' ?></small>
+                    </td>
+                </tr>
+                <?php $tope_dni_fact = (float) ($config_fact['monto_identificar_consumidor'] ?? 0); ?>
+                <tr id="dniCompradorRow">
+                    <td style="color:black; text-shadow: -1px -1px 0 #ffff, 1px -1px 0 #ffff,
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;"><strong>DNI del comprador:</strong></td>
+                    <td>
+                        <input class="selector" type="text" name="dni_comprador" id="dniComprador" maxlength="10" inputmode="numeric" placeholder="Solo números">
+                        <br><small style="color:black;">Obligatorio para facturar a consumidor final desde $ <?= number_format($tope_dni_fact, 0, ',', '.') ?> (ARCA).</small>
+                    </td>
+                </tr>
+                <script>
+                // Aviso rápido: el bloqueo real lo hace el servidor al guardar.
+                function faltaDniComprador(proceso) {
+                    const comprobante = document.querySelector('select[name="tipo_comprobante"]');
+                    const total = parseFloat(document.querySelector('input[name="total_venta"]').value) || 0;
+                    const tipoCliente = document.getElementById("tipo_cliente");
+                    const clienteSel = document.querySelector('select[name="cliente_id"]');
+                    const consumidorFinal = (tipoCliente && tipoCliente.value === "no_registrado") || (clienteSel && clienteSel.value === "Anonimo");
+                    const dni = (document.getElementById("dniComprador").value || "").replace(/\D/g, "");
+                    return proceso !== "cta_cte" && comprobante && comprobante.value !== "remito"
+                        && <?= json_encode($tope_dni_fact) ?> > 0 && total >= <?= json_encode($tope_dni_fact) ?>
+                        && consumidorFinal && !/^\d{7,8}$/.test(dni);
+                }
+                </script>
+                <?php endif; ?>
                 <?php endif; ?>
 
                 <tr id="fechaPedidoFila" style="display: <?php echo !empty($fecha_pedido) ? 'table-row' : 'none'; ?>;">
@@ -482,6 +527,7 @@ endif;
     const tipoCompra = document.getElementById("tipoCompra").value;
     const transferenciaRow = document.getElementById("transferenciaRow");
     const efectivoRow = document.getElementById("efectivoRow");
+    const comprobanteRow = document.getElementById("comprobanteRow");
     const fechaPedidoFila = document.getElementById("fechaPedidoFila");
     const registrarPedidoBtn = document.getElementById("registrarPedidoBtn");
     const registrarCompraBtn = document.getElementById("registrarCompraBtn");
@@ -490,12 +536,16 @@ endif;
     if (tipoCompra === "Pedido" || estadoModificando) {
         if (transferenciaRow) transferenciaRow.style.display = "none";
         if (efectivoRow) efectivoRow.style.display = "none";
+        if (comprobanteRow) comprobanteRow.style.display = "none";
+        if (document.getElementById("dniCompradorRow")) document.getElementById("dniCompradorRow").style.display = "none";
         fechaPedidoFila.style.display = "table-row";
         registrarPedidoBtn.style.display = "inline-block";
         registrarCompraBtn.style.display = "none";
     } else {
         if (transferenciaRow) transferenciaRow.style.display = "table-row";
         if (efectivoRow) efectivoRow.style.display = "table-row";
+        if (comprobanteRow) comprobanteRow.style.display = "table-row";
+        if (document.getElementById("dniCompradorRow")) document.getElementById("dniCompradorRow").style.display = "table-row";
         fechaPedidoFila.style.display = "none";
         registrarPedidoBtn.style.display = "none";
         registrarCompraBtn.style.display = "inline-block";
@@ -875,6 +925,12 @@ document.getElementById('registrarCompraBtn').addEventListener('click', function
 });
 
 function seleccionarProceso(valor) {
+    if (typeof faltaDniComprador === "function" && faltaDniComprador(valor)) {
+        alert("Para este importe ARCA exige el DNI del comprador (7 u 8 dígitos).");
+        cerrarModalP();
+        document.getElementById("dniComprador").focus();
+        return;
+    }
     document.querySelector('input[name="tipo_proceso"]').value = valor;
     cerrarModal();
     document.querySelector('form').submit();
