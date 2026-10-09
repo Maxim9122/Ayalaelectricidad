@@ -98,7 +98,8 @@ ALTER TABLE `ventas_cabecera`
 -- ============================================================
 
 -- Código de autorización (cancelar/modificar ventas cobradas, anular facturas).
--- Se guarda como hash (password_hash); el valor inicial es el código que ya se usaba: 7559.
+-- Se guarda como hash (password_hash); el valor inicial es el código que ya se usaba.
+-- Cambialo desde Facturación > Código de autorización después de instalar.
 ALTER TABLE `configuracion_facturacion`
   ADD COLUMN IF NOT EXISTS `codigo_autorizacion_hash` varchar(255) DEFAULT NULL,
   -- Desde este importe ARCA exige identificar al consumidor final (RG 5866/2026: $10.000.000).
