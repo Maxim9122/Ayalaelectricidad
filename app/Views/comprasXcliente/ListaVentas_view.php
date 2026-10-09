@@ -170,34 +170,34 @@
                 <?php if ($vta['factura_estado'] == 'aprobada'): ?>
                     <li>
                         <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" href="<?php echo base_url('facturacion/factura/'.$vta['id'].'/pdf'); ?>">
-                            Imp.Factura <?php echo $vta['tipo_factura']; ?>
+                            Imp. Fact. <?php echo $vta['tipo_factura']; ?>
                         </a>
                     </li>
                     <?php if (empty($vta['nc_estado']) && $vta['estado'] != 'Cancelado' && $perfil): ?>
                     <li>
                         <a class="btnDesplegable" style="color:#ffff; background-color:#d52c0b; border-radius:10px; padding:8px;"
-                        href="#" onclick="abrirModalAnular('<?php echo base_url('facturacion/anular/'.$vta['id']); ?>'); return false;">
-                            Anular (Nota Crédito)
+                        href="#" onclick="abrirModalAnular('<?php echo base_url('facturacion/anular/'.$vta['id']); ?>', <?php echo esc(json_encode(['venta' => (int) $vta['id'], 'factura' => 'Factura ' . $vta['tipo_factura'] . ' ' . $vta['factura_numero'], 'total' => (float) $vta['total_bonificado'], 'cliente' => $vta['nombre_cliente']]), 'attr'); ?>); return false;">
+                            Nota Crédito
                         </a>
                     </li>
                     <?php endif; ?>
                 <?php elseif ($vta['estado'] != 'Cancelado'): ?>
                     <li>
                         <a class="btnDesplegable" style="color:#ffff; background:#b8860b; border-radius:10px; padding:8px;" title="<?php echo esc($vta['factura_error'] ?? ''); ?>" href="<?php echo base_url('facturacion/reintentar/'.$vta['id']); ?>">
-                            <?php echo $vta['factura_estado'] == 'pendiente_afip' ? 'Consultar Factura' : 'Reintentar Factura'; ?>
+                            <?php echo $vta['factura_estado'] == 'pendiente_afip' ? 'Consultar Fact.' : 'Reint. Fact.'; ?>
                         </a>
                     </li>
                 <?php endif; ?>
                 <?php if ($vta['nc_estado'] == 'aprobada'): ?>
                     <li>
                         <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" href="<?php echo base_url('facturacion/nota-credito/'.$vta['id'].'/pdf'); ?>">
-                            Imp.Nota Crédito
+                            Imp. NC
                         </a>
                     </li>
                 <?php elseif (!empty($vta['nc_estado'])): ?>
                     <li>
                         <a class="btnDesplegable" style="color:#ffff; background:#b8860b; border-radius:10px; padding:8px;" title="<?php echo esc($vta['nc_error'] ?? ''); ?>" href="<?php echo base_url('facturacion/nota-credito/reintentar/'.$vta['id']); ?>">
-                            Reintentar Nota Crédito
+                            Reint. NC
                         </a>
                     </li>
                 <?php endif; ?>
@@ -315,7 +315,24 @@
             <textarea name="motivo" id="motivoAnular" maxlength="1000" rows="3" placeholder="Motivo de la anulación (obligatorio)" style="width: 100%;"></textarea>
         </form>
         <input type="password" id="codigoInputAnular" placeholder="Ingrese el código">
-        <button class="btn-confirmar" onclick="verificarCodigoAnular()">Confirmar</button>
+        <button class="btn-confirmar" onclick="verificarCodigoAnular()">Continuar</button>
+    </div>
+</div>
+
+<!-- Confirmación final de la Nota de Crédito (botón de un solo uso) -->
+<div id="modalAnularConfirmar" class="modal">
+    <div class="modal-contenido">
+        <h2 style="color: white;">¿Emitir la Nota de Crédito?</h2>
+        <table style="width: 100%; color: white; text-align: left; font-size: 15px; margin: 10px 0;">
+            <tr><td>Venta</td><td style="text-align: right;"><strong id="ncResumenVenta"></strong></td></tr>
+            <tr><td>Anula</td><td style="text-align: right;"><strong id="ncResumenFactura"></strong></td></tr>
+            <tr><td>Cliente</td><td style="text-align: right;"><strong id="ncResumenCliente"></strong></td></tr>
+            <tr><td>Importe</td><td style="text-align: right;"><strong id="ncResumenTotal"></strong></td></tr>
+            <tr><td>Motivo</td><td style="text-align: right;"><strong id="ncResumenMotivo"></strong></td></tr>
+        </table>
+        <h2 style="color: orange; font-size: 15px;">Se envía a ARCA y no se puede deshacer. La venta queda Cancelada y los productos vuelven al Stock.</h2>
+        <button class="btn-confirmar" id="confirmarNcBtn" onclick="confirmarNotaCredito()">Sí, emitir Nota de Crédito</button>
+        <button class="btn-confirmar" id="volverNcBtn" style="background: #777;" onclick="volverAnular()">Volver</button>
     </div>
 </div>
 <script>
@@ -333,12 +350,42 @@ function enviarConCodigo(url, codigo) {
     form.submit();
 }
 
-function abrirModalAnular(url) {
+let datosAnular = null;
+
+function abrirModalAnular(url, datos) {
+    datosAnular = datos || {};
     document.getElementById("formAnular").action = url;
     document.getElementById("motivoAnular").value = "";
     document.getElementById("codigoInputAnular").value = "";
     document.getElementById("modalAnular").style.display = "block";
     document.getElementById("motivoAnular").focus();
+}
+
+// Paso 2: resumen de lo que se va a hacer, con el código ya verificado.
+function mostrarConfirmacionNotaCredito() {
+    const total = Number(datosAnular.total || 0);
+    document.getElementById("ncResumenVenta").textContent = "#" + (datosAnular.venta || "");
+    document.getElementById("ncResumenFactura").textContent = datosAnular.factura || "";
+    document.getElementById("ncResumenCliente").textContent = datosAnular.cliente || "Consumidor Final";
+    document.getElementById("ncResumenTotal").textContent = "$ " + total.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById("ncResumenMotivo").textContent = document.getElementById("motivoAnular").value.trim();
+    document.getElementById("modalAnular").style.display = "none";
+    document.getElementById("modalAnularConfirmar").style.display = "block";
+}
+
+function volverAnular() {
+    document.getElementById("modalAnularConfirmar").style.display = "none";
+    document.getElementById("modalAnular").style.display = "block";
+}
+
+// Botón de un solo uso: se desactiva al primer clic para no emitir dos veces.
+function confirmarNotaCredito() {
+    const boton = document.getElementById("confirmarNcBtn");
+    if (boton.disabled) return;
+    boton.disabled = true;
+    boton.textContent = "Emitiendo, esperá...";
+    document.getElementById("volverNcBtn").disabled = true;
+    document.getElementById("formAnular").submit();
 }
 
 function cerrarModalAnular() {
@@ -361,7 +408,7 @@ function verificarCodigoAnular() {
     .then(data => {
         if (data.success) {
             document.getElementById("codigoAnularHidden").value = codigoIngresado;
-            document.getElementById("formAnular").submit();
+            mostrarConfirmacionNotaCredito();
         } else {
             alert(data.message);
         }
