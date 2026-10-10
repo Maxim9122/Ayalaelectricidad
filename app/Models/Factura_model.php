@@ -17,7 +17,7 @@ class Factura_model extends Model
     protected $returnType = 'array';
     protected $useTimestamps = true;
     protected $allowedFields = [
-        'venta_id', 'cliente_id', 'cliente_nombre', 'cliente_cuit', 'cliente_dni', 'tipo_factura', 'importe_total',
+        'venta_id', 'cliente_id', 'cliente_nombre', 'cliente_cuit', 'cliente_dni', 'cliente_condicion_iva', 'tipo_factura', 'importe_total',
         'numero_comprobante', 'comprobante_externo_id', 'cae', 'cae_vencimiento', 'estado', 'error_mensaje', 'intento',
     ];
 
@@ -29,6 +29,17 @@ class Factura_model extends Model
     public static function estaAprobada(array $factura): bool
     {
         return $factura['estado'] === self::ESTADO_APROBADA && !empty($factura['cae']);
+    }
+
+    /**
+     * Campo `cliente_condicion_iva` para la API. Si la factura no lo tiene (facturas viejas),
+     * no se manda y la API usa su default (A: Responsable Inscripto, B/C: Consumidor Final).
+     */
+    public static function condicionIvaParaApi(array $factura): array
+    {
+        return empty($factura['cliente_condicion_iva'])
+            ? []
+            : ['cliente_condicion_iva' => (int) $factura['cliente_condicion_iva']];
     }
 
     /**

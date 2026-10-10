@@ -70,7 +70,17 @@
   <?php } ?>
 
 
-  </div>  
+  </div>
+
+  <div>
+       <label for="condicionIva" style="color:black;">Condición frente al IVA</label>
+       <select name="condicion_iva" id="condicionIva" class="form-control">
+           <option value="" <?= empty($data['condicion_iva']) ? 'selected' : '' ?>>— Sin especificar —</option>
+           <?php foreach (\App\Libraries\Facturacion\CondicionIva::OPCIONES as $codigo => $nombre): ?>
+               <option value="<?= $codigo ?>" <?= (int) ($data['condicion_iva'] ?? 0) === $codigo ? 'selected' : '' ?>><?= esc($nombre) ?></option>
+           <?php endforeach; ?>
+       </select>
+  </div>
 
     
 

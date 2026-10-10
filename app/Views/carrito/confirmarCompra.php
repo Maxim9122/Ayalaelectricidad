@@ -320,7 +320,7 @@ endif;
                                 <option value="Anonimo">Consumidor Final</option>
                                 <?php foreach ($clientes as $cl): ?>
                                     <?php $cuit_cl = preg_replace('/\D/', '', (string) ($cl['cuil'] ?? '')); ?>
-                                    <option value="<?php echo $cl['id_cliente']; ?>" data-cuit="<?= strlen($cuit_cl) === 11 ? $cuit_cl : '' ?>" <?php echo $cl['id_cliente'] == $id_cliente ? 'selected' : ''; ?>>
+                                    <option value="<?php echo $cl['id_cliente']; ?>" data-cuit="<?= strlen($cuit_cl) === 11 ? $cuit_cl : '' ?>" data-condicion="<?= (int) ($cl['condicion_iva'] ?? 0) ?: '' ?>" <?php echo $cl['id_cliente'] == $id_cliente ? 'selected' : ''; ?>>
                                         <?php echo $cl['nombre']; ?> <?php echo "-- DIR:" . $cl['direccion']; ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -440,6 +440,7 @@ endif;
             <!-- Los completa el modal de FACTURAR; por defecto todo sale con Remito -->
             <input type="hidden" name="tipo_comprobante" id="tipoComprobante" value="remito">
             <input type="hidden" name="dni_comprador" id="dniCompradorHidden" value="">
+            <input type="hidden" name="condicion_iva" id="condicionIvaHidden" value="">
                 
             <?php if ($gran_total > 0 || $total_venta > 0) { ?>
     
@@ -798,6 +799,8 @@ if ($puede_facturar && $estado == 'Cobrando' && $id_pedido) {
     $cliente_cobro = [
         'nombre' => $nombre_cli ?: 'Consumidor Final',
         'cuit'   => (new \App\Libraries\Facturacion\FacturaVentaService())->cuitDelCliente($venta_cobro['id_cliente'] ?? 1) ?? '',
+        'registrado' => (int) ($venta_cobro['id_cliente'] ?? 1) > 1,
+        'condicion' => (int) ((new \App\Models\Clientes_model())->find($venta_cobro['id_cliente'] ?? 1)['condicion_iva'] ?? 0) ?: null,
     ];
 }
 ?>
@@ -834,6 +837,16 @@ if ($puede_facturar && $estado == 'Cobrando' && $id_pedido) {
         <?php endforeach; ?>
     </div>
     <p class="factura-cliente">Cliente: <strong id="facturaClienteNombre"></strong><br><span id="facturaClienteDoc"></span></p>
+    <div id="facturaCondicionFila" style="display: none;">
+        <label for="facturaCondicion" class="factura-label">Condición frente al IVA del cliente</label>
+        <select id="facturaCondicion" onchange="actualizarPasoTipo()">
+            <option value="">— Elegir —</option>
+            <?php foreach (\App\Libraries\Facturacion\CondicionIva::OPCIONES as $cod_iva => $nom_iva): ?>
+                <option value="<?= $cod_iva ?>"><?= esc($nom_iva) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <small class="factura-ayuda-chica">Este cliente no la tiene cargada: se le guarda para las próximas veces.</small>
+    </div>
     <div id="facturaDniFila" style="display: none;">
         <label for="facturaDni" class="factura-label">DNI del comprador (obligatorio desde $ <?= number_format($tope_dni_fact, 0, ',', '.') ?>)</label>
         <input type="text" id="facturaDni" maxlength="10" inputmode="numeric" placeholder="Solo números" oninput="actualizarPasoTipo()">
@@ -852,6 +865,7 @@ if ($puede_facturar && $estado == 'Cobrando' && $id_pedido) {
         <tr><td>Comprobante</td><td id="resumenComprobante"></td></tr>
         <tr><td>Cliente</td><td id="resumenCliente"></td></tr>
         <tr><td>Documento</td><td id="resumenDocumento"></td></tr>
+        <tr><td>Condición IVA</td><td id="resumenCondicion"></td></tr>
         <tr><td>Forma de pago</td><td id="resumenPago"></td></tr>
         <tr class="factura-total"><td>Total a facturar</td><td id="resumenTotal"></td></tr>
     </table>
@@ -991,6 +1005,20 @@ if ($puede_facturar && $estado == 'Cobrando' && $id_pedido) {
     font-size: 13px;
     margin-bottom: 4px;
 }
+#facturaCondicion {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    margin-bottom: 2px;
+}
+.factura-ayuda-chica {
+    display: block;
+    color: #666;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
 #facturaDni {
     width: 100%;
     padding: 8px;
@@ -1049,13 +1077,14 @@ document.getElementById('registrarCompraBtn').addEventListener('click', function
 
 // El formulario de la venta es el que contiene los campos ocultos del comprobante.
 let ventaEnviada = false;
-function enviarVenta(proceso, comprobante, dni) {
+function enviarVenta(proceso, comprobante, dni, condicion) {
     if (ventaEnviada) {
         return; // evita mandar dos veces la misma venta
     }
     ventaEnviada = true;
     document.getElementById("tipoComprobante").value = comprobante;
     document.getElementById("dniCompradorHidden").value = dni;
+    document.getElementById("condicionIvaHidden").value = condicion || "";
     document.querySelector('input[name="tipo_proceso"]').value = proceso;
     cerrarModal();
     document.getElementById("tipoComprobante").form.submit();
@@ -1079,7 +1108,10 @@ function cerrarModalP() {
 const facturaConfig = {
     predeterminada: <?= json_encode($predeterminado_fact) ?>,
     tope: <?= json_encode($tope_dni_fact) ?>,
-    clienteCobro: <?= json_encode($cliente_cobro) ?>
+    clienteCobro: <?= json_encode($cliente_cobro) ?>,
+    condiciones: <?= json_encode(\App\Libraries\Facturacion\CondicionIva::OPCIONES, JSON_FORCE_OBJECT) ?>,
+    permitenA: <?= json_encode(\App\Libraries\Facturacion\CondicionIva::PERMITEN_FACTURA_A) ?>,
+    consumidorFinal: <?= json_encode(\App\Libraries\Facturacion\CondicionIva::CONSUMIDOR_FINAL) ?>
 };
 
 function mostrarModal(id) {
@@ -1121,10 +1153,21 @@ function clienteVenta() {
     const select = document.querySelector('select[name="cliente_id"]');
     if (tipo && tipo.value === "registrado" && select && select.value !== "Anonimo") {
         const opcion = select.options[select.selectedIndex];
-        return { nombre: opcion.text.split("-- DIR:")[0].trim(), cuit: opcion.dataset.cuit || "" };
+        return {
+            nombre: opcion.text.split("-- DIR:")[0].trim(),
+            cuit: opcion.dataset.cuit || "",
+            registrado: true,
+            condicion: parseInt(opcion.dataset.condicion, 10) || null
+        };
     }
     const nombre = (document.querySelector('input[name="nombre_prov"]') || {}).value || "";
-    return { nombre: nombre.trim() || "Consumidor Final", cuit: "" };
+    return { nombre: nombre.trim() || "Consumidor Final", cuit: "", registrado: false, condicion: facturaConfig.consumidorFinal };
+}
+
+// Condición frente al IVA con la que se factura: la del cliente, o la elegida en el modal si no la tiene.
+function condicionFactura(cliente) {
+    if (cliente.condicion) return cliente.condicion;
+    return parseInt(document.getElementById("facturaCondicion").value, 10) || null;
 }
 
 function letraElegida() {
@@ -1145,6 +1188,7 @@ function abrirFacturar() {
     });
     if (!marcada && radios.length) radios[0].checked = true;
     document.getElementById("facturaDni").value = "";
+    document.getElementById("facturaCondicion").value = "";
     mostrarModal("modalFacturaTipo");
     actualizarPasoTipo();
 }
@@ -1154,16 +1198,24 @@ function actualizarPasoTipo() {
     const pagos = pagosVenta();
     const letra = letraElegida();
     const pideDni = exigeDni(cliente, pagos.total);
+    const pideCondicion = cliente.registrado && !cliente.condicion;
+    const condicion = condicionFactura(cliente);
     let error = "";
 
     document.getElementById("facturaClienteNombre").textContent = cliente.nombre;
-    document.getElementById("facturaClienteDoc").textContent = cliente.cuit ? "CUIT " + cliente.cuit : "Consumidor Final (sin CUIT)";
+    document.getElementById("facturaClienteDoc").textContent = (cliente.cuit ? "CUIT " + cliente.cuit : "Sin CUIT")
+        + (cliente.condicion ? " · " + facturaConfig.condiciones[cliente.condicion] : "");
+    document.getElementById("facturaCondicionFila").style.display = pideCondicion ? "block" : "none";
     document.getElementById("facturaDniFila").style.display = (pideDni && letra !== "A") ? "block" : "none";
 
     if (!letra) {
         error = "Elegí el tipo de factura.";
     } else if (letra === "A" && !cliente.cuit) {
         error = "La Factura A requiere un cliente registrado con CUIT. Elegí el cliente en el formulario o emití otra factura.";
+    } else if (pideCondicion && !condicion) {
+        error = "Elegí la condición frente al IVA del cliente.";
+    } else if (letra === "A" && facturaConfig.permitenA.indexOf(condicion) === -1) {
+        error = "La Factura A es solo para Responsables Inscriptos o Monotributistas; el cliente es \"" + facturaConfig.condiciones[condicion] + "\".";
     } else if (pideDni && !/^\d{7,8}$/.test(document.getElementById("facturaDni").value.replace(/\D/g, ""))) {
         error = "Para este importe ARCA exige el DNI del comprador (7 u 8 dígitos).";
     }
@@ -1188,7 +1240,8 @@ function mostrarResumenFactura() {
     document.getElementById("resumenComprobante").textContent = "Factura " + letra;
     document.getElementById("resumenCliente").textContent = cliente.nombre;
     document.getElementById("resumenDocumento").textContent = cliente.cuit ? "CUIT " + cliente.cuit
-        : (exigeDni(cliente, pagos.total) && dni ? "DNI " + dni : "Consumidor Final");
+        : (exigeDni(cliente, pagos.total) && dni ? "DNI " + dni : "Sin documento");
+    document.getElementById("resumenCondicion").textContent = facturaConfig.condiciones[condicionFactura(cliente)] || "";
     document.getElementById("resumenPago").innerHTML = formas.length ? formas.join("<br>") : "Efectivo";
     document.getElementById("resumenTotal").textContent = formatoPesos(pagos.total);
     mostrarModal("modalFacturaResumen");
@@ -1204,7 +1257,9 @@ function confirmarFactura() {
 
     const cliente = clienteVenta();
     const dni = exigeDni(cliente, pagosVenta().total) ? document.getElementById("facturaDni").value.replace(/\D/g, "") : "";
-    enviarVenta("boleta", letraElegida(), dni);
+    // Solo se manda la condición elegida en el modal (la del cliente ya está guardada en el servidor).
+    const condicionElegida = (cliente.registrado && !cliente.condicion) ? condicionFactura(cliente) : "";
+    enviarVenta("boleta", letraElegida(), dni, condicionElegida);
 }
 
 function volverAlMenu() {

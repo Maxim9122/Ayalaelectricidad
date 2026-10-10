@@ -95,7 +95,8 @@ class EmisionComprobanteService
             'cliente_doc_nro'  => $docNro,
             'moneda'           => 'PES',
             'cotizacion'       => 1,
-        ] + $this->iva->importesParaApi($factura['tipo_factura'], (float) $factura['importe_total']);
+        ] + $this->iva->importesParaApi($factura['tipo_factura'], (float) $factura['importe_total'])
+          + Factura_model::condicionIvaParaApi($factura);
 
         try {
             // Idempotency-Key estable por venta e intento: un reintento nunca duplica el comprobante.

@@ -119,3 +119,12 @@ ALTER TABLE `facturas`
   ADD COLUMN IF NOT EXISTS `intento` int(10) unsigned NOT NULL DEFAULT 1 AFTER `estado`;
 ALTER TABLE `notas_credito`
   ADD COLUMN IF NOT EXISTS `intento` int(10) unsigned NOT NULL DEFAULT 1 AFTER `estado`;
+
+-- Condición frente al IVA del cliente (código ARCA, RG 5616). Vacía en los clientes
+-- existentes: se completa al editar el cliente o al facturarle por primera vez.
+ALTER TABLE `cliente`
+  ADD COLUMN IF NOT EXISTS `condicion_iva` tinyint(3) unsigned DEFAULT NULL;
+
+-- Condición informada en cada factura (la Nota de Crédito repite la de su factura)
+ALTER TABLE `facturas`
+  ADD COLUMN IF NOT EXISTS `cliente_condicion_iva` tinyint(3) unsigned DEFAULT NULL AFTER `cliente_dni`;

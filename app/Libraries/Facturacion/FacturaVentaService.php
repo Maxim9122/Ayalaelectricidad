@@ -22,7 +22,7 @@ class FacturaVentaService
      * Valida que se pueda emitir esa letra para ese cliente ANTES de guardar la venta.
      * Devuelve el mensaje de error, o null si está todo bien.
      */
-    public function validarComprobante(string $comprobante, $idCliente, float $importe = 0.0, string $dni = ''): ?string
+    public function validarComprobante(string $comprobante, $idCliente, float $importe = 0.0, string $dni = '', $condicionIva = null): ?string
     {
         if ($comprobante === 'remito') {
             return null;
@@ -35,6 +35,15 @@ class FacturaVentaService
 
         if ($comprobante === 'A' && $this->cuitDelCliente($idCliente) === null) {
             return 'La Factura A requiere un cliente registrado con CUIT válido (11 dígitos).';
+        }
+
+        // Condición frente al IVA: el cliente registrado tiene que tenerla (guardada o elegida al facturar).
+        $condicion = $this->condicionIvaDelCliente($idCliente, $condicionIva);
+        if ($condicion === null) {
+            return 'Indicá la condición frente al IVA del cliente para poder facturarle.';
+        }
+        if ($comprobante === 'A' && !in_array($condicion, CondicionIva::PERMITEN_FACTURA_A, true)) {
+            return 'La Factura A es solo para Responsables Inscriptos o Monotributistas; el cliente figura como "' . CondicionIva::nombre($condicion) . '".';
         }
 
         // Consumidor final (sin CUIT) desde el tope de ARCA: hay que identificarlo con DNI.
@@ -52,18 +61,25 @@ class FacturaVentaService
      * Crea la factura (estado pendiente) para una venta ya guardada y la vincula a la venta.
      * Devuelve el id de la factura. La emisión ante AFIP se hace después, por separado.
      */
-    public function crearFactura(int $ventaId, string $letra, string $dni = ''): int
+    public function crearFactura(int $ventaId, string $letra, string $dni = '', $condicionIva = null): int
     {
         $ventas = new Cabecera_model();
         $venta = $ventas->find($ventaId);
 
+        $clientes = new Clientes_model();
         $cliente = (int) $venta['id_cliente'] > self::ID_CLIENTE_ANONIMO
-            ? (new Clientes_model())->find($venta['id_cliente'])
+            ? $clientes->find($venta['id_cliente'])
             : null;
 
         $nombre = $cliente ? $cliente['nombre'] : ($venta['nombre_prov_client'] ?: 'Consumidor Final');
 
         $cuit = $this->cuitDelCliente($venta['id_cliente']);
+
+        // Si el cliente registrado todavía no tenía condición frente al IVA, se le guarda la elegida al facturar.
+        $condicion = $this->condicionIvaDelCliente($venta['id_cliente'], $condicionIva);
+        if ($cliente && empty($cliente['condicion_iva']) && $condicion !== null) {
+            $clientes->update($cliente['id_cliente'], ['condicion_iva' => $condicion]);
+        }
 
         $facturas = new Factura_model();
         $facturaId = (int) $facturas->insert([
@@ -73,6 +89,7 @@ class FacturaVentaService
             'cliente_cuit'   => $cuit,
             // El DNI solo se usa si no hay CUIT (consumidor final identificado).
             'cliente_dni'    => $cuit === null && self::dniValido($dni) ? $dni : null,
+            'cliente_condicion_iva' => $condicion,
             'tipo_factura'   => $letra,
             // Se factura lo que paga el cliente (con descuento por efectivo / recargo por tarjeta).
             'importe_total'  => round((float) ($venta['total_bonificado'] ?: $venta['total_venta']), 2),
@@ -83,6 +100,24 @@ class FacturaVentaService
         $ventas->update($ventaId, ['tipo_comprobante' => 'factura', 'factura_id' => $facturaId]);
 
         return $facturaId;
+    }
+
+    /**
+     * Condición frente al IVA con la que se factura: sin cliente registrado es Consumidor Final;
+     * con cliente registrado, la guardada en el cliente o, si no tiene, la elegida al cobrar.
+     */
+    public function condicionIvaDelCliente($idCliente, $condicionElegida = null): ?int
+    {
+        if ((int) $idCliente <= self::ID_CLIENTE_ANONIMO) {
+            return CondicionIva::CONSUMIDOR_FINAL;
+        }
+
+        $cliente = (new Clientes_model())->find($idCliente);
+        if ($cliente && CondicionIva::valida($cliente['condicion_iva'] ?? null)) {
+            return (int) $cliente['condicion_iva'];
+        }
+
+        return CondicionIva::desdeFormulario($condicionElegida);
     }
 
     public function marcarRemito(int $ventaId): void

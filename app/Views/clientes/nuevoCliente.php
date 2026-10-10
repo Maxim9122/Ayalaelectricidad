@@ -70,6 +70,15 @@
   <?php } ?>
   </div>
 
+  <div>
+  <label for="condicionIva" class="form-label">Condición frente al IVA</label>
+  <select name="condicion_iva" id="condicionIva" class="form-control">
+      <?php foreach (\App\Libraries\Facturacion\CondicionIva::OPCIONES as $codigo => $nombre): ?>
+          <option value="<?= $codigo ?>" <?= (int) old('condicion_iva', \App\Libraries\Facturacion\CondicionIva::CONSUMIDOR_FINAL) === $codigo ? 'selected' : '' ?>><?= esc($nombre) ?></option>
+      <?php endforeach; ?>
+  </select>
+  </div>
+
     <br>
   <div class="button-container">
   <a href="<?php echo base_url('clientes'); ?>" class="button2" type="reset">Cancelar</a>

@@ -7,6 +7,7 @@ Use App\Models\VentaDetalle_model;
 use App\Models\Turnos_model;
 use App\Models\Usuarios_model;
 use App\Models\Clientes_model;
+use App\Libraries\Facturacion\CondicionIva;
 //use Dompdf\Dompdf;
 
 class Clientes_controller extends Controller{
@@ -63,7 +64,9 @@ class Clientes_controller extends Controller{
                 'nombre'   => $this->request->getVar('nombre'),
                 'telefono' => $this->request->getVar('telefono'),
                 'direccion'=> $this->request->getVar('direc'),
-                'cuil'     => $this->request->getVar('cuil')
+                'cuil'     => $this->request->getVar('cuil'),
+                // Condición frente al IVA (código ARCA); vacío o inválido queda sin especificar
+                'condicion_iva' => CondicionIva::desdeFormulario($this->request->getVar('condicion_iva')),
             ]);
     
             // Mensaje de éxito
@@ -154,6 +157,7 @@ $input = [
                     'telefono' => $this->request->getVar('telefono'),
                     'direccion' => $this->request->getVar('direc'),
                     'cuil' => $this->request->getVar('cuil'),
+                    'condicion_iva' => CondicionIva::desdeFormulario($this->request->getVar('condicion_iva')),
                 ];
             } else {
                 $datos = [
@@ -161,6 +165,7 @@ $input = [
                     'telefono' => $this->request->getVar('telefono'),
                     'direccion' => $this->request->getVar('direc'),
                     'cuil' => $this->request->getVar('cuil'),
+                    'condicion_iva' => CondicionIva::desdeFormulario($this->request->getVar('condicion_iva')),
                 ];
             }
     

@@ -1078,6 +1078,8 @@ public function guarda_compra()
         && ($estado == 'Cobrando' || ($estado == '' && $tipo_compra_post != 'Pedido'));
     // DNI del comprador: ARCA lo exige a consumidor final desde cierto importe (se valida más abajo, con el total).
     $dni_comprador = preg_replace('/\D/', '', (string) $this->request->getPost('dni_comprador'));
+    // Condición frente al IVA elegida en el modal de FACTURAR (para clientes registrados sin ese dato).
+    $condicion_iva_comprador = $this->request->getPost('condicion_iva');
 
     // ✅ Función auxiliar unificada para limpiar montos con formato argentino
     function limpiarMonto($valor) {
@@ -1146,7 +1148,7 @@ public function guarda_compra()
     // Validación del comprobante fiscal ANTES de guardar nada (con el importe que se va a facturar).
     if ($lleva_comprobante && $comprobante != 'remito') {
         $cliente_comprobante = $estado == 'Cobrando' ? ((new Cabecera_model())->find($id_pedido)['id_cliente'] ?? 1) : $id_cliente;
-        $error_comprobante = (new FacturaVentaService())->validarComprobante($comprobante, $cliente_comprobante, (float) $total_conDescuento, $dni_comprador);
+        $error_comprobante = (new FacturaVentaService())->validarComprobante($comprobante, $cliente_comprobante, (float) $total_conDescuento, $dni_comprador, $condicion_iva_comprador);
         if ($error_comprobante) {
             session()->setFlashdata('msgEr', $error_comprobante);
             return redirect()->to('casiListo');
@@ -1354,7 +1356,7 @@ public function guarda_compra()
             $cart->destroy();
 
             // Facturación electrónica (después de cerrar la venta, nunca la bloquea)
-            $redireccion_factura = $this->emitirComprobanteVenta((int) $id_pedido, $lleva_comprobante ? $comprobante : 'remito', $proceso, $dni_comprador);
+            $redireccion_factura = $this->emitirComprobanteVenta((int) $id_pedido, $lleva_comprobante ? $comprobante : 'remito', $proceso, $dni_comprador, $condicion_iva_comprador);
             if ($redireccion_factura) {
                 return $redireccion_factura;
             }
@@ -1407,7 +1409,7 @@ public function guarda_compra()
     }
 
     // Facturación electrónica (después de cerrar la venta, nunca la bloquea)
-    $redireccion_factura = $this->emitirComprobanteVenta((int) $id_cabecera, $lleva_comprobante ? $comprobante : 'remito', $proceso, $dni_comprador);
+    $redireccion_factura = $this->emitirComprobanteVenta((int) $id_cabecera, $lleva_comprobante ? $comprobante : 'remito', $proceso, $dni_comprador, $condicion_iva_comprador);
     if ($redireccion_factura) {
         return $redireccion_factura;
     }
@@ -1424,7 +1426,7 @@ public function guarda_compra()
  * Registra el comprobante de una venta ya guardada y, si es factura, la emite ante AFIP.
  * Devuelve la redirección a seguir, o null para continuar con el flujo de remito de siempre.
  */
-private function emitirComprobanteVenta(int $id_venta, string $comprobante, ?string $proceso, string $dni_comprador = '')
+private function emitirComprobanteVenta(int $id_venta, string $comprobante, ?string $proceso, string $dni_comprador = '', $condicion_iva = null)
 {
     $facturacion = new FacturaVentaService();
 
@@ -1433,7 +1435,7 @@ private function emitirComprobanteVenta(int $id_venta, string $comprobante, ?str
         return null;
     }
 
-    $id_factura = $facturacion->crearFactura($id_venta, $comprobante, $dni_comprador);
+    $id_factura = $facturacion->crearFactura($id_venta, $comprobante, $dni_comprador, $condicion_iva);
     (new EmisionComprobanteService())->emitir($id_factura);
 
     [$tipo_msg, $mensaje] = $facturacion->mensajeFactura($id_factura);

@@ -58,16 +58,19 @@ $cuitFormateado = function ($cuit) {
     <?php endif; ?>
     <hr>
 
+    <?php
+    // Condición frente al IVA informada en la factura; las facturas anteriores a este dato
+    // muestran lo que se mostraba siempre (A: Responsable Inscripto, B/C: Consumidor Final).
+    $condicionTexto = \App\Libraries\Facturacion\CondicionIva::nombre($factura['cliente_condicion_iva'] ?? null)
+        ?? ($letra === 'A' ? 'IVA Responsable Inscripto' : 'Consumidor Final');
+    ?>
     <p>Cliente: <?= esc($factura['cliente_nombre']) ?></p>
     <?php if (!empty($factura['cliente_cuit'])): ?>
         <p>CUIT: <?= esc($cuitFormateado($factura['cliente_cuit'])) ?></p>
-        <?php if ($letra === 'A'): ?><p>IVA Responsable Inscripto</p><?php endif; ?>
     <?php elseif (!empty($factura['cliente_dni'])): ?>
         <p>DNI: <?= esc($factura['cliente_dni']) ?></p>
-        <p>Consumidor Final</p>
-    <?php else: ?>
-        <p>Consumidor Final</p>
     <?php endif; ?>
+    <p>Condición IVA: <?= esc($condicionTexto) ?></p>
     <?php if ($vendedor): ?><p>Atendido por: <?= esc($vendedor) ?></p><?php endif; ?>
     <?php if ($venta): ?><p>Venta Nro: <?= (int) $venta['id'] ?></p><?php endif; ?>
     <hr>

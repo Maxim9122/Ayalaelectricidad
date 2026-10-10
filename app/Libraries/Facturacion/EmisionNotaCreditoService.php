@@ -100,7 +100,9 @@ class EmisionNotaCreditoService
             'cliente_doc_nro'  => $docNro,
             'moneda'           => 'PES',
             'cotizacion'       => 1,
-        ] + $this->iva->importesParaApi($factura['tipo_factura'], (float) $nota['importe_acreditado']) + [
+        ] + $this->iva->importesParaApi($factura['tipo_factura'], (float) $nota['importe_acreditado'])
+          // Misma condición frente al IVA que la factura que se acredita.
+          + Factura_model::condicionIvaParaApi($factura) + [
             // El id INTERNO que devolvió la API al emitir la factura — NO el número, NO el CAE.
             'comprobante_asociado_id' => (int) $factura['comprobante_externo_id'],
         ];
