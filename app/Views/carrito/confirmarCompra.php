@@ -1188,7 +1188,8 @@ function abrirFacturar() {
     });
     if (!marcada && radios.length) radios[0].checked = true;
     document.getElementById("facturaDni").value = "";
-    document.getElementById("facturaCondicion").value = "";
+    // Por defecto Consumidor Final; el cajero la cambia si corresponde.
+    document.getElementById("facturaCondicion").value = String(facturaConfig.consumidorFinal);
     mostrarModal("modalFacturaTipo");
     actualizarPasoTipo();
 }
