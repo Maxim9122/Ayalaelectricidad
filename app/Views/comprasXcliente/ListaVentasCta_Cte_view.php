@@ -162,7 +162,12 @@
             </li>
                 <?php } ?>          
             <li>
-                <a  style="color: #ffff;" href="<?php echo base_url('impCta_Cte/'.$vta['id']); ?>">
+                <a  style="color: #ffff;" target="_blank" rel="noopener" href="<?php echo base_url('impCta_Cte/'.$vta['id']).'?modo=imprimir'; ?>">
+                    🖨️ Imprimir
+                </a>
+            </li>
+            <li>
+                <a  style="color: #ffff;" href="<?php echo base_url('impCta_Cte/'.$vta['id']).'?modo=descargar'; ?>">
                     ⬇️ Descargar
                 </a>
             </li>

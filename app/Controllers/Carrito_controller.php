@@ -1472,7 +1472,7 @@ public function impCta_Cte($id_cabecera)
     $CostoEnvio = $cabecera['costo_envio'];
    
     // Actualizar el campo costo_envio a 0 porque se muestra una sola vez.
-    $ventaModel->update($id_cabecera, ['costo_envio' => 0]);
+    // Ya no se pone en 0: el envío se muestra en cada reimpresión.
     
     $detalles = $detalleModel->where('venta_id', $id_cabecera)->findAll();
     //print_r($detalles);
@@ -1674,27 +1674,8 @@ public function impCta_Cte($id_cabecera)
     file_put_contents($tempFile, $output);
     session()->setFlashdata('msg', 'Imprimiendo Ticket.!');
 
-     // Obtener el perfil del usuario desde la sesión
-    $perfil = session()->get('perfil_id');
-    
-    // Redirigir a una página de confirmación con JavaScript
-        echo "<script type='text/javascript'>
-        // Descargar el archivo PDF
-        window.location.href = '" . base_url('descargar_ticket') . "';
-
-        // Pasar el valor de perfil desde PHP a JavaScript
-        var perfil = " . $perfil . "; // Asignar el perfil de PHP a la variable JS
-
-        // Redirigir a la página de referencia después de la descarga o a otra según perfil
-        window.setTimeout(function() {
-            if (perfil == 3) {
-                window.location.href = document.referrer; // Volver a la página anterior
-            } else if (document.referrer) {
-                window.location.href = document.referrer; // Volver a la página anterior
-            }
-        }, 500);  // 0.5 segundos de espera para asegurar que la descarga termine
-        </script>";
-        exit;
+    // Pantalla/archivo según ?modo= (imprimir, descargar) o cartel "comprobante listo" al cobrar
+    return $this->entregarComprobante($tempFile, $nombreArchivo, 'Cuenta Corriente');
 
 }
 
@@ -1717,7 +1698,7 @@ public function generarPresupuesto($id_cabecera)
     $CostoEnvio = $cabecera['costo_envio'];
    
     // Actualizar el campo costo_envio a 0 porque se muestra una sola vez.
-    $ventaModel->update($id_cabecera, ['costo_envio' => 0]);
+    // Ya no se pone en 0: el envío se muestra en cada reimpresión.
     
     $detalles = $detalleModel->where('venta_id', $id_cabecera)->findAll();
     //print_r($detalles);
@@ -1919,27 +1900,8 @@ public function generarPresupuesto($id_cabecera)
     file_put_contents($tempFile, $output);
     session()->setFlashdata('msg', 'Imprimiendo Ticket.!');
 
-     // Obtener el perfil del usuario desde la sesión
-    $perfil = session()->get('perfil_id');
-    
-    // Redirigir a una página de confirmación con JavaScript
-        echo "<script type='text/javascript'>
-        // Descargar el archivo PDF
-        window.location.href = '" . base_url('descargar_ticket') . "';
-
-        // Pasar el valor de perfil desde PHP a JavaScript
-        var perfil = " . $perfil . "; // Asignar el perfil de PHP a la variable JS
-
-        // Redirigir a la página de referencia después de la descarga o a otra según perfil
-        window.setTimeout(function() {
-            if (perfil == 3) {
-                window.location.href = document.referrer; // Volver a la página anterior
-            } else if (document.referrer) {
-                window.location.href = document.referrer; // Volver a la página anterior
-            }
-        }, 500);  // 0.5 segundos de espera para asegurar que la descarga termine
-        </script>";
-        exit;
+    // Pantalla/archivo según ?modo= (imprimir, descargar) o cartel "comprobante listo" al cobrar
+    return $this->entregarComprobante($tempFile, $nombreArchivo, 'Presupuesto');
 
 }
 
@@ -1962,7 +1924,7 @@ public function DescargarPresupuesto($id_cabecera)
     $CostoEnvio = $cabecera['costo_envio'];
    
     // Actualizar el campo costo_envio a 0 porque se muestra una sola vez.
-    $ventaModel->update($id_cabecera, ['costo_envio' => 0]);
+    // Ya no se pone en 0: el envío se muestra en cada reimpresión.
     
     $detalles = $detalleModel->where('venta_id', $id_cabecera)->findAll();
     //print_r($detalles);
@@ -2164,27 +2126,8 @@ public function DescargarPresupuesto($id_cabecera)
     file_put_contents($tempFile, $output);
     session()->setFlashdata('msg', 'Imprimiendo Ticket.!');
 
-     // Obtener el perfil del usuario desde la sesión
-    $perfil = session()->get('perfil_id');
-    
-    // Redirigir a una página de confirmación con JavaScript
-        echo "<script type='text/javascript'>
-        // Descargar el archivo PDF
-        window.location.href = '" . base_url('descargar_ticket') . "';
-
-        // Pasar el valor de perfil desde PHP a JavaScript
-        var perfil = " . $perfil . "; // Asignar el perfil de PHP a la variable JS
-
-        // Redirigir a la página de referencia después de la descarga o a otra según perfil
-        window.setTimeout(function() {
-            if (perfil == 3) {
-                window.location.href = document.referrer; // Volver a la página anterior
-            } else if (document.referrer) {
-                window.location.href = document.referrer; // Volver a la página anterior
-            }
-        }, 500);  // 0.5 segundos de espera para asegurar que la descarga termine
-        </script>";
-        exit;
+    // Pantalla/archivo según ?modo= (imprimir, descargar) o cartel "comprobante listo" al cobrar
+    return $this->entregarComprobante($tempFile, $nombreArchivo, 'Presupuesto');
 
 }
 
@@ -2209,7 +2152,7 @@ public function generarTicket($id_cabecera)
     $CostoEnvio = $cabecera['costo_envio'];
    
     // Actualizar el campo costo_envio a 0 porque se muestra una sola vez.
-    $ventaModel->update($id_cabecera, ['costo_envio' => 0]);
+    // Ya no se pone en 0: el envío se muestra en cada reimpresión.
     
     $detalles = $detalleModel->where('venta_id', $id_cabecera)->findAll();
     //print_r($detalles);
@@ -2449,27 +2392,8 @@ public function generarTicket($id_cabecera)
         session()->remove('aviso_factura');
     }
 
-     // Obtener el perfil del usuario desde la sesión
-    $perfil = session()->get('perfil_id');
-    
-    // Redirigir a una página de confirmación con JavaScript
-        echo "<script type='text/javascript'>
-        // Descargar el archivo PDF
-        window.location.href = '" . base_url('descargar_ticket') . "';
-
-        // Pasar el valor de perfil desde PHP a JavaScript
-        var perfil = " . $perfil . "; // Asignar el perfil de PHP a la variable JS
-
-        // Redirigir a la página de referencia después de la descarga o a otra según perfil
-        window.setTimeout(function() {
-            if (perfil == 3) {
-                window.location.href = document.referrer; // Volver a la página anterior
-            } else if (document.referrer) {
-                window.location.href = document.referrer; // Volver a la página anterior
-            }
-        }, 500);  // 0.5 segundos de espera para asegurar que la descarga termine
-        </script>";
-        exit;
+    // Pantalla/archivo según ?modo= (imprimir, descargar) o cartel "comprobante listo" al cobrar
+    return $this->entregarComprobante($tempFile, $nombreArchivo, 'Boleta / Remito');
 
 }
 
@@ -2492,7 +2416,7 @@ public function DescargarBole($id_cabecera)
     $CostoEnvio = $cabecera['costo_envio'];
    
     // Actualizar el campo costo_envio a 0 porque se muestra una sola vez.
-    $ventaModel->update($id_cabecera, ['costo_envio' => 0]);
+    // Ya no se pone en 0: el envío se muestra en cada reimpresión.
     
     $detalles = $detalleModel->where('venta_id', $id_cabecera)->findAll();
     //print_r($detalles);
@@ -2727,31 +2651,80 @@ public function DescargarBole($id_cabecera)
     file_put_contents($tempFile, $output);
     session()->setFlashdata('msg', 'Imprimiendo Ticket.!');
 
-     // Obtener el perfil del usuario desde la sesión
-    $perfil = session()->get('perfil_id');
-    
-    // Redirigir a una página de confirmación con JavaScript
-        echo "<script type='text/javascript'>
-        // Descargar el archivo PDF
-        window.location.href = '" . base_url('descargar_ticket') . "';
-
-        // Pasar el valor de perfil desde PHP a JavaScript
-        var perfil = " . $perfil . "; // Asignar el perfil de PHP a la variable JS
-
-        // Redirigir a la página de referencia después de la descarga o a otra según perfil
-        window.setTimeout(function() {
-            if (perfil == 3) {
-                window.location.href = document.referrer; // Volver a la página anterior
-            } else if (document.referrer) {
-                window.location.href = document.referrer; // Volver a la página anterior
-            }
-        }, 500);  // 0.5 segundos de espera para asegurar que la descarga termine
-        </script>";
-        exit;
+    // Pantalla/archivo según ?modo= (imprimir, descargar) o cartel "comprobante listo" al cobrar
+    return $this->entregarComprobante($tempFile, $nombreArchivo, 'Boleta / Remito');
 
 }
 
 // En tu ruta 'descargar_ticket', puedes usar:
+/**
+ * Entrega un comprobante ya generado en la carpeta temporal según ?modo=:
+ *   imprimir  -> pantalla que abre el diálogo de impresión del navegador
+ *   descargar -> descarga el PDF
+ *   (nada)    -> al cobrar: cartel "comprobante listo" con Imprimir / Descargar / Listo
+ */
+private function entregarComprobante(string $rutaArchivo, string $nombreArchivo, string $titulo)
+{
+    // El aviso "Imprimiendo Ticket" lo reemplaza la pantalla del comprobante.
+    session()->remove('msg');
+
+    $modo = $this->request->getGet('modo');
+    if ($modo === 'descargar') {
+        return $this->response->download($rutaArchivo, null)->setFileName($nombreArchivo);
+    }
+
+    $urlArchivo = base_url('comprobante/archivo/' . rawurlencode($nombreArchivo));
+    if ($modo === 'imprimir') {
+        return $this->response->setBody(view('comprobantes/imprimir', [
+            'titulo' => $titulo,
+            'urlPdf' => $urlArchivo . '?modo=ver',
+        ]));
+    }
+
+    // Aviso de factura no emitida (lo deja generarTicket): se muestra en el cartel y no se repite después.
+    $aviso = session()->getFlashdata('msgEr');
+    session()->remove('msgEr');
+
+    return $this->response->setBody(view('comprobantes/listo', [
+        'titulo'       => $titulo,
+        'aviso'        => $aviso,
+        'urlImprimir'  => $urlArchivo . '?modo=imprimir',
+        'urlDescargar' => $urlArchivo . '?modo=descargar',
+        'urlListo'     => session()->get('perfil_id') == 3 ? base_url('caja') : base_url('catalogo'),
+    ]));
+}
+
+/** Sirve un PDF de la carpeta temporal: ?modo=ver (en el navegador), imprimir o descargar. */
+public function archivoComprobante($nombre = null)
+{
+    if (!session()->has('id')) {
+        return redirect()->to(base_url('login'));
+    }
+
+    $nombre = rawurldecode((string) $nombre);
+    $ruta = 'path/to/temp/folder/' . $nombre;
+    // Solo nombres generados por el sistema (sin rutas ni caracteres raros).
+    if (!preg_match('/^[A-Za-z0-9_\-]+\.pdf$/', $nombre) || !is_file($ruta)) {
+        return $this->response->setStatusCode(404)->setBody('Comprobante no encontrado. Volvé a generarlo desde la venta.');
+    }
+
+    $modo = $this->request->getGet('modo');
+    if ($modo === 'descargar') {
+        return $this->response->download($ruta, null)->setFileName($nombre);
+    }
+    if ($modo === 'imprimir') {
+        return $this->response->setBody(view('comprobantes/imprimir', [
+            'titulo' => 'Comprobante',
+            'urlPdf' => base_url('comprobante/archivo/' . rawurlencode($nombre)) . '?modo=ver',
+        ]));
+    }
+
+    return $this->response
+        ->setHeader('Content-Type', 'application/pdf')
+        ->setHeader('Content-Disposition', 'inline; filename="' . $nombre . '"')
+        ->setBody(file_get_contents($ruta));
+}
+
 public function descargar_ticket()
 {
     $tempFolder = 'path/to/temp/folder';

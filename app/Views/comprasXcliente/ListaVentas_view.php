@@ -169,8 +169,13 @@
             <?php if (!empty($vta['factura_id'])): ?>
                 <?php if ($vta['factura_estado'] == 'aprobada'): ?>
                     <li>
-                        <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" href="<?php echo base_url('facturacion/factura/'.$vta['id'].'/pdf'); ?>">
+                        <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" target="_blank" rel="noopener" href="<?php echo base_url('facturacion/factura/'.$vta['id'].'/pdf').'?modo=imprimir'; ?>">
                             Imp. Fact. <?php echo $vta['tipo_factura']; ?>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" href="<?php echo base_url('facturacion/factura/'.$vta['id'].'/pdf').'?modo=descargar'; ?>">
+                            Desc. Fact. <?php echo $vta['tipo_factura']; ?>
                         </a>
                     </li>
                     <?php if (empty($vta['nc_estado']) && $vta['estado'] != 'Cancelado' && $perfil): ?>
@@ -190,8 +195,13 @@
                 <?php endif; ?>
                 <?php if ($vta['nc_estado'] == 'aprobada'): ?>
                     <li>
-                        <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" href="<?php echo base_url('facturacion/nota-credito/'.$vta['id'].'/pdf'); ?>">
+                        <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" target="_blank" rel="noopener" href="<?php echo base_url('facturacion/nota-credito/'.$vta['id'].'/pdf').'?modo=imprimir'; ?>">
                             Imp. NC
+                        </a>
+                    </li>
+                    <li>
+                        <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px; padding:8px;" href="<?php echo base_url('facturacion/nota-credito/'.$vta['id'].'/pdf').'?modo=descargar'; ?>">
+                            Desc. NC
                         </a>
                     </li>
                 <?php elseif (!empty($vta['nc_estado'])): ?>
@@ -204,13 +214,13 @@
             <?php endif; ?>
             <li>
                 <?php if($vta['estado'] == 'Sin_Facturar' || $vta['estado'] == 'Modificada_SF'){  ?>
-                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px;  padding:8px;" href="<?php echo base_url('generarTicket/'.$vta['id']); ?>">
-                        Imp.Boleta
+                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px;  padding:8px;" target="_blank" rel="noopener" href="<?php echo base_url('generarTicket/'.$vta['id'].'').'?modo=imprimir'; ?>">
+                        Imp. Boleta
                     </a>
                 </li>
                 <li>
-                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px;  padding:8px;" href="<?php echo base_url('DescargarBole/'.$vta['id']); ?>">
-                        Descargar
+                    <a class="btnDesplegable" style="color:#ffff; background:#3c3d3c; border-radius:10px;  padding:8px;" href="<?php echo base_url('generarTicket/'.$vta['id'].'').'?modo=descargar'; ?>">
+                        Desc. Boleta
                     </a>
                 </li>
                 <?php if($estado == '' && $perfil) {?>

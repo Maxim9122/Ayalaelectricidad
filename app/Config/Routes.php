@@ -205,6 +205,7 @@ $routes->post('webhooks/facturacion/onboarding', 'FacturacionWebhook_controller:
 $routes->post('webhooks/facturacion/comprobantes', 'FacturacionWebhook_controller::comprobantes');
 
 $routes->get('descargar_ticket', 'Carrito_controller::descargar_ticket');
+$routes->get('comprobante/archivo/(:segment)', 'Carrito_controller::archivoComprobante/$1');
 
 $routes->get('generarTicket/(:num)', 'Carrito_controller::generarTicket/$1');
 $routes->get('DescargarBole/(:num)', 'Carrito_controller::DescargarBole/$1');

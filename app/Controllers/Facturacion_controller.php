@@ -304,10 +304,8 @@ class Facturacion_controller extends BaseController
         }
 
         [$nombre, $pdf] = (new ComprobantePdf())->factura($factura);
-        // Si viene de imprimirFactura(), el mensaje tiene que llegar a la pantalla siguiente.
-        session()->keepFlashdata('msg');
 
-        return $this->response->download($nombre, $pdf);
+        return $this->entregarPdf($nombre, $pdf, base_url('facturacion/factura/' . (int) $ventaId . '/pdf'), "Factura {$factura['tipo_factura']} {$factura['numero_comprobante']}");
     }
 
     public function pdfNotaCredito($ventaId)
@@ -323,23 +321,52 @@ class Facturacion_controller extends BaseController
 
         [$nombre, $pdf] = (new ComprobantePdf())->notaCredito($nota);
 
-        return $this->response->download($nombre, $pdf);
+        return $this->entregarPdf($nombre, $pdf, base_url('facturacion/nota-credito/' . (int) $ventaId . '/pdf'), "Nota de Crédito {$nota['numero_comprobante']}");
     }
 
-    /** Después de cobrar: descarga la factura y vuelve a la pantalla anterior (igual que la boleta). */
+    /** Después de cobrar con factura: cartel "comprobante listo" con Imprimir / Descargar / Listo. */
     public function imprimirFactura($ventaId)
     {
         if ($redireccion = $this->exigirPerfil([self::PERFIL_ADMIN, self::PERFIL_CAJERO])) {
             return $redireccion;
         }
 
-        session()->setFlashdata('msg', 'Venta facturada. Imprimiendo Factura.!');
-        $volverA = session()->get('perfil_id') == self::PERFIL_CAJERO ? base_url('caja') : base_url('catalogo');
+        $venta = (new Cabecera_model())->find($ventaId);
+        $factura = $venta && $venta['factura_id'] ? (new Factura_model())->find($venta['factura_id']) : null;
+        $titulo = $factura ? "Factura {$factura['tipo_factura']} {$factura['numero_comprobante']}" : 'Factura';
+        $urlPdf = base_url('facturacion/factura/' . (int) $ventaId . '/pdf');
 
-        return $this->response->setBody(
-            "<script>window.location.href = " . json_encode(base_url('facturacion/factura/' . (int) $ventaId . '/pdf')) . ";"
-            . "window.setTimeout(function () { window.location.href = " . json_encode($volverA) . "; }, 800);</script>"
-        );
+        return $this->response->setBody(view('comprobantes/listo', [
+            'titulo'       => $titulo,
+            'aviso'        => null,
+            'urlImprimir'  => $urlPdf . '?modo=imprimir',
+            'urlDescargar' => $urlPdf . '?modo=descargar',
+            'urlListo'     => session()->get('perfil_id') == self::PERFIL_CAJERO ? base_url('caja') : base_url('catalogo'),
+        ]));
+    }
+
+    /**
+     * Entrega un PDF generado en memoria según ?modo=: ver (en el navegador), imprimir
+     * (pantalla que abre el diálogo de impresión) o, por defecto, descargar.
+     */
+    private function entregarPdf(string $nombre, string $pdf, string $urlPdf, string $titulo)
+    {
+        $modo = $this->request->getGet('modo');
+
+        if ($modo === 'ver') {
+            return $this->response
+                ->setHeader('Content-Type', 'application/pdf')
+                ->setHeader('Content-Disposition', 'inline; filename="' . $nombre . '"')
+                ->setBody($pdf);
+        }
+        if ($modo === 'imprimir') {
+            return $this->response->setBody(view('comprobantes/imprimir', [
+                'titulo' => $titulo,
+                'urlPdf' => $urlPdf . '?modo=ver',
+            ]));
+        }
+
+        return $this->response->download($nombre, $pdf);
     }
 
     // ---------------------------------------------------------

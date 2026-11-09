@@ -123,12 +123,12 @@
                     ✏️ Modificar
                 </a>
                  <li>
-                <a href="<?php echo base_url('generarPresupuesto/'.$p['id']); ?>">
+                <a target="_blank" rel="noopener" href="<?php echo base_url('generarPresupuesto/'.$p['id']).'?modo=imprimir'; ?>">
                     🖨️ Presupuesto
                 </a>
             </li>
             <li>
-                <a href="<?php echo base_url('DescargarPresupuesto/'.$p['id']); ?>">
+                <a href="<?php echo base_url('DescargarPresupuesto/'.$p['id']).'?modo=descargar'; ?>">
                     ⬇️ Descargar
                 </a>
             </li>
