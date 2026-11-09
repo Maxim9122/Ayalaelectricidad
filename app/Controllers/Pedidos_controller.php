@@ -156,8 +156,10 @@ class Pedidos_controller extends Controller{
     $producto_model = new Productos_model();
     $model_clientes = new Clientes_model();
     // Obtener los datos de la cabecera de la venta para obtener el id_cliente
+    // Bloquea el pedido como "Modificando" (libera la venta que esta sesión tuviera abierta)
+    $error_bloqueo = \App\Libraries\BloqueoVenta::tomar((int) $id_pedido, ['Pendiente'], 'Modificando');
     $cabecera = $cabecera_model->find($id_pedido);
-    if($cabecera['estado'] == 'Pendiente'){
+    if($error_bloqueo === null){
     $id_vendedor = $cabecera ? $cabecera['id_usuario'] : null;
     $vendedor = $US_model->find($id_vendedor);
     $nombre_vendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
@@ -197,12 +199,10 @@ class Pedidos_controller extends Controller{
 
 
     if (!$detalles) {
+        \App\Libraries\BloqueoVenta::liberarDeSesion();
         session()->setFlashdata('error', 'No se encontraron productos en el pedido.');
-        return redirect()->to($this->request->getHeader('referer')->getValue());
+        return redirect()->to($this->request->getHeaderLine('referer') ?: base_url('pedidos'));
     }
-
-    // Actualizar el estado del pedido a "Modificando"
-    $cabecera_model->update($id_pedido, ['estado' => 'Modificando']);
 
     foreach ($detalles as $detalle) {
         $producto = $producto_model->find($detalle['producto_id']);
@@ -222,7 +222,7 @@ class Pedidos_controller extends Controller{
     return redirect()->to('catalogo');
     }
     
-    session()->setFlashdata('msg', 'Este pedido ya esta siendo Modificado por otro usuario!');
+    session()->setFlashdata('msgEr', $error_bloqueo);
     return redirect()->to('pedidos');
     }
 
@@ -231,15 +231,8 @@ class Pedidos_controller extends Controller{
 public function cancelar_edicion($id_pedido){
         //print_r($id_pedido);
         //exit;
-        $cart = \Config\Services::cart();
-        $Cabecera_model = new Cabecera_model();
-            
-        // Después de guardar el pedido (cuando ya no se necesiten los datos de la sesión)
-        $session = session();
-        $session->remove(['nombre_cli_regis','nombre_cli','estado','id_vendedor', 'nombre_vendedor', 'id_cliente_pedido' , 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
-        // Actualizar el estado del pedido a "Pendiente"
-        $Cabecera_model->update($id_pedido, ['estado' => 'Pendiente']);
-        $cart->destroy();
+        // Vuelve a Pendiente y limpia sesión y carrito
+        \App\Libraries\BloqueoVenta::cancelar((int) $id_pedido);
         return redirect()->to(base_url('pedidos'));
     }
 

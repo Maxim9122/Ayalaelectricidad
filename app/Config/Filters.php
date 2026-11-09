@@ -23,6 +23,7 @@ class Filters extends BaseConfig
         'honeypot'      => Honeypot::class,
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
+        'bloqueoVenta'  => \App\Filters\BloqueoVentaFilter::class,
     ];
 
     /**
@@ -36,6 +37,8 @@ class Filters extends BaseConfig
             // 'honeypot',
             // 'csrf',
             // 'invalidchars',
+            // Mantiene vivo el bloqueo de la venta abierta (no aplica a los webhooks)
+            'bloqueoVenta' => ['except' => ['api/*', 'webhooks/*']],
         ],
         'after' => [
            // 'toolbar',

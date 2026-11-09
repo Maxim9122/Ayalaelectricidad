@@ -384,6 +384,12 @@ public function ListCompraDetalle($id)
         //Si $rowid es "all" destruye el carrito
 		if ($rowid==="all")
 		{
+            $id_abierta = session()->get('id_pedido');
+            if ($id_abierta) {
+                // Vaciar todo con una venta abierta equivale a cancelar: vuelve a su estado anterior.
+                \App\Libraries\BloqueoVenta::liberarDeSesion();
+                session()->setFlashdata('msg', 'Se canceló la operación sobre la venta #' . $id_abierta . '.');
+            }
 			$cart->destroy();
 		}
 		else //Sino destruye sola fila seleccionada
@@ -535,6 +541,11 @@ public function ListCompraDetalle($id)
         $VentaDetalle_model = new VentaDetalle_model();
         $session = session();
         $cart = \Config\Services::cart();
+
+        // La venta tiene que seguir abierta a nombre de esta sesión (no se canceló ni la tomó otro)
+        if ($session->get('id_pedido') && !\App\Libraries\BloqueoVenta::esMio()) {
+            return \App\Libraries\BloqueoVenta::perdida('comprasCta_Cte');
+        }
     
     // Recibe los datos del carrito, calcula y actualiza
         $cart_info = $this->request->getPost('cart');
@@ -661,7 +672,8 @@ public function ListCompraDetalle($id)
             }
         }
 
-       $session->remove(['estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
+       // Cierra el bloqueo y limpia la sesión
+       \App\Libraries\BloqueoVenta::finalizar((int) $id_pedido);
         // Limpiar el carrito después de guardar los datos
         $cart->destroy();
 
@@ -674,8 +686,13 @@ public function ListCompraDetalle($id)
         } elseif ($accion == 'GuardarCambios'){
             $Producto_model = new Productos_model();
             $VentaDetalle_model = new VentaDetalle_model();
-            $cart = \Config\Services::cart();           
+            $cart = \Config\Services::cart();
             $session = session();
+
+            // La venta tiene que seguir abierta a nombre de esta sesión (no se canceló ni la tomó otro)
+            if (!\App\Libraries\BloqueoVenta::esMio()) {
+                return \App\Libraries\BloqueoVenta::perdida('compras');
+            }
            
             // Recibe los datos del carrito, calcula y actualiza
             $cart_info = $this->request->getPost('cart');
@@ -977,7 +994,7 @@ public function ListCompraDetalle($id)
                 ]);
                 
                 // Limpiar la sesión y el carrito
-                $session->remove(['nombre_cli','pago_efec','pago_transfer','pago_tarjeta','estado', 'id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido', 'tipo_compra', 'tipo_pago', 'total_venta', 'total_bonificado', 'total_anterior']);
+                \App\Libraries\BloqueoVenta::finalizar((int) $id_pedido);
                 $cart->destroy();
                 
                 // Redirigir al usuario con un mensaje de éxito
@@ -1035,9 +1052,16 @@ public function guarda_compra()
         return redirect()->to(base_url('catalogo'));
     }
     $perfil = $session->get('perfil_id');
-    $estado = $session->get('estado');    
+    $estado = $session->get('estado');
     $id_pedido = $this->request->getPost('id_pedido');
-    
+
+    // Cobro o modificación de una venta existente: tiene que seguir abierta a nombre de esta sesión
+    // y ser la misma venta del formulario (evita guardar sobre otra desde una pestaña vieja).
+    if (in_array($estado, ['Cobrando', 'Modificando', 'Modificando_SF', 'Modificando_Cta_Cte'], true)
+        && !\App\Libraries\BloqueoVenta::esMio($id_pedido)) {
+        return \App\Libraries\BloqueoVenta::perdida();
+    }
+
     if(!$cart){
         return redirect()->to(base_url('catalogo'));
     }
@@ -1263,9 +1287,9 @@ public function guarda_compra()
             }
         }
     
-        $session->remove(['nombre_cli_regis','nombre_cli','estado', 'id_vendedor', 'nombre_vendedor', 'id_cliente_pedido', 'id_pedido', 'fecha_pedido', 'tipo_compra', 'tipo_pago']);
+        \App\Libraries\BloqueoVenta::finalizar((int) $id_pedido);
         $cart->destroy();
-    
+
         session()->setFlashdata('msg', 'Pedido actualizado con éxito!');
         return redirect()->to('pedidos');
     }
@@ -1350,7 +1374,7 @@ public function guarda_compra()
                     'monto_tarjetaC'      => $monto_tarjetaC
                 ]);           
                 
-                $session->remove(['id_cliente_pedido','nombre_cli_regis','nombre_cli','estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
+                \App\Libraries\BloqueoVenta::finalizar((int) $id_pedido);
             }
             
             $cart->destroy();

@@ -86,49 +86,8 @@ class Login_controller extends Controller
     public function logout()
     {
         $session = session();
-        //CANCELAMOS LA MODIFICACION DEL PEDIDO ANTES DE SALIR, SI ES NECESARIO.
-        $id_pedido = $session->get('id_pedido');
-        $tipo_compra = $session->get('tipo_compra');
-        $estado = $session->get('estado');
-        $tiene_saldo_anterior = $session->get('total_anterior'); 
-
-        if($estado == 'Modificando_SF'){                   
-        $Cabecera_model = new Cabecera_model();
-        if($tiene_saldo_anterior != 0 || $tiene_saldo_anterior != null){ 
-            $Cabecera_model->update($id_pedido, ['estado' => 'Modificada_SF']);
-        }else {
-            $Cabecera_model->update($id_pedido, ['estado' => 'Sin_Facturar']);
-            }
-        }
-
-        if($estado == 'Modificando' && $tipo_compra == 'Pedido'){
-        $cart = \Config\Services::cart();
-        $Cabecera_model = new Cabecera_model();
-             
-        // Después de guardar el pedido (cuando ya no se necesiten los datos de la sesión)
-        $session = session();
-        $session->remove(['id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
-        // Actualizar el estado del pedido a "Pendiente"
-        $Cabecera_model->update($id_pedido, ['estado' => 'Pendiente']);
-        $cart->destroy();        
-        }
-        
-        //Si el $id_pedido es un id de compra normal vuelve el estado a Pendiente.
-        if($estado == 'Modificando' && $tipo_compra == 'Compra_Normal'){
-            $cart = \Config\Services::cart();
-            $Cabecera_model = new Cabecera_model();
-           
-            $Cabecera_model->update($id_pedido, ['estado' => 'Pendiente']);           
-            $session->remove(['id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
-        }
-        
-        if($estado == 'Cobrando'){
-        $cart = \Config\Services::cart();
-        $cart->destroy();
-        $Cabecera_model = new Cabecera_model();
-        $Cabecera_model->update($id_pedido, ['estado' => 'Pendiente']);
-        $session->remove(['estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
-        }
+        //CANCELAMOS EL COBRO O LA MODIFICACION ABIERTA ANTES DE SALIR: la venta vuelve al estado que tenía.
+        \App\Libraries\BloqueoVenta::liberarDeSesion();
          $registro_sesion = new Sesion_model();
          $id_sesion = $session->get('id_sesion'); 
          //print_r();

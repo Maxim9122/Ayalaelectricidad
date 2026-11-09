@@ -87,10 +87,10 @@ class Caja_controller extends Controller{
     $vendedoresmodel = new Vendedores_model();
     $model_clientes = new Clientes_model();
     // Obtener los datos de la cabecera de la venta para obtener el id_cliente
+    // Bloquea la venta como "Cobrando" (libera la que esta sesión tuviera abierta)
+    $error_bloqueo = \App\Libraries\BloqueoVenta::tomar((int) $id_vta, ['Pendiente', 'Cta_Cte'], 'Cobrando');
     $cabecera = $cabecera_model->find($id_vta);
-    if($cabecera['estado'] == 'Pendiente' || $cabecera['estado'] == 'Cta_Cte'){
-    // Actualizar el estado del pedido a "Cobrando"
-    $cabecera_model->update($id_vta, ['estado' => 'Cobrando']);
+    if($error_bloqueo === null){
 
     $id_vendedor = $cabecera ? $cabecera['id_usuario'] : null;
     $vendedor = $vendedoresmodel->find($id_vendedor);
@@ -146,7 +146,7 @@ class Caja_controller extends Controller{
     return redirect()->to('casiListo');
     }
     
-    session()->setFlashdata('msg', 'Otro cajero esta con esta Venta!');
+    session()->setFlashdata('msgEr', $error_bloqueo);
     return redirect()->to('comprasCta_Cte');
     }
 
@@ -154,16 +154,8 @@ class Caja_controller extends Controller{
     public function CancelarCobro($id_pedido){
         $session = session();
         $tipo_compra = $session->get('tipo_compra');
-        $Cta_Cte = $session->get('tipo_pago');
-        $cart = \Config\Services::cart();
-        $cart->destroy();
-        $Cabecera_model = new Cabecera_model();
-        if ($Cta_Cte == 'Cta_Cte'){ 
-            $Cabecera_model->update($id_pedido, ['estado' => 'Cta_Cte']); 
-        }else{ 
-            $Cabecera_model->update($id_pedido, ['estado' => 'Pendiente']); 
-        }          
-        $session->remove(['nombre_cli_regis','estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'nombre_cli' , 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
+        // Vuelve a su estado anterior (Pendiente o Cta_Cte) y limpia sesión y carrito
+        \App\Libraries\BloqueoVenta::cancelar((int) $id_pedido);
         if($tipo_compra == 'Compra_Normal'){ 
             session()->setFlashdata('msg', 'Se Cancelo el cobro de la Venta!');
         return redirect()->to('comprasCta_Cte');
@@ -183,10 +175,13 @@ class Caja_controller extends Controller{
     $detalle_model = new VentaDetalle_model();
     $cabecera_model = new Cabecera_model(); // Asegúrate de tener este modelo
     $producto_model = new Productos_model();
+    $model_clientes = new Clientes_model();
 
+    // Bloquea la venta como "Modificando" (libera la que esta sesión tuviera abierta)
+    $error_bloqueo = \App\Libraries\BloqueoVenta::tomar((int) $id_pedido, ['Pendiente'], 'Modificando');
     // Obtener los datos de la cabecera de la venta para obtener el id_cliente
     $cabecera = $cabecera_model->find($id_pedido);
-    if($cabecera['estado'] == 'Pendiente'){
+    if($error_bloqueo === null){
     $id_vendedor = $cabecera ? $cabecera['id_usuario'] : null;
     $vendedor = $US_model->find($id_vendedor);
     $nombre_vendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
@@ -224,12 +219,10 @@ class Caja_controller extends Controller{
 
 
     if (!$detalles) {
+        \App\Libraries\BloqueoVenta::liberarDeSesion();
         session()->setFlashdata('error', 'No se encontraron productos en el pedido.');
-        return redirect()->to($this->request->getHeader('referer')->getValue());
+        return redirect()->to($this->request->getHeaderLine('referer') ?: base_url('caja'));
     }
-
-    // Actualizar el estado de la Venta a "Modificando"
-    $cabecera_model->update($id_pedido, ['estado' => 'Modificando']);
 
     foreach ($detalles as $detalle) {
         $producto = $producto_model->find($detalle['producto_id']);
@@ -240,7 +233,7 @@ class Caja_controller extends Controller{
                 'price' => $detalle['precio'],
                 'name'  => $producto['nombre'],
                 'options' => array(
-                    'stock' => $producto['stock'],                   
+                    'stock' => $producto['stock'],
                 )
             ]);
         }
@@ -248,24 +241,15 @@ class Caja_controller extends Controller{
     // Redirigir a la vista de edición del pedido
     return redirect()->to('CarritoList');
     }
-    
-    session()->setFlashdata('msg', 'Esta Venta ya esta siendo Modificada por otro Cajero!');
+
+    session()->setFlashdata('msgEr', $error_bloqueo);
     return redirect()->to('caja');
     }
 
 //Cancelar la modificacion de la Venta
 public function cancelar_edicion_Venta($id_pedido){
-    //print_r($id_pedido);
-    //exit;
-    $cart = \Config\Services::cart();
-    $Cabecera_model = new Cabecera_model();
-      
-    // Después de guardar el pedido (cuando ya no se necesiten los datos de la sesión)
-    $session = session();
-    $session->remove(['nombre_cli_regis','nombre_cli','estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
-    // Actualizar el estado del pedido a "Pendiente"
-    $Cabecera_model->update($id_pedido, ['estado' => 'Pendiente']);
-    $cart->destroy();
+    // Vuelve a Pendiente y limpia sesión y carrito
+    \App\Libraries\BloqueoVenta::cancelar((int) $id_pedido);
     return redirect()->to(base_url('caja'));
 }
 
@@ -363,7 +347,9 @@ public function cargar_Venta_Sin_Facturar($id_pedido)
         return redirect()->to($this->request->getHeaderLine('referer') ?: base_url('compras'));
     }
 
-    if($cabecera['estado'] == 'Sin_Facturar' || $cabecera['estado'] == 'Modificada_SF'){
+    // Bloquea la venta como "Modificando_SF" (libera la que esta sesión tuviera abierta)
+    $error_bloqueo = \App\Libraries\BloqueoVenta::tomar((int) $id_pedido, ['Sin_Facturar', 'Modificada_SF'], 'Modificando_SF');
+    if($error_bloqueo === null){
     $id_vendedor = $cabecera ? $cabecera['id_usuario'] : null;
     $vendedor = $US_model->find($id_vendedor);
     $nombre_vendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
@@ -404,13 +390,10 @@ public function cargar_Venta_Sin_Facturar($id_pedido)
 
 
     if (!$detalles) {
+        \App\Libraries\BloqueoVenta::liberarDeSesion();
         session()->setFlashdata('error', 'No se encontraron productos en el pedido.');
-        return redirect()->to($this->request->getHeader('referer')->getValue());
+        return redirect()->to($this->request->getHeaderLine('referer') ?: base_url('compras'));
     }
-
-
-    // Actualizar el estado de la Venta a "Modificando"
-    $cabecera_model->update($id_pedido, ['estado' => 'Modificando_SF']);
 
     foreach ($detalles as $detalle) {
         $producto = $producto_model->find($detalle['producto_id']);
@@ -430,30 +413,14 @@ public function cargar_Venta_Sin_Facturar($id_pedido)
     return redirect()->to('CarritoList');
     }
     
-    session()->setFlashdata('msg', 'Esta Venta ya esta siendo Modificada por otro Cajero!');
+    session()->setFlashdata('msgEr', $error_bloqueo);
     return redirect()->to('compras');
     }
 
     //Cancelar la modificacion de la Venta Sin Facturar
 public function cancelar_edicion_Venta_SF($id_pedido){
-    
-    $cart = \Config\Services::cart();
-    $Cabecera_model = new Cabecera_model();    
-    $session = session();
-    $tiene_saldo_anterior = $session->get('total_anterior');
-    //print_r($estado);
-    //exit;   
-    
-    if($tiene_saldo_anterior != 0 || $tiene_saldo_anterior != null){ 
-        $Cabecera_model->update($id_pedido, ['estado' => 'Modificada_SF']);
-    }else {
-        $Cabecera_model->update($id_pedido, ['estado' => 'Sin_Facturar']);
-        }       
-    // Después de guardar el pedido (cuando ya no se necesiten los datos de la sesión)
-    $session->remove(['pago_efec','pago_transfer','pago_tarjeta','estado','id_vendedor', 'nombre_vendedor', 'id_cliente', 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta','total_bonificado','total_anterior']);
-
-    
-    $cart->destroy();
+    // Vuelve a Sin_Facturar o Modificada_SF (el estado que tenía) y limpia sesión y carrito
+    \App\Libraries\BloqueoVenta::cancelar((int) $id_pedido);
     return redirect()->to(base_url('compras'));
 }
 

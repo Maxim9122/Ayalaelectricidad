@@ -27,8 +27,10 @@ public function cargar_cta_cte_en_carrito($id_pedido)
     $producto_model = new Productos_model();
     $model_clientes = new Clientes_model();
     // Obtener los datos de la cabecera de la venta para obtener el id_cliente
+    // Bloquea la cuenta corriente como "Modificando" (libera la venta que esta sesión tuviera abierta)
+    $error_bloqueo = \App\Libraries\BloqueoVenta::tomar((int) $id_pedido, ['Cta_Cte'], 'Modificando');
     $cabecera = $cabecera_model->find($id_pedido);
-    if($cabecera['estado'] == 'Cta_Cte'){
+    if($error_bloqueo === null){
     $id_vendedor = $cabecera ? $cabecera['id_usuario'] : null;
     $vendedor = $US_model->find($id_vendedor);
     $nombre_vendedor = $vendedor ? $vendedor['nombre'] : 'No encontrado';
@@ -68,12 +70,10 @@ public function cargar_cta_cte_en_carrito($id_pedido)
 
 
     if (!$detalles) {
+        \App\Libraries\BloqueoVenta::liberarDeSesion();
         session()->setFlashdata('error', 'No se encontraron productos en el pedido.');
-        return redirect()->to($this->request->getHeader('referer')->getValue());
+        return redirect()->to($this->request->getHeaderLine('referer') ?: base_url('comprasCta_Cte'));
     }
-
-    // Actualizar el estado del pedido a "Modificando"
-    $cabecera_model->update($id_pedido, ['estado' => 'Modificando']);
 
     foreach ($detalles as $detalle) {
         $producto = $producto_model->find($detalle['producto_id']);
@@ -93,7 +93,7 @@ public function cargar_cta_cte_en_carrito($id_pedido)
     return redirect()->to('catalogo');
     }
     
-    session()->setFlashdata('msg', 'Esta Cta Corriente ya esta siendo Modificada por otro usuario!');
+    session()->setFlashdata('msgEr', $error_bloqueo);
     return redirect()->to('comprasCta_Cte');
 }
 
@@ -102,15 +102,8 @@ public function cargar_cta_cte_en_carrito($id_pedido)
 public function cancelar_edicion($id_pedido){
         //print_r($id_pedido);
         //exit;
-        $cart = \Config\Services::cart();
-        $Cabecera_model = new Cabecera_model();
-            
-        // Después de guardar el pedido (cuando ya no se necesiten los datos de la sesión)
-        $session = session();
-        $session->remove(['nombre_cli_regis','nombre_cli','estado','id_vendedor', 'nombre_vendedor', 'id_cliente_pedido' , 'id_pedido', 'fecha_pedido','tipo_compra','tipo_pago','total_venta']);
-        // Actualizar el estado del pedido a "Pendiente"
-        $Cabecera_model->update($id_pedido, ['estado' => 'Cta_Cte']);
-        $cart->destroy();
+        // Vuelve a Cta_Cte y limpia sesión y carrito
+        \App\Libraries\BloqueoVenta::cancelar((int) $id_pedido);
         return redirect()->to(base_url('comprasCta_Cte'));
     }
 
