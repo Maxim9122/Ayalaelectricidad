@@ -1456,6 +1456,10 @@ private function emitirComprobanteVenta(int $id_venta, string $comprobante, ?str
 
 public function impCta_Cte($id_cabecera)
 {
+    // Los comprobantes tienen datos de clientes: solo con sesión iniciada.
+    if (!session()->has('id')) {
+        return redirect()->to(base_url('login'));
+    }
     // Cargar los modelos necesarios
     $ventaModel = new \App\Models\Cabecera_model();
     $detalleModel = new \App\Models\VentaDetalle_model();
@@ -1682,6 +1686,10 @@ public function impCta_Cte($id_cabecera)
 //Genera ticket venta normal
 public function generarPresupuesto($id_cabecera)
 {
+    // Los comprobantes tienen datos de clientes: solo con sesión iniciada.
+    if (!session()->has('id')) {
+        return redirect()->to(base_url('login'));
+    }
     // Cargar los modelos necesarios
     $ventaModel = new \App\Models\Cabecera_model();
     $detalleModel = new \App\Models\VentaDetalle_model();
@@ -1908,6 +1916,10 @@ public function generarPresupuesto($id_cabecera)
 //Genera presupesto para DESCARGAR sin imprimir
 public function DescargarPresupuesto($id_cabecera)
 {
+    // Los comprobantes tienen datos de clientes: solo con sesión iniciada.
+    if (!session()->has('id')) {
+        return redirect()->to(base_url('login'));
+    }
     // Cargar los modelos necesarios
     $vendedoresModel = new \App\Models\Vendedores_model();
     $ventaModel = new \App\Models\Cabecera_model();
@@ -2136,6 +2148,10 @@ public function DescargarPresupuesto($id_cabecera)
 //Genera ticket venta normal
 public function generarTicket($id_cabecera)
 {
+    // Los comprobantes tienen datos de clientes: solo con sesión iniciada.
+    if (!session()->has('id')) {
+        return redirect()->to(base_url('login'));
+    }
     // Cargar los modelos necesarios
     $vendedoresModel = new \App\Models\Vendedores_model();
     $ventaModel = new \App\Models\Cabecera_model();
@@ -2400,6 +2416,10 @@ public function generarTicket($id_cabecera)
 //Esta funcion descarga la boleta sin imprimirla
 public function DescargarBole($id_cabecera)
 {
+    // Los comprobantes tienen datos de clientes: solo con sesión iniciada.
+    if (!session()->has('id')) {
+        return redirect()->to(base_url('login'));
+    }
     // Cargar los modelos necesarios
     $vendedoresModel = new \App\Models\Vendedores_model();
     $ventaModel = new \App\Models\Cabecera_model();
@@ -2727,6 +2747,10 @@ public function archivoComprobante($nombre = null)
 
 public function descargar_ticket()
 {
+    // Los comprobantes tienen datos de clientes: solo con sesión iniciada.
+    if (!session()->has('id')) {
+        return redirect()->to(base_url('login'));
+    }
     $tempFolder = 'path/to/temp/folder';
     $nombreArchivo = session()->get('nombre_archivo_presupuesto');
     $filePath = $tempFolder . '/' . $nombreArchivo;
